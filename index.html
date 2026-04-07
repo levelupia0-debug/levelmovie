@@ -1,1097 +1,1525 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LevelUp — L'Écosystème Premium</title>
-
-<!-- Icône du navigateur -->
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'><path fill='%23a855f7' d='M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z'/></svg>" type="image/svg+xml">
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
-<!-- EmailJS -->
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-
-<style>
-:root {
-  --bg-base: #030303;
-  --bg-surface: #0a0a0a;
-  --bg-surface-elevated: #121212;
-  --border-light: rgba(255, 255, 255, 0.06);
-  --border-strong: rgba(255, 255, 255, 0.12);
-  --text-main: #ffffff;
-  --text-muted: #a1a1aa;
-  --text-dim: #71717a;
-  --purple-main: #a855f7;
-  --purple-glow: rgba(168, 85, 247, 0.15);
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-display: 'Syne', sans-serif;
-  --font-mono: 'Plus Jakarta Sans', monospace;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; background-color: var(--bg-base); }
-body {
-  font-family: var(--font-sans);
-  background-color: var(--bg-base);
-  color: var(--text-main);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-}
-
-/* Background Elements */
-.glow-bg { position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--purple-glow) 0%, transparent 70%); top: -200px; left: 50%; transform: translateX(-50%); z-index: -1; pointer-events: none; filter: blur(60px); }
-
-/* Typography & Utils */
-h1, h2, h3, h4 { letter-spacing: -0.03em; font-weight: 700; line-height: 1.1; font-family: var(--font-display); }
-p { color: var(--text-muted); font-size: 1.05rem; }
-.text-purple { color: var(--purple-main); }
-.badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 100px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-light); font-size: 0.8rem; font-weight: 500; color: var(--text-muted); }
-
-/* Buttons */
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; text-decoration: none; transition: all 0.2s ease; cursor: pointer; border: 1px solid transparent; }
-.btn-primary { background: var(--text-main); color: var(--bg-base); box-shadow: 0 4px 14px rgba(255,255,255,0.1); }
-.btn-primary:hover { background: #e4e4e7; transform: translateY(-1px); }
-.btn-secondary { background: rgba(255,255,255,0.03); color: var(--text-main); border-color: var(--border-light); backdrop-filter: blur(10px); }
-.btn-secondary:hover { background: rgba(255,255,255,0.08); border-color: var(--border-strong); }
-
-.level-star { fill: url(#purple-grad); filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.6)); animation: starPulse 6s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
-@keyframes starPulse { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 8px rgba(168,85,247,0.5)); } 50% { transform: scale(1.05); filter: drop-shadow(0 0 16px rgba(168,85,247,0.8)); } }
-
-/* Nav */
-nav { position: fixed; top: 0; width: 100%; z-index: 1000; display: flex; align-items: center; justify-content: space-between; padding: 16px 5%; background: rgba(3,3,3,0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-light); transition: all 0.3s ease; }
-.nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.4rem; color: var(--text-main); text-decoration: none; letter-spacing: -0.04em; font-family: var(--font-display); }
-.nav-brand svg { width: 24px; height: 24px; }
-.nav-links { display: flex; gap: 28px; }
-.nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
-.nav-links a:hover { color: var(--text-main); }
-.nav-actions { display: flex; gap: 12px; }
-
-/* Section Base */
-.container { max-width: 1200px; margin: 0 auto; padding: 0 5%; }
-.section { padding: 140px 0; }
-.section-header { text-align: center; max-width: 700px; margin: 0 auto 80px; }
-.section-header h2 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 16px; }
-
-/* Hero */
-.hero { padding: 180px 0 100px; text-align: center; position: relative; }
-.hero h1 { font-size: clamp(3rem, 7vw, 5.5rem); margin: 24px 0; background: linear-gradient(180deg, #fff 0%, #a1a1aa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.hero p { font-size: 1.25rem; max-width: 650px; margin: 0 auto 40px; }
-.hero-cta { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
-
-/* Marquee */
-.marquee-container { padding: 40px 0; border-top: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light); overflow: hidden; white-space: nowrap; position: relative; background: rgba(255,255,255,0.01); }
-.marquee-container::before, .marquee-container::after { content: ''; position: absolute; top: 0; width: 150px; height: 100%; z-index: 2; }
-.marquee-container::before { left: 0; background: linear-gradient(to right, var(--bg-base), transparent); }
-.marquee-container::after { right: 0; background: linear-gradient(to left, var(--bg-base), transparent); }
-.marquee-content { display: inline-flex; gap: 60px; animation: scroll 30s linear infinite; }
-.marquee-item { display: flex; align-items: center; gap: 12px; font-weight: 600; color: var(--text-muted); font-size: 1.1rem; }
-.marquee-item i { color: var(--text-dim); }
-@keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-
-/* Grid Features */
-.bento-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-.bento-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
-.bento-card { background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: 24px; padding: 40px; display: flex; flex-direction: column; transition: all 0.3s ease; position: relative; overflow: hidden; }
-.bento-card:hover { border-color: var(--border-strong); background: var(--bg-surface-elevated); }
-.bento-card.large { grid-column: span 2; }
-.bento-icon { width: 48px; height: 48px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-light); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; }
-.bento-card h3 { font-size: 1.3rem; margin-bottom: 12px; font-family: var(--font-display); }
-
-/* Modes Hierarchy */
-.modes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
-.mode-group { background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: 24px; padding: 40px; }
-.mode-group-header { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border-light); }
-.mode-group-icon { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-.mode-group-title h3 { font-size: 1.5rem; margin-bottom: 4px; font-family: var(--font-display); }
-.mode-item { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 24px; }
-.mode-item:last-child { margin-bottom: 0; }
-.mode-item i { margin-top: 4px; color: var(--text-muted); width: 20px; text-align: center; }
-.mode-item-content h4 { font-size: 1.05rem; margin-bottom: 4px; color: #fff; font-family: var(--font-sans); }
-.mode-item-content p { font-size: 0.9rem; margin: 0; }
-
-/* AI DNA Generator (Live Demo) */
-.dna-wrapper { display: flex; justify-content: center; margin-top: 40px; }
-.dna-card { background: var(--bg-surface); border: 1px solid var(--purple-main); border-radius: 24px; padding: 40px; width: 100%; max-width: 600px; text-align: center; box-shadow: 0 20px 40px rgba(168,85,247,0.15); position: relative; overflow: hidden; }
-.dna-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, transparent, var(--purple-main), transparent); }
-.dna-input { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--border-strong); padding: 16px; border-radius: 12px; color: #fff; font-size: 1rem; margin-bottom: 20px; outline: none; transition: border-color 0.2s; font-family: var(--font-sans); }
-.dna-input:focus { border-color: var(--purple-main); }
-.dna-btn { width: 100%; padding: 16px; font-size: 1rem; cursor: pointer; }
-.dna-result { margin-top: 24px; padding: 20px; background: rgba(168,85,247,0.1); border-radius: 12px; border: 1px solid rgba(168,85,247,0.2); color: #e4e4e7; font-size: 0.95rem; line-height: 1.6; text-align: left; }
-
-/* Bot Widget */
-.bot-widget-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: var(--purple-main); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; box-shadow: 0 10px 30px rgba(168, 85, 247, 0.4); z-index: 9999; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; outline: none; }
-.bot-widget-btn:hover { transform: scale(1.1); }
-.bot-widget-btn .fa-times { display: none; }
-.bot-widget-btn.open .fa-comment-dots { display: none; }
-.bot-widget-btn.open .fa-times { display: block; }
-
-.bot-window { position: fixed; bottom: 110px; right: 30px; width: 380px; height: 600px; max-height: calc(100vh - 140px); background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.8); z-index: 9998; display: flex; flex-direction: column; overflow: hidden; opacity: 0; pointer-events: none; transform: translateY(20px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-.bot-window.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
-.bot-header { padding: 16px 20px; border-bottom: 1px solid var(--border-light); background: rgba(255,255,255,0.02); display: flex; align-items: center; gap: 12px; }
-.bot-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--purple-glow); display: flex; align-items: center; justify-content: center; color: var(--purple-main); border: 1px solid rgba(168,85,247,0.3); }
-.bot-info h5 { margin: 0; font-size: 0.9rem; color: #fff; font-family: var(--font-sans); }
-.bot-info span { font-size: 0.7rem; color: #4ade80; display: flex; align-items: center; gap: 4px; }
-.bot-info span::before { content: ''; width: 6px; height: 6px; background: #4ade80; border-radius: 50%; box-shadow: 0 0 6px #4ade80; }
-.bot-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; scrollbar-width: none; }
-.bot-messages::-webkit-scrollbar { display: none; }
-.bot-bubble { max-width: 85%; padding: 12px 16px; border-radius: 16px; font-size: 0.85rem; line-height: 1.5; word-wrap: break-word; }
-.bot-bubble.ai { background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.2); color: #e4e4e7; align-self: flex-start; border-top-left-radius: 4px; }
-.bot-bubble.user { background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); color: #fff; align-self: flex-end; border-top-right-radius: 4px; }
-.bot-footer { padding: 16px 20px; border-top: 1px solid var(--border-light); background: var(--bg-surface); }
-.bot-input-area { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-light); padding: 8px 8px 8px 16px; border-radius: 100px; }
-.bot-input { flex: 1; background: transparent; border: none; color: #fff; font-family: var(--font-sans); font-size: 16px; outline: none; }
-.bot-send { width: 32px; height: 32px; border-radius: 50%; background: #fff; color: #000; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s; }
-.bot-typing { display: flex; gap: 4px; align-items: center; height: 20px; }
-.bot-typing span { width: 6px; height: 6px; background: var(--purple-main); border-radius: 50%; animation: typing 1.4s infinite; opacity: 0.3; }
-.bot-typing span:nth-child(2) { animation-delay: 0.2s; }
-.bot-typing span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes typing { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
-
-/* --- NOVEAUX STYLES POUR LE MODAL DE CLÉ --- */
-.modal-overlay {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-  z-index: 10000; display: flex; align-items: center; justify-content: center;
-  opacity: 0; pointer-events: none; transition: all 0.3s ease; padding: 20px;
-}
-.modal-overlay.active { opacity: 1; pointer-events: auto; }
-.modal-box {
-  background: radial-gradient(circle at 50% 0%, #150926 0%, #050505 100%);
-  border: 1px solid var(--border-light); border-radius: 24px;
-  width: 100%; max-width: 420px; position: relative; overflow: hidden;
-  transform: translateY(20px) scale(0.95); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05);
-}
-.modal-overlay.active .modal-box { transform: translateY(0) scale(1); }
-.modal-close {
-  position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.05);
-  border: 1px solid var(--border-light); width: 32px; height: 32px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; color: var(--text-muted);
-  cursor: pointer; transition: all 0.2s; z-index: 10;
-}
-.modal-close:hover { background: rgba(255,255,255,0.1); color: #fff; }
-
-.modal-content { padding: 40px 30px; text-align: center; }
-.modal-header { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 30px; }
-.modal-header i { font-size: 2rem; color: var(--purple-main); }
-.modal-header h3 { font-size: 1.5rem; margin: 0; }
-.modal-header p { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: var(--text-dim); margin: 0; }
-
-.btn-auth-google {
-  width: 100%; background: rgba(255, 255, 255, 0.05); color: #fff; border: 1px solid var(--border-light); padding: 16px; border-radius: 16px;
-  font-family: var(--font-sans); font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 12px;
-  cursor: pointer; transition: all 0.2s ease; backdrop-filter: blur(10px);
-}
-.btn-auth-google:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--border-strong); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-.btn-auth-google svg { width: 22px; height: 22px; }
-
-.btn-modal-primary {
-  width: 100%; background: linear-gradient(135deg, var(--purple-main) 0%, #7e22ce 100%);
-  color: #fff; border: none; padding: 16px; border-radius: 16px; font-weight: 800;
-  font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer;
-  transition: transform 0.2s; box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.4);
-}
-.btn-modal-primary:hover { transform: translateY(-2px); }
-.btn-modal-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
-
-.key-display-box {
-  background: rgba(0,0,0,0.4); border: 1px solid rgba(168,85,247,0.3); padding: 20px;
-  border-radius: 16px; margin: 20px 0; position: relative; overflow: hidden;
-}
-.key-text { font-family: var(--font-mono); font-size: 1.3rem; font-weight: 800; color: #d8b4fe; letter-spacing: 0.1em; }
-.blur-secure { filter: blur(12px); user-select: none; opacity: 0.3; }
-.blur-overlay-active {
-  position: absolute; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
-  display: flex; align-items: center; justify-content: center; color: var(--text-muted);
-  font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;
-}
-
-.cooldown-box {
-  background: rgba(0,0,0,0.6); border: 1px solid rgba(168,85,247,0.2); padding: 20px;
-  border-radius: 16px; display: inline-block; margin: 16px auto 0; box-shadow: 0 0 20px rgba(168,85,247,0.1);
-}
-.cooldown-timer { font-family: var(--font-mono); font-size: 1.8rem; font-weight: 900; color: #fff; letter-spacing: 0.1em; text-shadow: 0 0 10px rgba(168,85,247,0.5); }
-
-.user-modal-bar {
-  display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03);
-  padding: 12px 16px; border-radius: 12px; margin-bottom: 24px; border: 1px solid var(--border-light);
-}
-.user-modal-info { display: flex; align-items: center; gap: 12px; text-align: left; }
-.user-modal-info img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(168,85,247,0.5); }
-.user-modal-name { font-size: 0.8rem; font-weight: 700; color: #fff; }
-.user-modal-status { font-size: 0.6rem; color: #4ade80; text-transform: uppercase; font-weight: 800; letter-spacing: 0.1em; }
-.btn-logout { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; transition: color 0.2s; }
-.btn-logout:hover { color: #ef4444; }
-
-.toast-notification {
-  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
-  background: #fff; color: #000; padding: 12px 24px; border-radius: 100px;
-  font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em;
-  opacity: 0; transition: all 0.3s ease; z-index: 10001; pointer-events: none;
-}
-.toast-notification.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-.hidden { display: none !important; }
-.reveal { opacity: 0; transform: translateY(20px); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
-.reveal.visible { opacity: 1; transform: translateY(0); }
-
-/* Footer */
-footer { border-top: 1px solid var(--border-light); padding: 80px 0 40px; margin-top: 80px; }
-.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 60px; margin-bottom: 60px; }
-.footer-brand p { font-size: 0.9rem; max-width: 300px; margin-top: 16px; }
-.footer-links h5 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-main); margin-bottom: 20px; }
-.footer-links a { display: block; color: var(--text-muted); text-decoration: none; font-size: 0.95rem; margin-bottom: 12px; transition: color 0.2s; }
-.footer-links a:hover { color: var(--text-main); }
-.footer-bottom { border-top: 1px solid var(--border-light); padding-top: 32px; display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-dim); }
-
-@media (max-width: 900px) {
-  .nav-links { display: none; }
-  .bento-grid, .bento-grid-2 { grid-template-columns: 1fr; }
-  .bento-card.large { grid-column: span 1; }
-  .modes-grid { grid-template-columns: 1fr; }
-  .footer-grid { grid-template-columns: 1fr; gap: 40px; }
-}
-
-@media (max-width: 768px) {
-  .bot-window { width: calc(100vw - 40px); right: 20px; bottom: 90px; height: 480px; }
-  .bot-widget-btn { right: 20px; bottom: 20px; }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LevelMovie - L'Écosystème Premium</title>
+    
+    <!-- Tailwind CSS pour le style -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Import Maps : Permet au navigateur de comprendre les "import" de React, Lucide et Firebase -->
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.2.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "lucide-react": "https://esm.sh/lucide-react@0.292.0",
+        "firebase/app": "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js"
+      }
+    }
+    </script>
+    
+    <!-- Babel : Traduit le JSX en Javascript lisible par le navigateur -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body>
+<body class="bg-[#060608] text-white">
+    <!-- C'est ici que l'application React va s'injecter -->
+    <div id="root"></div>
 
-<svg style="width:0;height:0;position:absolute;" aria-hidden="true" focusable="false">
-  <linearGradient id="purple-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-    <stop offset="0%" stop-color="#d8b4fe"/>
-    <stop offset="100%" stop-color="#a855f7"/>
-  </linearGradient>
-  <linearGradient id="blue-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-    <stop offset="0%" stop-color="#93c5fd"/>
-    <stop offset="100%" stop-color="#3b82f6"/>
-  </linearGradient>
-  <linearGradient id="yellow-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-    <stop offset="0%" stop-color="#fde047"/>
-    <stop offset="100%" stop-color="#eab308"/>
-  </linearGradient>
-  <linearGradient id="pink-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-    <stop offset="0%" stop-color="#fbcfe8"/>
-    <stop offset="100%" stop-color="#ec4899"/>
-  </linearGradient>
-  <linearGradient id="orange-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-    <stop offset="0%" stop-color="#fed7aa"/>
-    <stop offset="100%" stop-color="#f97316"/>
-  </linearGradient>
-  <linearGradient id="green-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-    <stop offset="0%" stop-color="#86efac"/>
-    <stop offset="100%" stop-color="#22c55e"/>
-  </linearGradient>
-</svg>
+    <!-- Script de l'Application -->
+    <script type="text/babel" data-type="module">
+        import React, { useState, useEffect, useRef, useCallback } from 'react';
+        import { createRoot } from 'react-dom/client';
+        import { 
+          Play, Info, Search, Bell, X, ChevronLeft, ChevronRight, 
+          Star, Key, LogOut, Film, Globe, Shield, Network,
+          AlertTriangle, CheckCircle, Server, Users, Tags, Building, 
+          MessageSquare, Check, Plus, Share2, Youtube, Library, Bookmark, HardDrive, Filter,
+          Home, Tv, Clapperboard
+        } from 'lucide-react';
+        import { initializeApp } from 'firebase/app';
+        import { getAuth, signInAnonymously } from 'firebase/auth';
+        import { getFirestore, collectionGroup, getDocs, doc, setDoc, deleteDoc, collection } from 'firebase/firestore';
 
-<div class="glow-bg"></div>
+        // --- NOUVEAU LOGO LEVEL MOVIE PRO (Symbole "L" + Play Minimaliste) ---
+        const LevelMovieLogo = ({ className = "w-6 h-6", color = "currentColor" }) => (
+          <svg viewBox="0 0 24 24" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 4V17C5 19.2091 6.79086 21 9 21H20" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M10 8.35824C10 7.42436 11.0185 6.8488 11.8153 7.33235L17.5855 10.8242C18.3571 11.2915 18.3571 12.4137 17.5855 12.881L11.8153 16.3728C11.0185 16.8564 10 16.2808 10 15.347V8.35824Z" fill={color}/>
+          </svg>
+        );
 
-<!-- NAVIGATION -->
-<nav id="navbar">
-  <a href="#" class="nav-brand">
-    <svg class="level-star" viewBox="0 0 576 512" style="width:24px; height:24px; animation:none;"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg>
-    LEVELUP
-  </a>
-  <div class="nav-links">
-    <a href="#applications">Applications</a>
-    <a href="#architecture">Architecture</a>
-    <a href="#modes">Personnalités IA</a>
-    <a href="#demo-dna">Démo Live ✨</a>
-    <a href="#securite">Sécurité</a>
-  </div>
-  <div class="nav-actions">
-    <!-- Ouvre la Modale -->
-    <a href="#" class="btn btn-primary btn-get-key" style="padding: 10px 18px; font-size: 0.85rem;"><i class="fas fa-key"></i> Obtenir la Clé</a>
-  </div>
-</nav>
+        // --- CONFIGURATION FIREBASE (Écosystème LevelUp) ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyA3JgvNu5p-43037jvm4WRDaJHI9ES7uGM",
+          authDomain: "levelup-ia.firebaseapp.com",
+          projectId: "levelup-ia",
+          storageBucket: "levelup-ia.firebasestorage.app",
+          messagingSenderId: "229420004282",
+          appId: "1:229420004282:web:6735f059a947f0936ae383",
+          measurementId: "G-MSRDY2574K"
+        };
 
-<!-- HERO SECTION -->
-<header class="hero container reveal">
-  <div class="badge mb-6"><i class="fas fa-shield-check text-purple"></i> Écosystème 100% Gratuit & Privé</div>
-  <h1>L'Intelligence Artificielle.<br>Adaptée à votre ADN.</h1>
-  <p>Une infrastructure complète et une suite d'applications propulsées par Gemini 2.5 Flash. Sécurisé par une clé d'accès unique.</p>
-  <div class="hero-cta">
-    <!-- Ouvre la Modale -->
-    <a href="#" class="btn btn-primary btn-get-key" style="font-size: 1.1rem; padding: 16px 32px;"><i class="fas fa-key"></i> Obtenir ma clé d'accès</a>
-    <a href="#applications" class="btn btn-secondary">Découvrir les applications</a>
-  </div>
-</header>
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-<!-- MARQUEE -->
-<div class="marquee-container">
-  <div class="marquee-content">
-    <div class="marquee-item"><i class="fas fa-bolt"></i> Moteur Gemini 2.5 Flash</div>
-    <div class="marquee-item"><i class="fas fa-gift"></i> Totalement Gratuit</div>
-    <div class="marquee-item"><i class="fas fa-cloud"></i> Stockage Hybride Cloud/Local</div>
-    <div class="marquee-item"><i class="fas fa-lock"></i> Sécurité par Clé Unique</div>
-    <div class="marquee-item"><i class="fas fa-bolt"></i> Moteur Gemini 2.5 Flash</div>
-    <div class="marquee-item"><i class="fas fa-gift"></i> Totalement Gratuit</div>
-    <div class="marquee-item"><i class="fas fa-cloud"></i> Stockage Hybride Cloud/Local</div>
-    <div class="marquee-item"><i class="fas fa-lock"></i> Sécurité par Clé Unique</div>
-  </div>
-</div>
+        // --- CONFIGURATION TMDB ---
+        const API_KEY = '027cc951d888c64e5f15dcb853c7347a';
+        const BASE_URL = 'https://api.themoviedb.org/3';
+        const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
+        const IMAGE_ORIGINAL = 'https://image.tmdb.org/t/p/original';
 
-<!-- APPLICATIONS (NOUVELLE SECTION) -->
-<section class="section container" id="applications">
-  <div class="section-header reveal">
-    <h2 class="text-purple">L'Écosystème.</h2>
-    <p>Une seule clé pour les gouverner toutes. Récupérez votre accès unique et déverrouillez l'intégralité de nos applications actuelles et futures.</p>
-  </div>
-  <div class="bento-grid">
-    <!-- App 1: LevelUp IA -->
-    <div class="bento-card reveal" style="border-color: var(--purple-main); background: linear-gradient(180deg, rgba(168,85,247,0.05) 0%, transparent 100%);">
-      <div class="bento-icon" style="background: rgba(168,85,247,0.1); border-color: rgba(168,85,247,0.3); color: var(--purple-main);">
-        <i class="fas fa-brain text-2xl"></i>
-      </div>
-      <h3>LevelUp IA</h3>
-      <p style="margin-bottom: 20px;">L'assistant IA premium avec mémoire persistante, personnalités multiples et analyse web en direct.</p>
-      <a href="#" class="btn btn-primary btn-get-key" style="margin-top: auto; align-self: flex-start; font-size: 0.85rem;"><i class="fas fa-key"></i> Obtenir la Clé</a>
-    </div>
-    
-    <!-- App 2: Placeholder -->
-    <div class="bento-card reveal" style="opacity: 0.6; border-style: dashed;">
-      <div class="bento-icon"><i class="fas fa-lock text-xl"></i></div>
-      <h3>Application #2</h3>
-      <p>Bientôt disponible. Le lien sera ajouté ici très prochainement par l'équipe.</p>
-    </div>
+        // --- DICTIONNAIRE DE TRADUCTION COMPLET ---
+        const i18n = {
+          fr: {
+            appTitle: "LevelMovie",
+            enterKey: "Clé d'Accès requise",
+            verifyKey: "Déverrouiller",
+            verifyLoading: "Vérification...",
+            forgotKey: "Obtenir une clé",
+            home: "Accueil",
+            series: "Séries",
+            movies: "Films",
+            myList: "Ma liste",
+            trending: "Tendances Mondiales",
+            freeVOD: "Films Gratuits",
+            topRated: "Chefs-d'œuvre",
+            action: "Action & Adrénaline",
+            comedy: "Comédies",
+            horror: "Frissons & Terreur",
+            scifi: "Science-Fiction",
+            animation: "Animation & Anime",
+            docs: "Documentaires",
+            war: "Guerre & Épique",
+            history: "Histoire",
+            mystery: "Mystère & Thriller",
+            crime: "Crime & Enquête",
+            music: "Musique & Concerts",
+            kdrama: "K-Dramas & Séries Asiatiques",
+            fantasy: "Fantastique",
+            family: "En Famille",
+            romance: "Romance & Passion",
+            western: "Western",
+            upcoming: "À Venir (Sorties)",
+            nowPlaying: "En Salle Actuellement",
+            play: "Lecture", 
+            details: "Plus d'infos",
+            playMovie: "Regarder le Film",
+            trailer: "Bande-annonce",
+            notFound: "Contenu Indisponible",
+            notFoundDesc: "Le lecteur sécurisé n'a pas pu trouver de vidéo officielle pour ce titre.",
+            match: "Recommandé",
+            cast: "Casting Principal",
+            similar: "Titres Similaires",
+            legalWatch: "Disponible sur :",
+            noLegal: "Aucune offre de streaming légal recensée dans votre région.",
+            closePlayer: "Fermer le lecteur",
+            warningTitle: "Avertissement Sécurité & Publicités",
+            warningText: "Les films complets sont diffusés via des API tierces. <b>LevelUp n'héberge aucun contenu</b>. Des pop-ups et des publicités indépendantes peuvent apparaître sur ces lecteurs.",
+            warningCheckbox: "J'accepte de visionner le contenu depuis ces serveurs.",
+            warningBtn: "Lancer le film",
+            noDesc: "Aucune description disponible.",
+            addedList: "Ajouté aux favoris !",
+            removedList: "Retiré de la liste",
+            publicDomain: "Classiques du Cinéma",
+            searchPlaceholder: "Rechercher...",
+            defaultUser: "Utilisateur",
+            premiumActive: "Compte Premium Actif",
+            ecosystem: "Écosystème LevelIA",
+            settingsTitle: "Préférences du Contenu",
+            contentOrigin: "Origine des Films",
+            worldAll: "Monde (Tous)",
+            usEnglish: "US / Anglais (VO)",
+            frenchVF: "Français (VF)",
+            interfaceLang: "Langue Interface",
+            favoriteMovies: "Films Favoris",
+            systemVideo: "Système & Vidéo",
+            videoQuality: "Qualité Vidéo",
+            auto4k: "Auto (4K HDR)",
+            parentalFilter: "Filtre Parental",
+            systemCache: "Cache Système",
+            clearCache: "Vider",
+            ourPartners: "Nos Partenaires :",
+            logoutBtn: "Se Déconnecter de LevelMovie",
+            logoutConfirm: "Êtes-vous sûr de vouloir quitter ?",
+            cancel: "Annuler",
+            confirm: "Confirmer",
+            osVersion: "LevelMovie • Architecture V1.0",
+            loginSuccess: "Connexion réussie",
+            cacheCleared: "Cache nettoyé avec succès.",
+            filterApplied: "Filtre appliqué. Rechargement...",
+            linkCopied: "Lien copié dans le presse-papier !",
+            emptyList: "Votre liste est vide.",
+            searchResults: "Résultats de recherche",
+            noResults: "Aucun résultat trouvé.",
+            featured: "À la une",
+            externalSources: "Sources Externes (Gratuites)",
+            movieInfo: "Infos du film",
+            server1: "Serveur 1 (Multi)",
+            server2: "Serveur 2 (Global) ⭐",
+            server3: "Serveur 3 (Alt)",
+            publicDomainDirect: "Domaine Public",
+            youtubeFull: "YouTube Complet",
+            originalTitle: "Titre Original",
+            notSpecified: "Non spécifié",
+            inProgress: "(En cours)",
+            alreadyInList: "Déjà dans vos favoris",
+            addToList: "Ajouter à Ma Liste",
+            share: "Partager",
+            director: "Réalisation / Écriture",
+            genresOrigin: "Genres & Origine",
+            prodFinance: "Production / Finance",
+            budget: "Budget",
+            revenue: "Revenus",
+            tmdbReviews: "Notes & Avis TMDB",
+            certifiedReviews: "avis certifiés",
+            noCasting: "Casting non disponible",
+            recommendationTitle: "⭐ RECOMMANDATION IMPORTANTE",
+            recommendationText: "Pour une lecture fluide et <b>sans publicité bloquante</b>, nous vous conseillons vivement d'utiliser le <b>Serveur 2 (Global)</b>.",
+            warningDisclaimer: "Les flux vidéo gratuits sont fournis par des serveurs externes et indépendants de LevelUp. Nous n'hébergeons aucun fichier vidéo. Nous recommandons d'utiliser un navigateur web intégrant un bloqueur de publicités natif (ex: Opera, Brave) pour éviter les pop-ups abusives des autres serveurs.",
+            disclaimerCheckbox: "J'ai compris et j'accepte de visionner le contenu depuis un serveur externe.",
+            acceptPlay: "Accepter & Lancer",
+            contentUnavailableDesc: "Nous vous prions de nous excuser. Le flux vidéo officiel pour ce programme est introuvable ou a été retiré de nos serveurs partenaires.",
+            asianDrama: "Séries Asiatiques (K-Dramas)",
+            animeManga: "Animes & Mangas",
+            bollywood: "Bollywood & Inde",
+            martialArts: "Arts Martiaux",
+            horrorThriller: "Horreur & Épouvante",
+            historyBiopic: "Histoire & Biopic",
+            fantasyMagic: "Fantastique & Magie",
+            animeJp: "Animes Japonais",
+            dramaPassion: "Drame & Passion",
+            sciFiFantasy: "Sci-Fi & Fantastique",
+            originalLang: "VO"
+          },
+          en: {
+            appTitle: "LevelMovie",
+            enterKey: "Access Key required",
+            verifyKey: "Unlock",
+            verifyLoading: "Verifying...",
+            forgotKey: "Get a key",
+            home: "Home",
+            series: "TV Shows",
+            movies: "Movies",
+            myList: "My List",
+            trending: "Global Trends",
+            freeVOD: "Free Movies",
+            topRated: "Masterpieces",
+            action: "Action & Adrenaline",
+            comedy: "Comedies",
+            horror: "Thrills & Terror",
+            scifi: "Sci-Fi",
+            animation: "Animation & Anime",
+            docs: "Documentaries",
+            war: "War & Epic",
+            history: "History",
+            mystery: "Mystery & Thriller",
+            crime: "Crime & Investigation",
+            music: "Music & Concerts",
+            kdrama: "K-Dramas & Asian TV",
+            fantasy: "Fantasy",
+            family: "Family Time",
+            romance: "Romance",
+            western: "Western",
+            upcoming: "Upcoming Movies",
+            nowPlaying: "Now Playing",
+            play: "Play", 
+            details: "More Info",
+            playMovie: "Play Movie",
+            trailer: "Trailer",
+            notFound: "Content Unavailable",
+            notFoundDesc: "The secure player could not find an official video for this title.",
+            match: "Recommended",
+            cast: "Main Cast",
+            similar: "Similar Titles",
+            legalWatch: "Available on:",
+            noLegal: "No legal streaming offers found in your region.",
+            closePlayer: "Close Player",
+            warningTitle: "Security & Ads Warning",
+            warningText: "Full movies are streamed via third-party APIs. <b>LevelUp does not host any content</b>. Independent pop-ups and ads may appear on these players.",
+            warningCheckbox: "I agree to watch content from these servers.",
+            warningBtn: "Start Movie",
+            noDesc: "No description available.",
+            addedList: "Added to favorites!",
+            removedList: "Removed from list",
+            publicDomain: "Classic Cinema",
+            searchPlaceholder: "Search...",
+            defaultUser: "User",
+            premiumActive: "Premium Account Active",
+            ecosystem: "LevelIA Ecosystem",
+            settingsTitle: "Content Preferences",
+            contentOrigin: "Movies Origin",
+            worldAll: "World (All)",
+            usEnglish: "US / English (Original)",
+            frenchVF: "French (Dubbed)",
+            interfaceLang: "Interface Language",
+            favoriteMovies: "Favorite Movies",
+            systemVideo: "System & Video",
+            videoQuality: "Video Quality",
+            auto4k: "Auto (4K HDR)",
+            parentalFilter: "Parental Filter",
+            systemCache: "System Cache",
+            clearCache: "Clear",
+            ourPartners: "Our Partners:",
+            logoutBtn: "Log out of LevelMovie",
+            logoutConfirm: "Are you sure you want to log out?",
+            cancel: "Cancel",
+            confirm: "Confirm",
+            osVersion: "LevelMovie • Architecture V1.0",
+            loginSuccess: "Login successful",
+            cacheCleared: "Cache cleared successfully.",
+            filterApplied: "Filter applied. Reloading...",
+            linkCopied: "Link copied to clipboard!",
+            emptyList: "Your list is empty.",
+            searchResults: "Search Results",
+            noResults: "No results found.",
+            featured: "Featured",
+            externalSources: "External Sources (Free)",
+            movieInfo: "Movie Info",
+            server1: "Server 1 (Multi)",
+            server2: "Server 2 (Global) ⭐",
+            server3: "Server 3 (Alt)",
+            publicDomainDirect: "Public Domain",
+            youtubeFull: "Full YouTube",
+            originalTitle: "Original Title",
+            notSpecified: "Not specified",
+            inProgress: "(WIP)",
+            alreadyInList: "Already in favorites",
+            addToList: "Add to My List",
+            share: "Share",
+            director: "Director / Writer",
+            genresOrigin: "Genres & Origin",
+            prodFinance: "Production / Finance",
+            budget: "Budget",
+            revenue: "Revenue",
+            tmdbReviews: "TMDB Ratings & Reviews",
+            certifiedReviews: "certified reviews",
+            noCasting: "Cast not available",
+            recommendationTitle: "⭐ IMPORTANT RECOMMENDATION",
+            recommendationText: "For smooth playback and <b>no blocking ads</b>, we highly recommend using <b>Server 2 (Global)</b>.",
+            warningDisclaimer: "Free video streams are provided by external servers independent of LevelUp. We do not host any video files. We recommend using a web browser with a native ad blocker (e.g. Opera, Brave) to avoid abusive pop-ups from other servers.",
+            disclaimerCheckbox: "I understand and agree to view content from an external server.",
+            acceptPlay: "Accept & Play",
+            contentUnavailableDesc: "We apologize. The official video stream for this program cannot be found or has been removed from our partner servers.",
+            asianDrama: "Asian Dramas (K-Dramas)",
+            animeManga: "Anime & Manga",
+            bollywood: "Bollywood & India",
+            martialArts: "Martial Arts",
+            horrorThriller: "Horror & Thriller",
+            historyBiopic: "History & Biopic",
+            fantasyMagic: "Fantasy & Magic",
+            animeJp: "Japanese Anime",
+            dramaPassion: "Drama & Passion",
+            sciFiFantasy: "Sci-Fi & Fantasy",
+            originalLang: "Orig"
+          }
+        };
 
-    <!-- App 3: Placeholder -->
-    <div class="bento-card reveal" style="opacity: 0.6; border-style: dashed;">
-      <div class="bento-icon"><i class="fas fa-lock text-xl"></i></div>
-      <h3>Application #3</h3>
-      <p>Bientôt disponible. Le lien sera ajouté ici très prochainement par l'équipe.</p>
-    </div>
-  </div>
-</section>
+        // --- STYLES GLOBAUX ---
+        const globalStyles = `
+          @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+          body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #060608; 
+            color: white;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-top: env(safe-area-inset-top);
+          }
+          ::-webkit-scrollbar { display: none; }
+          * { -ms-overflow-style: none; scrollbar-width: none; }
+          .bg-main { background: radial-gradient(circle at 50% 0%, #15092a 0%, #060608 80%); min-height: 100vh; }
+          .holo-card { background: linear-gradient(135deg, rgba(30,20,45,0.6) 0%, rgba(10,10,15,0.8) 100%); border: 1px solid rgba(168,85,247,0.2); box-shadow: inset 0 0 30px rgba(168,85,247,0.05), 0 30px 60px rgba(0,0,0,0.8); backdrop-filter: blur(30px); }
+          .markdown-pro { font-size: 14px; line-height: 1.8; color: rgba(255,255,255,0.75); text-align: justify; }
+          .markdown-pro strong { color: #fff; font-weight: 700; }
+          
+          .splash-text { 
+              opacity: 0; position: absolute; transform: scale(0.85); filter: blur(15px); 
+              transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); text-align: center; 
+          }
+          .splash-text.active { opacity: 1; transform: scale(1); filter: blur(0px); }
+          .splash-text.exit { opacity: 0; transform: scale(1.2); filter: blur(30px); }
+        `;
 
-<!-- ARCHITECTURE (BENTO GRID) -->
-<section class="section container" id="architecture">
-  <div class="section-header reveal">
-    <h2>Architecture Technique.</h2>
-    <p>Des fondations robustes pensées pour la confidentialité et l'efficacité.</p>
-  </div>
-  <div class="bento-grid">
-    <div class="bento-card large reveal">
-      <div class="bento-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="url(#blue-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
-      <h3>Analyse Multimodale & Web Direct</h3>
-      <p>Le moteur Gemini 2.5 Flash intégré permet à l'écosystème LevelUp de lire nativement vos documents PDF denses, d'analyser vos images, et de scraper en temps réel n'importe quel lien Web que vous lui fournissez. Le tout sourcé et vérifié.</p>
-    </div>
-    <div class="bento-card reveal">
-      <div class="bento-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="url(#purple-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg></div>
-      <h3>Mémoire IA Globale</h3>
-      <p>L'IA retient votre contexte (métier, âge, objectifs) et l'applique silencieusement en toile de fond à toutes vos conversations futures.</p>
-    </div>
-    <div class="bento-card reveal">
-      <div class="bento-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="url(#blue-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></div>
-      <h3>Stockage Hybride</h3>
-      <p>Vos données sont synchronisées sur le Cloud Firebase. En cas de dépassement de quota, le système bascule automatiquement en local.</p>
-    </div>
-    <div class="bento-card large reveal">
-      <div class="bento-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="url(#green-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-      <h3>Sécurité Renforcée & Code PIN</h3>
-      <p>Votre intimité est primordiale. Vous pouvez configurer un Code PIN à 4 chiffres directement dans l'application pour verrouiller l'interface complète ou simplement masquer l'affichage de votre clé de licence.</p>
-    </div>
-  </div>
-</section>
+        function App() {
+          const [lang, setLang] = useState(localStorage.getItem('levelmovie_lang') || 'fr');
+          const [contentLang, setContentLang] = useState(localStorage.getItem('levelmovie_content_lang') || 'all');
+          
+          const [showSplash, setShowSplash] = useState(true);
+          const [splashStep, setSplashStep] = useState(0);
 
-<!-- MODES (HIERARCHY) -->
-<section class="section container" id="modes">
-  <div class="section-header reveal">
-    <h2>L'Écosystème des Personnalités.</h2>
-    <p>Une seule application, plusieurs sous-réseaux spécialisés. Passez de l'un à l'autre depuis le menu de l'application selon votre besoin du moment.</p>
-  </div>
-  <div class="modes-grid">
-    <div class="mode-group reveal">
-      <div class="mode-group-header">
-        <div class="mode-group-icon" style="background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.3);">
-          <svg class="level-star" viewBox="0 0 576 512" style="width:28px; height:28px; filter:none; animation:none;"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg>
-        </div>
-        <div class="mode-group-title">
-          <h3>Mode Auto</h3>
-          <p>Le pilier de la productivité.</p>
-        </div>
-      </div>
-      <div class="mode-item"><i class="fas fa-robot"></i><div class="mode-item-content"><h4>Normal</h4><p>Approche intelligente, chill et professionnelle.</p></div></div>
-      <div class="mode-item"><i class="fas fa-briefcase"></i><div class="mode-item-content"><h4>Travail</h4><p>Vision corporate, stratégie d'entreprise et gestion.</p></div></div>
-      <div class="mode-item"><i class="fas fa-chart-line"></i><div class="mode-item-content"><h4>Expert</h4><p>Réponses pointues, analytiques et mathématiques.</p></div></div>
-    </div>
-    <div class="mode-group reveal" style="transition-delay: 0.1s;">
-      <div class="mode-group-header">
-        <div class="mode-group-icon" style="background: rgba(234,179,8,0.1); border: 1px solid rgba(234,179,8,0.3);">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="url(#yellow-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3L9 15"/><path d="M15 3H21V9"/><path d="M11 10C9 10 7 11 5 12C3 13 2 15 2 17C2 19 4 21 6 21C8 21 10 20 11 18C12 16 13 14 13 12L11 10Z"/></svg>
-        </div>
-        <div class="mode-group-title">
-          <h3>Mode Thiab's</h3>
-          <p>Développement personnel extrême.</p>
-        </div>
-      </div>
-      <div class="mode-item"><i class="fas fa-fire"></i><div class="mode-item-content"><h4>Motivation</h4><p>Inspiration pure pour exploser vos objectifs.</p></div></div>
-      <div class="mode-item"><i class="fas fa-dumbbell"></i><div class="mode-item-content"><h4>Coach</h4><p>Suivi psychologique et Master Coaching.</p></div></div>
-      <div class="mode-item"><i class="fas fa-stopwatch"></i><div class="mode-item-content"><h4>Anti-Procrastination</h4><p>Recadrage implacable.</p></div></div>
-    </div>
-  </div>
-</section>
+          const [user, setUser] = useState(null);
+          const [userName, setUserName] = useState('');
+          const [userEmail, setUserEmail] = useState('');
+          const [accessKey, setAccessKey] = useState('');
+          const [authError, setAuthError] = useState('');
+          const [isLoadingAuth, setIsLoadingAuth] = useState(false);
+          const [isLoggingIn, setIsLoggingIn] = useState(false);
+          const [isScrolled, setIsScrolled] = useState(false);
+          const [toasts, setToasts] = useState([]);
+          
+          const [currentCategory, setCurrentCategory] = useState('home');
+          const [searchQuery, setSearchQuery] = useState('');
+          const [searchResults, setSearchResults] = useState([]);
+          const [heroMovie, setHeroMovie] = useState(null);
+          const [pageSeed, setPageSeed] = useState(1); 
+          
+          const [selectedMovie, setSelectedMovie] = useState(null);
+          const [modalMode, setModalMode] = useState('info'); 
+          const [showSettings, setShowSettings] = useState(false);
+          const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-<!-- GÉNÉRATEUR ADN IA (Live Demo) -->
-<section class="section container" id="demo-dna" style="padding-top: 40px;">
-  <div class="section-header reveal">
-    <h2 class="text-purple">Découvrez votre ADN IA ✨</h2>
-    <p>Testez la puissance de recommandation de LevelUp en direct. Décrivez votre état d'esprit, et notre moteur vous dira quelle personnalité est faite pour vous aujourd'hui.</p>
-  </div>
-  <div class="dna-wrapper reveal">
-    <div class="dna-card">
-      <i class="fas fa-magic text-purple" style="font-size: 2rem; margin-bottom: 20px;"></i>
-      <h3 style="font-size: 1.3rem; margin-bottom: 20px;">Qui êtes-vous aujourd'hui ?</h3>
-      <input type="text" id="dnaInput" class="dna-input" placeholder="Ex: Étudiant stressé par les partiels..." autocomplete="off">
-      <button id="dnaBtn" class="btn btn-primary dna-btn">Analyser mon profil ✨</button>
-      <div id="dnaResult" class="dna-result hidden"></div>
-    </div>
-  </div>
-</section>
+          const [watchlist, setWatchlist] = useState([]);
+          const [watchlistData, setWatchlistData] = useState([]);
 
-<!-- SÉCURITÉ & RÈGLES -->
-<section class="section container" id="securite">
-  <div class="section-header reveal">
-    <h2>Transparence & Engagements.</h2>
-    <p>En utilisant l'écosystème LevelUp, vous acceptez nos principes de fonctionnement conçus pour protéger la plateforme.</p>
-  </div>
-  <div class="bento-grid-2">
-    <div class="bento-card reveal">
-      <div class="bento-icon" style="background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.3);"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="url(#green-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg></div>
-      <h3>Localisation Contextuelle</h3>
-      <p>Pour vous offrir une précision chirurgicale (météo, recommandations locales), l'IA requiert un accès à votre position géographique approximative. Ces données servent uniquement à contextualiser vos requêtes et ne sont jamais revendues.</p>
-    </div>
-    <div class="bento-card reveal" style="transition-delay: 0.1s;">
-      <div class="bento-icon" style="background: rgba(96,165,250,0.1); border-color: rgba(96,165,250,0.3);"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="url(#blue-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
-      <h3>Protection & Modération</h3>
-      <p>Vos sessions sont chiffrées et sécurisées. Toutefois, notre équipe se réserve le droit de consulter vos conversations en cas de problème technique majeur, de litige, ou de signalement.</p>
-    </div>
-  </div>
-</section>
+          const t = i18n[lang] || i18n['fr'];
+          const defaultUserName = userName || t.defaultUser;
 
-<!-- FOOTER -->
-<footer class="container">
-  <div class="footer-grid">
-    <div class="footer-brand">
-      <div class="nav-brand" style="margin-bottom: 12px;">
-        <svg class="level-star" viewBox="0 0 576 512" style="width:20px; height:20px; animation:none; filter:none;"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg>
-        LEVELUP
-      </div>
-      <p>L'Écosystème d'applications Premium. Modèle 100% Gratuit et Sécurisé.</p>
-    </div>
-    <div class="footer-links">
-      <h5>Plateforme</h5>
-      <a href="#applications">Nos Applications</a>
-      <a href="#" class="btn-get-key">Obtenir ma Clé</a>
-    </div>
-    <div class="footer-links">
-      <h5>Plateforme</h5>
-      <a href="https://levelupia.vercel.app">Lancer l'Application</a>
-      <a href="#" class="btn-get-key">Générateur de Clé</a>
-    </div>
-    <div class="footer-links">
-      <h5>Ressources & Légal</h5>
-      <a href="#modes">Les Modes IA</a>
-      <a href="#securite">Conditions d'Utilisation</a>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <span>© 2026 LevelUp Ecosystem.</span>
-  </div>
-</footer>
+          // --- INITIALISATION & ANIMATION SPLASH ---
+          useEffect(() => {
+            signInAnonymously(auth).catch(console.error);
 
-<!-- LIVE AI ASSISTANT WIDGET -->
-<button class="bot-widget-btn" id="botToggleBtn" aria-label="Ouvrir l'assistant">
-  <i class="fas fa-comment-dots"></i>
-  <i class="fas fa-times"></i>
-</button>
+            const savedKey = localStorage.getItem('levelmovie_saved_key');
+            const savedName = localStorage.getItem('levelmovie_user_name');
+            const savedUid = localStorage.getItem('levelmovie_user_uid');
+            const savedEmail = localStorage.getItem('levelmovie_user_email');
+            
+            if (savedKey && savedUid) {
+              setUser({ uid: savedUid });
+              if (savedName) setUserName(savedName);
+              if (savedEmail) setUserEmail(savedEmail);
+            }
 
-<div class="bot-window" id="botWindow">
-  <div class="bot-header">
-    <div class="bot-avatar">
-      <svg class="level-star" viewBox="0 0 576 512" style="width:18px; height:18px; filter:none; animation:none;"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg>
-    </div>
-    <div class="bot-info">
-      <h5>Assistant LevelUp</h5>
-      <span>En ligne (Mode Auto)</span>
-    </div>
-  </div>
-  <div class="bot-messages" id="botMessages">
-    <div class="bot-bubble ai">
-      Salut ! Je suis l'Assistant de l'écosystème LevelUp. Tu veux savoir comment obtenir une clé d'accès globale pour nos applications ?
-    </div>
-  </div>
-  <div class="bot-footer">
-    <div class="bot-input-area">
-      <input type="text" id="botInput" class="bot-input" placeholder="Posez votre question..." autocomplete="off">
-      <button id="botSendBtn" class="bot-send"><i class="fas fa-arrow-up"></i></button>
-    </div>
-  </div>
-</div>
+            const t1 = setTimeout(() => setSplashStep(1), 200);   
+            const t2 = setTimeout(() => setSplashStep(2), 1400);  
+            const t3 = setTimeout(() => setSplashStep(3), 2800);  
+            const t4 = setTimeout(() => {
+              setSplashStep(4);
+              setShowSplash(false);
+            }, 3200);
 
-<!-- MODAL DE GÉNÉRATION DE CLÉ -->
-<div class="modal-overlay" id="keyModalOverlay">
-  <div class="modal-box">
-    <div class="modal-close" id="closeModalBtn"><i class="fas fa-times"></i></div>
-    
-    <div class="modal-content">
-      
-      <!-- Vue 1: Login -->
-      <div id="viewLogin" class="modal-view">
-        <div class="modal-header">
-          <svg class="level-star" viewBox="0 0 576 512" style="width:54px; height:54px; margin-bottom: 8px;"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg>
-          <h3>Accès Sécurisé</h3>
-          <p>Contrôle d'identité LevelUp</p>
-        </div>
-        <p style="font-size: 0.95rem; margin-bottom: 32px; color: var(--text-muted);">Connectez-vous pour générer votre clé d'accès unique et déverrouiller toutes nos applications.</p>
-        <button id="googleLoginBtn" class="btn-auth-google">
-          <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-          Continuer avec Google
-        </button>
-      </div>
+            const handleScroll = () => setIsScrolled(window.scrollY > 30);
+            window.addEventListener('scroll', handleScroll);
+            
+            return () => {
+                clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4);
+                window.removeEventListener('scroll', handleScroll);
+            }
+          }, []);
 
-      <!-- Wrapper pour l'utilisateur connecté -->
-      <div id="viewAppContent" class="modal-view hidden">
-        <div class="user-modal-bar">
-          <div class="user-modal-info">
-            <img id="userAvatar" src="" alt="Avatar">
-            <div>
-              <div class="user-modal-name" id="userName">Utilisateur</div>
-              <div class="user-modal-status"><i class="fas fa-shield-alt"></i> Compte Certifié</div>
+          // --- HYBRID WATCHLIST FETCH ---
+          useEffect(() => {
+            if (!user) return;
+            
+            const localData = JSON.parse(localStorage.getItem('levelmovie_watchlist_' + user.uid) || '[]');
+            if (localData.length > 0) {
+              setWatchlistData(localData);
+              setWatchlist(localData.map(m => m.id));
+            }
+
+            const fetchWatchlist = async () => {
+              try {
+                const q = collection(db, "artifacts", "level-ia-premium", "users", user.uid, "watchlist");
+                const snaps = await getDocs(q);
+                const data = [];
+                snaps.forEach(doc => {
+                  data.push(doc.data());
+                });
+                
+                if (data.length > 0 || localData.length > 0) {
+                    setWatchlist(data.map(m => m.id));
+                    setWatchlistData(data);
+                    localStorage.setItem('levelmovie_watchlist_' + user.uid, JSON.stringify(data));
+                }
+              } catch (e) {
+                console.error("🔥 FIREBASE FETCH WATCHLIST ERROR:", e.code, e.message);
+              }
+            };
+            fetchWatchlist();
+          }, [user]);
+
+          // --- TOASTS ---
+          const showToast = useCallback((msg, type = 'info') => {
+            if(type === 'info') return; 
+            const id = Date.now() + Math.random();
+            setToasts(prev => [...prev, { id, msg, type }]);
+            setTimeout(() => {
+              setToasts(prev => prev.filter(toastItem => toastItem.id !== id));
+            }, 3000);
+          }, []);
+
+          // --- ACTIONS LANGUE ---
+          const handleLangToggle = () => {
+            const newLang = lang === 'fr' ? 'en' : 'fr';
+            setLang(newLang);
+            localStorage.setItem('levelmovie_lang', newLang);
+          };
+
+          const changeContentLang = (val) => {
+            setContentLang(val);
+            localStorage.setItem('levelmovie_content_lang', val);
+            showToast(t.filterApplied, 'success');
+          };
+
+          // --- AUTHENTIFICATION ---
+          const formatAccessKey = (val) => {
+            let formatted = val.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+            setAccessKey(formatted.substring(0, 16));
+          };
+
+          const handleLogin = async () => {
+            if (!accessKey) return;
+            setIsLoadingAuth(true);
+            setAuthError('');
+            try {
+              const q = collectionGroup(db, 'security');
+              const querySnapshot = await getDocs(q);
+              let foundUserData = null;
+              querySnapshot.forEach(docSnap => {
+                if (docSnap.data().key === accessKey) foundUserData = docSnap.data();
+              });
+              
+              if (foundUserData) {
+                const email = foundUserData.owner || foundUserData.email || "email@inconnu.com";
+                const name = foundUserData.name || foundUserData.displayName || email.split('@')[0] || t.defaultUser;
+                const uid = foundUserData.uid || accessKey;
+                
+                setIsLoggingIn(true);
+                
+                setTimeout(() => {
+                    setUser({ uid });
+                    setUserName(name);
+                    setUserEmail(email);
+                    localStorage.setItem('levelmovie_saved_key', accessKey);
+                    localStorage.setItem('levelmovie_user_name', name);
+                    localStorage.setItem('levelmovie_user_email', email);
+                    localStorage.setItem('levelmovie_user_uid', uid);
+                    showToast(t.loginSuccess, 'success');
+                    setIsLoggingIn(false);
+                }, 3000);
+              } else {
+                setAuthError(t.enterKey || "Clé invalide.");
+              }
+            } catch (error) {
+              console.error("🔥 LOGIN ERROR:", error);
+              setAuthError("Erreur serveur Firebase.");
+            }
+            setIsLoadingAuth(false);
+          };
+
+          const handleLogout = () => {
+            localStorage.clear();
+            setUser(null);
+            setAccessKey('');
+            setShowSettings(false);
+            setShowLogoutConfirm(false);
+          };
+
+          // --- RECHERCHE ---
+          useEffect(() => {
+            if (searchQuery.trim() === '') {
+              setSearchResults([]);
+              return;
+            }
+            const delayDebounceFn = setTimeout(async () => {
+              const langCode = lang === 'fr' ? 'fr-FR' : 'en-US';
+              try {
+                const res = await fetch(`${BASE_URL}/search/multi?api_key=${API_KEY}&language=${langCode}&query=${encodeURIComponent(searchQuery)}`);
+                const data = await res.json();
+                setSearchResults(data.results?.filter(m => m.media_type === 'movie' || m.media_type === 'tv') || []);
+              } catch (e) { console.error(e); }
+            }, 500);
+            return () => clearTimeout(delayDebounceFn);
+          }, [searchQuery, lang]);
+
+          // --- ACTIONS GLOBALES ---
+          const toggleWatchlist = async (movie) => {
+            if (!user) return;
+            const isAdded = watchlist.includes(movie.id);
+            
+            let newList;
+            if (isAdded) {
+                newList = watchlistData.filter(m => m.id !== movie.id);
+                showToast(t.removedList, "success");
+            } else {
+                const dataObj = {
+                  id: movie.id,
+                  title: movie.title || movie.name || movie.original_name,
+                  poster_path: movie.poster_path,
+                  backdrop_path: movie.backdrop_path,
+                  vote_average: movie.vote_average,
+                  first_air_date: movie.first_air_date || null,
+                  release_date: movie.release_date || null,
+                  media_type: movie.first_air_date ? 'tv' : 'movie',
+                  addedAt: Date.now()
+                };
+                newList = [...watchlistData, dataObj];
+                showToast(t.addedList, "success");
+            }
+
+            setWatchlistData(newList);
+            setWatchlist(newList.map(m => m.id));
+            localStorage.setItem('levelmovie_watchlist_' + user.uid, JSON.stringify(newList));
+
+            try {
+                const movieIdStr = movie.id.toString();
+                const ref = doc(db, "artifacts", "level-ia-premium", "users", user.uid, "watchlist", movieIdStr);
+                if (isAdded) {
+                    await deleteDoc(ref);
+                } else {
+                    const dataObj = newList.find(m => m.id === movie.id);
+                    await setDoc(ref, dataObj);
+                }
+            } catch(e) {
+                console.error("🔥 FIREBASE WATCHLIST SAVE ERROR:", e.code, e.message);
+                showToast(`Erreur: ${e.message}`, "error");
+            }
+          };
+
+          const openModal = (movie, mode = 'info') => {
+            setSelectedMovie(movie);
+            setModalMode(mode);
+          };
+
+          const handleNavCategory = (cat) => {
+            setCurrentCategory(cat);
+            setSearchQuery('');
+            setPageSeed(Math.floor(Math.random() * 5) + 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          };
+
+          // --- COMPOSANTS DE BASE ---
+          if (showSplash) {
+            return (
+              <div className={`fixed inset-0 z-[9999] bg-[#060608] flex items-center justify-center flex-col transition-opacity duration-500 ${splashStep === 3 ? 'opacity-0' : 'opacity-100'}`}>
+                <style>{globalStyles}</style>
+                <div className={`splash-text flex flex-col items-center ${splashStep === 1 ? 'active' : ''} ${splashStep >= 2 ? 'exit' : ''}`}>
+                   <LevelMovieLogo className="w-20 h-20 text-[#a855f7] mb-6" />
+                   <div className="text-4xl font-black tracking-widest">
+                     <span className="text-white">Level</span><span className="text-[#a855f7]">Movie</span>
+                   </div>
+                </div>
+                <div className={`splash-text flex flex-col items-center justify-center ${splashStep === 2 ? 'active' : ''} ${splashStep >= 3 ? 'exit' : ''}`}>
+                   <span className="text-white font-black tracking-[0.6em] text-2xl uppercase">LevelUp</span>
+                   <span className="text-[10px] font-bold tracking-[0.5em] text-[#a855f7] mt-4 uppercase">Version 1.0</span>
+                </div>
+              </div>
+            );
+          }
+
+          if (isLoggingIn) {
+            return (
+              <div className="fixed inset-0 z-[9999] bg-[#060608] flex items-center justify-center flex-col transition-opacity duration-500 animate-in fade-in">
+                <style>{globalStyles}</style>
+                <LevelMovieLogo className="w-20 h-20 text-[#a855f7] mb-6 animate-pulse" />
+                <h2 className="text-3xl font-black tracking-widest text-white uppercase drop-shadow-md mb-2">
+                  Level<span className="text-[#a855f7]">Movie</span>
+                </h2>
+              </div>
+            );
+          }
+
+          if (!user) {
+            return (
+              <div className="bg-main flex items-center justify-center p-4 sm:p-8 fixed inset-0 z-[5000]">
+                <style>{globalStyles}</style>
+                <button 
+                  onClick={handleLangToggle}
+                  className="absolute top-6 right-6 flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-full transition-all text-white/70 hover:text-white text-[11px] font-bold uppercase tracking-widest backdrop-blur-md z-50 shadow-lg"
+                >
+                  <Globe className="w-4 h-4 text-[#a855f7]" /> {lang === 'fr' ? 'EN' : 'FR'}
+                </button>
+
+                <div className="w-full max-w-sm text-center py-4 relative glass p-8 rounded-[2rem] border border-white/5 shadow-[0_0_50px_rgba(168,85,247,0.15)]">
+                  <LevelMovieLogo className="w-12 h-12 text-[#a855f7] mx-auto mb-4" />
+                  <h1 className="text-3xl font-black tracking-widest mb-10 shrink-0 drop-shadow-md">
+                    <span className="text-white">Level</span><span className="text-[#a855f7]">Movie</span>
+                  </h1>
+                  <div className="space-y-6">
+                    <p className="text-[11px] font-bold text-[#a855f7] uppercase tracking-[0.1em] mb-2 flex items-center justify-center gap-2">
+                      <Shield className="w-4 h-4" /> {t.enterKey}
+                    </p>
+                    <input 
+                      type="text" 
+                      value={accessKey}
+                      onChange={(e) => formatAccessKey(e.target.value)}
+                      placeholder="LVL-XXXXX-XXXXX" 
+                      className="w-full bg-[#030305] border border-[#a855f7]/40 rounded-xl py-4 px-5 text-center text-white font-mono text-base tracking-widest outline-none focus:border-[#a855f7] transition-all uppercase shadow-inner"
+                    />
+                    <button 
+                      onClick={handleLogin}
+                      disabled={isLoadingAuth}
+                      className="w-full bg-gradient-to-r from-[#8b5cf6] to-[#a855f7] text-white py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.1em] hover:opacity-90 active:scale-95 transition-all shadow-[0_0_25px_rgba(168,85,247,0.4)] disabled:opacity-50"
+                    >
+                      {isLoadingAuth ? t.verifyLoading : t.verifyKey}
+                    </button>
+                    <div className="mt-6 flex justify-center">
+                      <a href="https://levelupia0-debug.github.io/levelupia/" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 hover:text-white hover:border-[#a855f7]/50 transition-all duration-300 no-underline">
+                        <Key className="w-3 h-3" /> <span>{t.forgotKey}</span>
+                      </a>
+                    </div>
+                    {authError && <p className="text-[12px] text-red-400 font-bold mt-2 bg-red-500/10 py-2 rounded-lg border border-red-500/20">{authError}</p>}
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
+          const langCode = lang === 'fr' ? 'fr-FR' : 'en-US';
+          const langFilter = contentLang !== 'all' ? `&with_original_language=${contentLang}` : '';
+          const rowsConfig = [];
+          
+          if (currentCategory === 'home' || currentCategory === 'movie') {
+              rowsConfig.push(
+                  { title: t.trending, url: `/trending/movie/week?api_key=${API_KEY}&language=${langCode}${langFilter}&page=${pageSeed}`, large: true },
+                  { title: t.upcoming, url: `/movie/upcoming?api_key=${API_KEY}&language=${langCode}${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.nowPlaying, url: `/movie/now_playing?api_key=${API_KEY}&language=${langCode}${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.freeVOD, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_watch_monetization_types=free&watch_region=FR&sort_by=popularity.desc${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.publicDomain, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&primary_release_date.lte=1970-01-01&sort_by=vote_average.desc&vote_count.gte=200${langFilter}&page=${pageSeed}`, large: true },
+                  { title: t.asianDrama, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_original_language=ko&page=${pageSeed}`, large: false },
+                  { title: t.animeManga, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=16&with_original_language=ja&page=${pageSeed}`, large: false },
+                  { title: t.topRated, url: `/movie/top_rated?api_key=${API_KEY}&language=${langCode}${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.bollywood, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_original_language=hi&page=${pageSeed}`, large: false },
+                  { title: t.action, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=28${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.martialArts, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=28&with_keywords=779&page=${pageSeed}`, large: false },
+                  { title: t.scifi, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=878${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.comedy, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=35${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.horror, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=27${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.romance, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=10749${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.docs, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=99${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.western, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=37${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.war, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=10752${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.history, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=36${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.mystery, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=9648${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.crime, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=80${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.music, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=10402${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.fantasy, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=14${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.family, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=10751${langFilter}&page=${pageSeed}`, large: false }
+              );
+          } else if (currentCategory === 'tv') {
+              rowsConfig.push(
+                  { title: t.trending, url: `/trending/tv/week?api_key=${API_KEY}&language=${langCode}${langFilter}&page=${pageSeed}`, large: true },
+                  { title: t.asianDrama, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_original_language=ko&page=${pageSeed}`, large: false },
+                  { title: t.animeJp, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=16&with_original_language=ja&page=${pageSeed}`, large: false },
+                  { title: t.topRated, url: `/tv/top_rated?api_key=${API_KEY}&language=${langCode}${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.action, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=10759${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.comedy, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=35${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.crime, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=80${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.dramaPassion, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=18${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.mystery, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=9648${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.sciFiFantasy, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=10765${langFilter}&page=${pageSeed}`, large: false },
+                  { title: t.docs, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=99${langFilter}&page=${pageSeed}`, large: false }
+              );
+          }
+
+          return (
+            <div className="bg-main text-white min-h-screen">
+              <style>{globalStyles}</style>
+              
+              {/* TOASTS REFAITS */}
+              <div className="fixed top-4 right-4 md:top-6 md:right-6 z-[9999] flex flex-col gap-3 pointer-events-none items-end">
+                {toasts.map(toast => {
+                  let icon = <CheckCircle className="w-5 h-5 text-green-400" />;
+                  let colorClass = 'border-green-500/30 bg-[#0a0a0f]/95 text-green-50';
+                  if (toast.type === 'error') {
+                    icon = <AlertTriangle className="w-5 h-5 text-red-400" />;
+                    colorClass = 'border-red-500/30 bg-[#0a0a0f]/95 text-red-50';
+                  }
+                  return (
+                    <div key={toast.id} className={`flex items-center gap-4 p-4 rounded-2xl backdrop-blur-3xl border shadow-2xl transition-all duration-500 animate-in slide-in-from-right fade-in ${colorClass} min-w-[280px] pointer-events-auto`}>
+                      {icon} <span className="text-[12px] font-bold tracking-wide">{toast.msg}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* HEADER */}
+              <header className={`fixed top-0 w-full z-50 transition-all duration-500 ease-in-out flex items-center justify-between px-4 md:px-10 py-3 md:py-4 ${isScrolled ? 'bg-black/80 backdrop-blur-2xl border-b border-white/5 shadow-xl' : 'bg-gradient-to-b from-[#060608] via-[#060608]/90 to-transparent'}`}>
+                <div className="flex items-center space-x-6 md:space-x-10">
+                  <div className="flex items-center gap-3 cursor-pointer" onClick={() => handleNavCategory('home')}>
+                    <h1 className="text-xl md:text-2xl font-black tracking-widest leading-none drop-shadow-lg hidden sm:block">
+                      <span className="text-white">Level</span><span className="text-[#a855f7]">Movie</span>
+                    </h1>
+                  </div>
+                  
+                  <nav className="hidden lg:flex space-x-6 text-[12px] font-bold uppercase tracking-widest text-white/60">
+                    <button onClick={() => handleNavCategory('home')} className={`transition-colors hover:text-white ${currentCategory === 'home' ? 'text-[#a855f7]' : ''}`}>{t.home}</button>
+                    <button onClick={() => handleNavCategory('tv')} className={`transition-colors hover:text-white ${currentCategory === 'tv' ? 'text-[#a855f7]' : ''}`}>{t.series}</button>
+                    <button onClick={() => handleNavCategory('movie')} className={`transition-colors hover:text-white ${currentCategory === 'movie' ? 'text-[#a855f7]' : ''}`}>{t.movies}</button>
+                    <button onClick={() => handleNavCategory('watchlist')} className={`transition-colors hover:text-white ${currentCategory === 'watchlist' ? 'text-[#a855f7]' : ''}`}>{t.myList}</button>
+                  </nav>
+                </div>
+
+                <div className="flex items-center space-x-3 md:space-x-6">
+                  <div className="flex items-center relative">
+                    <input 
+                      type="text" 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder={t.searchPlaceholder} 
+                      className="bg-[#151520] border border-white/10 text-white text-xs px-4 py-2 rounded-full outline-none w-36 md:w-64 focus:border-[#a855f7] transition-colors shadow-inner"
+                    />
+                  </div>
+                  
+                  <div className="flex items-center gap-3 p-1.5 pr-3 md:pr-4 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all cursor-pointer shadow-md" onClick={() => setShowSettings(true)}>
+                    <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#151520] flex items-center justify-center overflow-hidden border border-[#a855f7]/40 shadow-inner shrink-0">
+                      <span className="text-[12px] md:text-[13px] font-black text-[#a855f7]">{defaultUserName.charAt(0).toUpperCase()}</span>
+                    </div>
+                    <div className="hidden md:block min-w-0">
+                      <p className="text-[12px] font-bold uppercase truncate tracking-wide text-white/90">{defaultUserName}</p>
+                    </div>
+                  </div>
+                </div>
+              </header>
+
+              {/* NAVBAR MOBILE */}
+              <nav className="lg:hidden fixed bottom-0 w-full z-50 bg-[#060608]/95 backdrop-blur-xl border-t border-white/5 flex justify-around items-center py-3 shadow-[0_-10px_20px_rgba(0,0,0,0.5)] pb-[env(safe-area-inset-bottom)]">
+                <button onClick={() => handleNavCategory('home')} className={`flex flex-col items-center gap-1 transition-colors ${currentCategory === 'home' ? 'text-[#a855f7]' : 'text-white/50 hover:text-white'}`}>
+                  <Home className="w-5 h-5" /> <span className="text-[9px] font-bold uppercase tracking-widest">{t.home}</span>
+                </button>
+                <button onClick={() => handleNavCategory('tv')} className={`flex flex-col items-center gap-1 transition-colors ${currentCategory === 'tv' ? 'text-[#a855f7]' : 'text-white/50 hover:text-white'}`}>
+                  <Tv className="w-5 h-5" /> <span className="text-[9px] font-bold uppercase tracking-widest">{t.series}</span>
+                </button>
+                <button onClick={() => handleNavCategory('movie')} className={`flex flex-col items-center gap-1 transition-colors ${currentCategory === 'movie' ? 'text-[#a855f7]' : 'text-white/50 hover:text-white'}`}>
+                  <Clapperboard className="w-5 h-5" /> <span className="text-[9px] font-bold uppercase tracking-widest">{t.movies}</span>
+                </button>
+                <button onClick={() => handleNavCategory('watchlist')} className={`flex flex-col items-center gap-1 transition-colors ${currentCategory === 'watchlist' ? 'text-[#a855f7]' : 'text-white/50 hover:text-white'}`}>
+                  <Bookmark className="w-5 h-5" /> <span className="text-[9px] font-bold uppercase tracking-widest">{t.myList}</span>
+                </button>
+              </nav>
+
+              {/* CONTENU PRINCIPAL */}
+              {searchQuery ? (
+                <div className="pt-24 px-4 md:px-14 pb-24 relative z-30 min-h-screen">
+                  <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-widest border-l-4 border-[#a855f7] pl-3">{t.searchResults}</h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-6">
+                    {searchResults.length > 0 ? searchResults.map(movie => {
+                      if(!movie.poster_path) return null;
+                      return (
+                        <div key={movie.id} className="relative cursor-pointer rounded-xl overflow-hidden shadow-lg border border-white/5 bg-[#151520] hover:scale-105 transition-transform" onClick={() => openModal(movie, 'info')}>
+                            <img className="object-cover w-full h-[220px] md:h-[280px]" src={`${IMAGE_BASE_URL}${movie.poster_path}`} loading="lazy" alt="" />
+                        </div>
+                      );
+                    }) : <p className="text-white/50 py-10 col-span-full text-center">{t.noResults}</p>}
+                  </div>
+                </div>
+              ) : currentCategory === 'watchlist' ? (
+                <div className="pt-24 px-0 pb-24 min-h-screen">
+                  <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-widest pl-4 md:pl-14 mb-6"><Bookmark className="w-6 h-6 text-[#a855f7] inline mr-2" /> {t.myList}</h2>
+                  {watchlistData.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-32 opacity-50">
+                        <Bookmark className="w-16 h-16 mb-4" />
+                        <p className="text-sm uppercase tracking-widest font-bold">{t.emptyList}</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 px-4 md:px-14">
+                      {watchlistData.map(movie => (
+                        <div key={movie.id} className="relative cursor-pointer rounded-xl overflow-hidden shadow-lg border border-white/5 bg-[#151520] hover:scale-105 transition-transform" onClick={() => openModal(movie, 'info')}>
+                            <img className="object-cover w-full h-[220px] md:h-[280px]" src={`${IMAGE_BASE_URL}${movie.poster_path}`} loading="lazy" alt="" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  {/* BANNER */}
+                  <Banner url={`/trending/all/week?api_key=${API_KEY}&language=${langCode}${langFilter}&page=${pageSeed}`} onPlay={() => openModal(heroMovie, 'play')} onInfo={() => openModal(heroMovie, 'info')} setHero={setHeroMovie} heroMovie={heroMovie} t={t} />
+                  
+                  {/* ROWS */}
+                  <main className="pb-24 relative z-20 space-y-8 md:space-y-10 mt-6 md:-mt-10">
+                    {rowsConfig.map((row, i) => (
+                      <Row key={i} title={row.title} fetchUrl={row.url} isLarge={row.large} onMovieClick={(m) => openModal(m, 'info')} />
+                    ))}
+                  </main>
+                </>
+              )}
+
+              {/* MODAL SETTINGS */}
+              {showSettings && (
+                <div className="fixed inset-0 z-[9000] flex justify-center items-center p-4 sm:p-8 bg-[#060608]/95 backdrop-blur-3xl overflow-hidden">
+                    <div className="holo-card relative w-full max-w-3xl rounded-[2rem] p-6 md:p-8 flex flex-col text-center animate-in zoom-in duration-300 z-10 shadow-[0_0_80px_rgba(0,0,0,0.9)] max-h-[95vh] overflow-y-auto no-scrollbar">
+                        
+                        <button onClick={() => setShowSettings(false)} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 hover:bg-red-500 flex items-center justify-center text-white/50 hover:text-white transition-colors shadow-sm z-20">
+                            <X className="w-5 h-5" />
+                        </button>
+                        
+                        <div className="flex flex-col items-center mb-6">
+                            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-[#151520] border-2 border-[#a855f7]/50 shadow-[0_0_20px_rgba(168,85,247,0.3)] overflow-hidden mb-4 flex items-center justify-center">
+                                <span className="text-4xl font-black text-[#a855f7]">{defaultUserName.charAt(0).toUpperCase()}</span>
+                            </div>
+                            <h2 className="text-2xl font-black text-white uppercase tracking-widest mb-1 drop-shadow-md">{defaultUserName}</h2>
+                            <p className="text-xs text-white/50 font-mono mb-4">{userEmail || 'email@inconnu.com'}</p>
+                            
+                            {/* Petit bouton LevelIA discret et élégant */}
+                            <a href="https://levelupia.vercel.app" target="_blank" rel="noreferrer" className="px-5 py-2 bg-white/5 hover:bg-white/10 text-white/80 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/10 transition-colors flex items-center gap-2 no-underline shadow-md hover:border-[#a855f7]/50">
+                                <Star className="w-3 h-3 text-[#a855f7] fill-[#a855f7]" /> {t.ecosystem}
+                            </a>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full text-left">
+                            <div className="space-y-4">
+                                <h3 className="text-[10px] font-black text-[#a855f7] uppercase tracking-widest pl-2 border-l-2 border-[#a855f7]">{t.settingsTitle}</h3>
+                                
+                                <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-inner">
+                                    <span className="text-[11px] font-bold text-white/80 uppercase tracking-widest flex items-center gap-3"><Filter className="w-4 h-4 text-[#a855f7]" /> {t.contentOrigin}</span>
+                                    <select value={contentLang} onChange={(e) => changeContentLang(e.target.value)} className="bg-black/80 border border-white/20 rounded-lg text-white text-[10px] font-bold uppercase tracking-widest p-2 outline-none cursor-pointer">
+                                        <option value="all">{t.worldAll}</option>
+                                        <option value="en">{t.usEnglish}</option>
+                                        <option value="fr">{t.frenchVF}</option>
+                                    </select>
+                                </div>
+
+                                <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-inner">
+                                    <span className="text-[11px] font-bold text-white/80 uppercase tracking-widest flex items-center gap-3"><Globe className="w-4 h-4 text-[#a855f7]" /> {t.interfaceLang}</span>
+                                    <button onClick={handleLangToggle} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 border border-white/10">
+                                        {lang === 'fr' ? 'FR' : 'EN'}
+                                    </button>
+                                </div>
+
+                                <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-inner">
+                                    <span className="text-[11px] font-bold text-white/80 uppercase tracking-widest flex items-center gap-3"><Bookmark className="w-4 h-4 text-[#a855f7]" /> {t.favoriteMovies}</span>
+                                    <span className="px-3 py-1 bg-[#a855f7]/20 text-[#a855f7] rounded-lg text-xs font-bold border border-[#a855f7]/30">{watchlist.length}</span>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <h3 className="text-[10px] font-black text-[#a855f7] uppercase tracking-widest pl-2 border-l-2 border-[#a855f7]">{t.systemVideo}</h3>
+                                
+                                <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-inner">
+                                    <span className="text-[11px] font-bold text-white/80 uppercase tracking-widest flex items-center gap-3"><Film className="w-4 h-4 text-[#a855f7]" /> {t.videoQuality}</span>
+                                    <span className="px-3 py-1 bg-white/10 text-white/70 rounded-lg text-[10px] font-black tracking-widest border border-white/10 uppercase">{t.auto4k}</span>
+                                </div>
+
+                                <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-inner">
+                                    <span className="text-[11px] font-bold text-white/80 uppercase tracking-widest flex items-center gap-3"><Shield className="w-4 h-4 text-[#a855f7]" /> {t.parentalFilter}</span>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" className="sr-only peer" />
+                                        <div className="w-9 h-5 bg-black/50 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white/70 after:border-white/20 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#a855f7] peer-checked:after:bg-white shadow-inner"></div>
+                                    </label>
+                                </div>
+
+                                <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-inner">
+                                    <span className="text-[11px] font-bold text-white/80 uppercase tracking-widest flex items-center gap-3"><HardDrive className="w-4 h-4 text-[#a855f7]" /> {t.systemCache}</span>
+                                    <button onClick={() => showToast(t.cacheCleared, 'success')} className="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-lg text-[10px] font-bold uppercase hover:bg-red-500 hover:text-white transition-all border border-red-500/30">{t.clearCache}</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="w-full mt-8 pt-6 border-t border-white/10 text-center">
+                            <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-4">{t.ourPartners}</span>
+                            <div className="flex justify-center items-center gap-6 opacity-80 flex-wrap">
+                                <span className="text-sm font-black tracking-widest text-[#90cea1]">TMDB</span>
+                                <span className="text-sm font-black tracking-widest text-[#f5c518]">OMDb</span>
+                                <span className="text-sm font-black tracking-widest text-[#3c948b]">TVMaze</span>
+                                <span className="text-sm font-black tracking-widest text-white flex items-center gap-1"><Library className="w-4 h-4"/> ARCHIVE</span>
+                            </div>
+                        </div>
+                        
+                        {!showLogoutConfirm ? (
+                            <button onClick={() => setShowLogoutConfirm(true)} className="w-full text-center px-4 py-4 mt-8 bg-red-500/10 text-[11px] font-bold text-red-400 uppercase tracking-widest hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-colors flex justify-center items-center gap-3 active:scale-95 shadow-md">
+                                <LogOut className="w-4 h-4" /> {t.logoutBtn}
+                            </button>
+                        ) : (
+                            <div className="w-full mt-8 bg-red-500/10 border border-red-500/30 p-5 rounded-xl flex flex-col items-center animate-in zoom-in duration-300">
+                                <p className="text-red-400 font-black text-xs uppercase tracking-widest mb-4">{t.logoutConfirm}</p>
+                                <div className="flex gap-4 w-full">
+                                    <button onClick={() => setShowLogoutConfirm(false)} className="flex-1 py-3 bg-white/5 text-white/70 rounded-xl text-[10px] font-bold uppercase hover:bg-white/10 transition-colors">{t.cancel}</button>
+                                    <button onClick={handleLogout} className="flex-1 py-3 bg-red-500 text-white rounded-xl text-[10px] font-bold uppercase shadow-[0_0_15px_rgba(239,68,68,0.4)] hover:bg-red-600 transition-colors">{t.confirm}</button>
+                                </div>
+                            </div>
+                        )}
+
+                        <p className="text-[9px] text-white/20 uppercase tracking-widest mt-6">{t.osVersion}</p>
+                    </div>
+                </div>
+              )}
+
+              {/* MODAL MOVIE */}
+              {selectedMovie && (
+                <MovieModal 
+                  movie={selectedMovie} 
+                  mode={modalMode} 
+                  onClose={() => setSelectedMovie(null)} 
+                  onSelectSimilar={(m) => {
+                    setSelectedMovie(m);
+                    setModalMode('info');
+                  }}
+                  t={t} 
+                  lang={langCode} 
+                  user={user}
+                  watchlist={watchlist}
+                  toggleWatchlist={toggleWatchlist}
+                  showToast={showToast}
+                />
+              )}
             </div>
-          </div>
-          <button id="logoutBtn" class="btn-logout"><i class="fas fa-power-off"></i></button>
-        </div>
+          );
+        }
 
-        <!-- Chargement -->
-        <div id="sectionLoading" style="padding: 40px 0;">
-          <i class="fas fa-circle-notch fa-spin text-purple" style="font-size: 2rem; margin-bottom: 16px;"></i>
-          <p style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700;">Analyse sécurisée...</p>
-        </div>
+        // --- BANNER COMPONENT ---
+        function Banner({ url, onPlay, onInfo, setHero, heroMovie, t }) {
+          useEffect(() => {
+            const fetchMovie = async () => {
+              try {
+                const req = await fetch(`${BASE_URL}${url}`);
+                const data = await req.json();
+                const valids = data.results.filter(m => m.backdrop_path);
+                setHero(valids[Math.floor(Math.random() * valids.length)]);
+              } catch(e) {}
+            };
+            fetchMovie();
+          }, [url]);
 
-        <!-- Pas de Clé (Génération) -->
-        <div id="sectionNoKey" class="hidden">
-          <i class="fas fa-key text-purple" style="font-size: 2.5rem; margin-bottom: 16px;"></i>
-          <h3 style="margin-bottom: 8px;">Générer l'Accès</h3>
-          <p style="font-size: 0.85rem; margin-bottom: 24px;">Créez votre clé unique pour déverrouiller l'écosystème d'applications.</p>
-          <button id="generateKeyBtn" class="btn-modal-primary">Créer ma clé</button>
-        </div>
+          if (!heroMovie) return <div className="h-[80vh] w-full bg-[#060608] animate-pulse"></div>;
 
-        <!-- Clé Active (Affichage 3 min) -->
-        <div id="sectionHasKey" class="hidden">
-          <p style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: var(--text-dim);">Clé d'accès globale</p>
-          <div class="key-display-box">
-            <div id="myKeyDisplay" class="key-text">---</div>
-            <div id="blurOverlay" class="blur-overlay-active hidden">Sécurité Active</div>
-          </div>
-          <button id="copyBtn" class="btn-modal-primary" style="margin-bottom: 16px;"><i class="fas fa-copy"></i> Copier la Clé</button>
-          <p style="font-size: 0.8rem; margin-bottom: 16px; color: var(--text-muted);">Utilisez cette clé copiée pour vous connecter sur n'importe quelle application de l'écosystème.</p>
-          <p style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--text-dim);">Masquage automatique : <span id="timeRemaining" style="color: var(--purple-main);">--:--</span></p>
-        </div>
+          return (
+            <header className="relative h-[65vh] md:h-[80vh] min-h-[500px] text-white transition-all duration-700 bg-[#060608]" style={{ backgroundSize: 'cover', backgroundPosition: '50% 20%', backgroundImage: `url("${IMAGE_ORIGINAL}${heroMovie.backdrop_path}")` }}>
+                <div className="absolute inset-0 bg-gradient-to-r from-[#060608] via-[#060608]/70 to-transparent w-full md:w-[80%]"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#060608] via-transparent to-[#060608]/40 h-full"></div>
+                
+                <div className="relative z-10 flex flex-col justify-end h-full px-4 md:px-14 pb-12 md:pb-24 max-w-4xl w-full">
+                    <div className="flex items-center space-x-3 mb-3 md:mb-4 animate-in slide-in-from-left duration-500">
+                        <span className="text-white/80 font-black tracking-[0.3em] text-[9px] md:text-[11px] uppercase bg-white/5 px-3 py-1 rounded-full border border-white/10 shadow-sm"><LevelMovieLogo className="w-3 h-3 text-[#a855f7] inline mr-1" /> {t.featured}</span>
+                    </div>
+                    
+                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-black pb-2 tracking-tighter text-white drop-shadow-[0_0_30px_rgba(0,0,0,0.9)] leading-tight animate-in slide-in-from-bottom duration-700 line-clamp-3">
+                        {heroMovie.title || heroMovie.name}
+                    </h1>
+                    
+                    <div className="flex items-center gap-3 mt-1 mb-3 text-[10px] md:text-xs font-bold text-white/60 uppercase tracking-widest">
+                        <span className="text-green-400 border border-green-400/30 bg-green-400/10 px-2 py-0.5 rounded shadow-sm">{t.match}</span>
+                        <span>{(heroMovie.release_date || heroMovie.first_air_date || '').substring(0,4)}</span>
+                        <span><Star className="w-3 h-3 text-[#a855f7] inline mb-0.5" /> {heroMovie.vote_average?.toFixed(1)}</span>
+                    </div>
 
-        <!-- Attente (24h Cooldown) -->
-        <div id="sectionWait" class="hidden">
-          <i class="fas fa-shield-lock text-purple" style="font-size: 2.5rem; margin-bottom: 16px;"></i>
-          <h3 style="margin-bottom: 8px;">Sécurité Active</h3>
-          <p style="font-size: 0.85rem; margin-bottom: 16px;">Par mesure de sécurité, votre clé est temporairement masquée.</p>
-          <div class="cooldown-box">
-            <p style="font-size: 0.65rem; text-transform: uppercase; font-weight: 800; color: var(--text-muted); margin-bottom: 4px;">Nouvel affichage dans</p>
-            <div id="cooldownRemaining" class="cooldown-timer">--:--:--</div>
-          </div>
-        </div>
+                    <p className="w-full text-[12px] md:text-[15px] text-white/80 font-medium leading-relaxed max-w-2xl text-justify drop-shadow-lg animate-in fade-in duration-1000 delay-300 line-clamp-3 md:line-clamp-4">
+                        {heroMovie.overview}
+                    </p>
 
-        <!-- Revoir Clé (Après 24h) -->
-        <div id="sectionResee" class="hidden">
-          <i class="fas fa-eye text-purple" style="font-size: 2.5rem; margin-bottom: 16px;"></i>
-          <h3 style="margin-bottom: 8px;">Accès Disponible</h3>
-          <p style="font-size: 0.85rem; margin-bottom: 24px;">Le délai de sécurité est écoulé, vous pouvez afficher votre clé.</p>
-          <button id="reseeBtn" class="btn-modal-primary">Revoir ma clé</button>
-        </div>
+                    <div className="flex flex-wrap gap-3 mt-5 md:mt-6">
+                        <button onClick={onPlay} className="flex-1 md:flex-none items-center justify-center flex gap-2 px-6 md:px-8 py-3 bg-white text-black rounded-xl text-[11px] md:text-[13px] font-black uppercase tracking-widest hover:bg-gray-200 transition-all shadow-[0_0_30px_rgba(255,255,255,0.3)] active:scale-95">
+                            <Play className="w-4 h-4 fill-black" /> <span>{t.play}</span>
+                        </button>
+                        <button onClick={onInfo} className="flex-1 md:flex-none items-center justify-center flex gap-2 px-6 md:px-8 py-3 bg-white/10 border border-white/20 rounded-xl text-[11px] md:text-[13px] font-bold text-white uppercase tracking-widest hover:bg-white/20 transition-all active:scale-95 backdrop-blur-md">
+                            <Info className="w-4 h-4" /> <span>{t.details}</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+          );
+        }
 
-      </div>
-    </div>
-  </div>
-</div>
+        // --- ROW COMPONENT ---
+        function Row({ title, fetchUrl, isLarge, onMovieClick }) {
+          const [movies, setMovies] = useState([]);
+          const rowRef = useRef(null);
 
-<div class="toast-notification" id="toast">Copié !</div>
+          useEffect(() => {
+            const fetchM = async () => {
+              try {
+                const req = await fetch(`${BASE_URL}${fetchUrl}`);
+                const data = await req.json();
+                setMovies(data.results.filter(m => m.poster_path));
+              } catch(e) {}
+            };
+            fetchM();
+          }, [fetchUrl]);
 
-<!-- SCRIPTS UNIFIÉS (UI + Auth + Firestore) -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getAuth, signInAnonymously, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import { getFirestore, doc, onSnapshot, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+          let isDown = false;
+          let startX;
+          let scrollLeft;
 
-const firebaseConfig = {
-  apiKey: "AIzaSyA3JgvNu5p-43037jvm4WRDaJHI9ES7uGM",
-  authDomain: "levelup-ia.firebaseapp.com",
-  projectId: "levelup-ia",
-  storageBucket: "levelup-ia.firebasestorage.app",
-  messagingSenderId: "229420004282",
-  appId: "1:229420004282:web:6735f059a947f0936ae383",
-  measurementId: "G-MSRDY2574K"
-};
+          const handleMouseDown = (e) => {
+            isDown = true;
+            startX = e.pageX - rowRef.current.offsetLeft;
+            scrollLeft = rowRef.current.scrollLeft;
+          };
+          const handleMouseLeave = () => { isDown = false; };
+          const handleMouseUp = () => { isDown = false; };
+          const handleMouseMove = (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - rowRef.current.offsetLeft;
+            const walk = (x - startX) * 2; 
+            rowRef.current.scrollLeft = scrollLeft - walk;
+          };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const provider = new GoogleAuthProvider();
+          const scrollAction = (direction) => {
+              const scrollAmt = 400;
+              if (rowRef.current) {
+                  rowRef.current.scrollBy({ left: direction === 'left' ? -scrollAmt : scrollAmt, behavior: 'smooth' });
+              }
+          }
 
-const APP_ID = "level-ia-premium";
-const VIEW_DURATION = 180 * 1000; 
-const COOLDOWN_DURATION = 24 * 60 * 60 * 1000; 
+          if (movies.length === 0) return null;
 
-let currentUser = null;
-let isRealUser = false; // Différencie Google Auth de l'Auth Anonyme
-let activeInterval;
+          return (
+            <div className="group relative ml-4 md:ml-12 animate-in fade-in duration-700">
+                <h2 className="text-white/90 text-[13px] md:text-lg font-black mb-3 md:mb-5 uppercase tracking-[0.2em] border-l-4 border-[#a855f7] pl-3 md:pl-4 drop-shadow-sm flex items-center gap-3">
+                    {title} <ChevronRight className="w-4 h-4 text-white/30" />
+                </h2>
+                
+                <div onClick={() => scrollAction('left')} className="absolute left-0 top-12 bottom-0 z-40 w-10 bg-gradient-to-r from-[#060608] via-[#060608]/80 to-transparent opacity-0 md:group-hover:opacity-100 flex items-center justify-start cursor-pointer transition-opacity duration-300 -ml-4 md:-ml-12 hidden md:flex">
+                    <ChevronLeft className="text-white hover:text-[#a855f7] transition-colors w-10 h-10 ml-1 drop-shadow-lg" />
+                </div>
+                
+                <div 
+                  ref={rowRef}
+                  onMouseDown={handleMouseDown} onMouseLeave={handleMouseLeave} onMouseUp={handleMouseUp} onMouseMove={handleMouseMove}
+                  className="flex overflow-y-hidden overflow-x-scroll py-2 md:py-4 space-x-3 md:space-x-5 no-scrollbar pr-8 cursor-grab active:cursor-grabbing"
+                >
+                    {movies.map(movie => {
+                      const imgClass = isLarge ? 'w-[140px] md:w-[200px] h-[210px] md:h-[300px]' : 'w-[200px] md:w-[260px] h-[112px] md:h-[146px]';
+                      const imgSrc = `${IMAGE_BASE_URL}${isLarge ? movie.poster_path : (movie.backdrop_path || movie.poster_path)}`;
+                      return (
+                          <div key={movie.id} className="relative flex-none movie-card-hover cursor-pointer rounded-xl overflow-hidden shadow-lg border border-white/5 bg-[#151520]" onClick={() => onMovieClick(movie)}>
+                              <img className={`object-cover ${imgClass} transition-opacity duration-500`} src={imgSrc} loading="lazy" alt="" draggable="false"/>
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3 md:p-4 pointer-events-none">
+                                  <p className="text-white font-black text-[10px] md:text-sm uppercase tracking-wider truncate drop-shadow-md">{movie.title || movie.name}</p>
+                                  <div className="flex items-center gap-2 mt-1 md:mt-2">
+                                      <span className="text-[#a855f7] font-bold text-[9px] md:text-[10px]"><Star className="w-3 h-3 inline mb-0.5" /> {movie.vote_average?.toFixed(1)}</span>
+                                  </div>
+                              </div>
+                          </div>
+                      )
+                    })}
+                </div>
+                
+                <div onClick={() => scrollAction('right')} className="absolute right-0 top-12 bottom-0 z-40 w-12 bg-gradient-to-l from-[#060608] via-[#060608]/80 to-transparent opacity-0 md:group-hover:opacity-100 flex items-center justify-end cursor-pointer transition-opacity duration-300 hidden md:flex">
+                    <ChevronRight className="text-white hover:text-[#a855f7] transition-colors w-10 h-10 mr-2 drop-shadow-lg" />
+                </div>
+            </div>
+          )
+        }
 
-// --- UTILS UI GENERAUX ---
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) entry.target.classList.add('visible');
-  });
-}, { threshold: 0.1 });
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        // --- MODAL MOVIE ---
+        function MovieModal({ movie, mode, onClose, onSelectSimilar, t, lang, user, watchlist, toggleWatchlist, showToast }) {
+          const [details, setDetails] = useState(null);
+          const [loading, setLoading] = useState(true);
+          const [error, setError] = useState(false);
+          const [modalMode, setModalMode] = useState(mode);
+          
+          const [showDisclaimer, setShowDisclaimer] = useState(false);
+          const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
+          const [selectedServer, setSelectedServer] = useState('vidsrc');
+          const [pendingServer, setPendingServer] = useState('vidsrc');
 
-window.addEventListener('scroll', () => {
-  const nav = document.getElementById('navbar');
-  if (window.scrollY > 50) {
-    nav.style.background = 'rgba(3,3,3,0.9)';
-    nav.style.padding = '12px 5%';
-  } else {
-    nav.style.background = 'rgba(3,3,3,0.7)';
-    nav.style.padding = '16px 5%';
-  }
-});
+          const isTV = movie.first_air_date !== undefined;
+          const typeStr = isTV ? 'tv' : 'movie';
+          const isAddedToWatchlist = watchlist.includes(movie.id);
+          
+          useEffect(() => {
+            const fetchDetails = async () => {
+              try {
+                const res = await fetch(`${BASE_URL}/${typeStr}/${movie.id}?api_key=${API_KEY}&language=${lang}&append_to_response=credits,similar,watch/providers,videos,reviews`);
+                const data = await res.json();
+                setDetails(data);
+                setLoading(false);
+              } catch (e) {
+                setError(true);
+                setLoading(false);
+              }
+            };
+            fetchDetails();
+          }, [movie, typeStr, lang]);
 
-// --- VARIABLES BOT & ADN IA ---
-let botApiKeys = [];
-let currentBotKeyIndex = 0;
-const fallbackKey = firebaseConfig.apiKey; 
-let configUnsubscribe = null;
+          useEffect(() => {
+            if (mode === 'play') {
+               handleServerClick('vidsrc');
+            } else {
+               setModalMode('info');
+            }
+          }, [mode]);
 
-// Fonction de récupération de la config (exécutée uniquement quand l'utilisateur est authentifié)
-function fetchBotConfig() {
-  if (configUnsubscribe) return;
-  configUnsubscribe = onSnapshot(
-    doc(db, "artifacts", "level-ia-premium", "system", "config"), 
-    (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        const rawKeys = data.gemini_api_keys || data.gemini_api_key;
-        if (Array.isArray(rawKeys) && rawKeys.length > 0) botApiKeys = rawKeys.map(k => k.trim());
-        else if (typeof rawKeys === 'string' && rawKeys.trim()) botApiKeys = [rawKeys.trim()];
-      }
-    },
-    (error) => {
-      console.warn("Erreur de permission Firestore ignorée pour la config :", error);
-    }
-  );
-}
+          const handleShare = () => {
+            const url = `https://www.themoviedb.org/${typeStr}/${movie.id}`;
+            const text = `${t.share} "${movie.title || movie.name}" !`;
+            if (navigator.share) {
+              navigator.share({ title: 'LevelMovie', text: text, url: url }).catch(()=>{});
+            } else {
+              navigator.clipboard.writeText(`${text} ${url}`);
+              showToast(t.linkCopied, 'success');
+            }
+          };
 
-// -- GESTION DE L'AUTHENTIFICATION HYBRIDE --
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    fetchBotConfig(); // Récupère la config en toute sécurité une fois l'authentification établie
+          const getTrailerKey = () => {
+            if (!details?.videos?.results) return '';
+            const trailer = details.videos.results.find(v => v.type === 'Trailer' && v.site === 'YouTube') || details.videos.results.find(v=>v.site==='YouTube');
+            return trailer ? trailer.key : '';
+          };
 
-    if (!user.isAnonymous) {
-      // Connexion Réelle (Clé Google)
-      currentUser = user;
-      isRealUser = true;
-      document.getElementById('userName').innerText = user.displayName || "Utilisateur";
-      document.getElementById('userAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`;
-      
-      if (modalOverlay.classList.contains('active')) {
-        viewLogin.classList.add('hidden');
-        viewAppContent.classList.remove('hidden');
-        processUserKeyData();
-      }
-    } else {
-      // Connexion Anonyme (Chatbot & ADN)
-      isRealUser = false;
-    }
-  } else {
-    // Si déconnecté de Google, on connecte en anonyme pour le site
-    signInAnonymously(auth).catch(e => console.error(e));
-    isRealUser = false;
-    viewLogin.classList.remove('hidden');
-    viewAppContent.classList.add('hidden');
-  }
-});
+          const getYoutubeFullKey = () => {
+            if (!details?.videos?.results) return null;
+            const full = details.videos.results.find(v => v.type === 'Feature Film' && v.site === 'YouTube');
+            return full ? full.key : null;
+          };
 
+          const getProviders = () => {
+            const region = lang === 'fr-FR' ? 'FR' : 'US';
+            const providerData = details?.['watch/providers']?.results?.[region];
+            if (!providerData) return null;
+            
+            const allProviders = [...(providerData.flatrate || []), ...(providerData.free || []), ...(providerData.ads || [])];
+            const unique = [];
+            const seen = new Set();
+            for (const p of allProviders) {
+                if (!seen.has(p.provider_id)) {
+                    seen.add(p.provider_id);
+                    unique.push(p);
+                }
+            }
+            return unique.length > 0 ? { unique, link: providerData.link } : null;
+          };
 
-// ==========================================
-// LOGIQUE DE LA MODALE & CLÉ
-// ==========================================
+          const handleServerClick = (serverId) => {
+              if (!disclaimerAccepted) {
+                  setPendingServer(serverId);
+                  setShowDisclaimer(true);
+              } else {
+                  setSelectedServer(serverId);
+                  setModalMode('play');
+              }
+          };
 
-const modalOverlay = document.getElementById('keyModalOverlay');
-const closeModalBtn = document.getElementById('closeModalBtn');
-const viewLogin = document.getElementById('viewLogin');
-const viewAppContent = document.getElementById('viewAppContent');
+          const getFormatRuntime = () => {
+            if(!details) return '';
+            if (details.runtime) {
+                const h = Math.floor(details.runtime / 60);
+                const m = details.runtime % 60;
+                return `${h}h ${m}m`;
+            } else if (details.episode_run_time && details.episode_run_time.length > 0) {
+                return `${details.episode_run_time[0]} min/ep`;
+            }
+            return '';
+          };
 
-const sections = {
-  loading: document.getElementById('sectionLoading'),
-  noKey: document.getElementById('sectionNoKey'),
-  hasKey: document.getElementById('sectionHasKey'),
-  wait: document.getElementById('sectionWait'),
-  resee: document.getElementById('sectionResee')
-};
+          const getDirector = () => {
+              if(!details) return t.notSpecified;
+              let directors = [];
+              if (details.credits && details.credits.crew) {
+                  directors = details.credits.crew.filter(c => c.job === 'Director').map(c => c.name);
+              }
+              if (directors.length === 0 && details.created_by) {
+                  directors = details.created_by.map(c => c.name);
+              }
+              return directors.length > 0 ? directors.join(', ') : t.notSpecified;
+          };
 
-// Ouverture de la modale "Obtenir une clé"
-document.querySelectorAll('.btn-get-key').forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    e.preventDefault();
-    modalOverlay.classList.add('active');
-    if (isRealUser) {
-      viewLogin.classList.add('hidden');
-      viewAppContent.classList.remove('hidden');
-      processUserKeyData();
-    } else {
-      viewLogin.classList.remove('hidden');
-      viewAppContent.classList.add('hidden');
-    }
-  });
-});
+          const renderIframe = () => {
+            if (modalMode === 'info') {
+              const tKey = getTrailerKey();
+              if (tKey) {
+                return (
+                  <>
+                    <div className="absolute inset-0 bg-transparent z-10 pointer-events-none"></div>
+                    <iframe className="absolute inset-0 w-full h-full bg-black" src={`https://www.youtube.com/embed/${tKey}?autoplay=1&controls=1&modestbranding=1&rel=0&showinfo=0&disablekb=1&mute=1&loop=1&playlist=${tKey}`} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+                  </>
+                );
+              } else if (movie.backdrop_path) {
+                return <img src={`${IMAGE_ORIGINAL}${movie.backdrop_path}`} className="absolute inset-0 w-full h-full object-cover opacity-60" alt="" />;
+              }
+              return <div className="absolute inset-0 bg-black flex items-center justify-center text-white/30"><Film className="w-16 h-16" /></div>;
+            }
 
-closeModalBtn.addEventListener('click', () => {
-  modalOverlay.classList.remove('active');
-});
+            let iframeSrc = '';
+            if (selectedServer === 'youtube_full' && getYoutubeFullKey()) {
+                iframeSrc = `https://www.youtube.com/embed/${getYoutubeFullKey()}?autoplay=1`;
+            } else if (selectedServer === 'vidsrc') {
+                iframeSrc = `https://vidsrc.to/embed/${typeStr}/${movie.id}`;
+            } else if (selectedServer === 'vidsrc_me') {
+                iframeSrc = `https://vidsrc.me/embed/${typeStr}?tmdb=${movie.id}`;
+            } else if (selectedServer === 'superembed') {
+                iframeSrc = `https://multiembed.mov/?video_id=${movie.id}&tmdb=1`;
+            } else if (selectedServer === 'archive') {
+                const title = movie.title || movie.name;
+                const suffix = lang === 'fr-FR' ? ' film complet' : ' full movie';
+                const q = encodeURIComponent(title + suffix);
+                iframeSrc = `https://www.youtube.com/embed?listType=search&list=${q}&autoplay=1`;
+            }
 
-function hideAllSections() {
-  Object.values(sections).forEach(s => s.classList.add('hidden'));
-  if (activeInterval) clearInterval(activeInterval);
-}
+            return (
+                <>
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-0">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#a855f7]"></div>
+                    </div>
+                    <iframe className="absolute inset-0 w-full h-full bg-transparent z-10" src={iframeSrc} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+                </>
+            );
+          };
 
-// Connexion / Déconnexion Google manuelle
-document.getElementById('googleLoginBtn').onclick = async () => {
-  try {
-    await signInWithPopup(auth, provider);
-  } catch (error) {
-    showToast("Erreur de connexion.");
-  }
-};
-document.getElementById('logoutBtn').onclick = () => { signOut(auth); };
+          return (
+            <div className="fixed inset-0 z-[8000] flex justify-center items-start md:items-center p-0 md:p-6 bg-[#060608]/95 backdrop-blur-3xl overflow-y-auto no-scrollbar">
+                <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#a855f7]/10 rounded-full blur-[150px] pointer-events-none z-0"></div>
+                <div className="fixed inset-0 z-0" onClick={onClose}></div>
 
-// Gestion de la BDD et clés
-async function processUserKeyData() {
-  hideAllSections();
-  sections.loading.classList.remove('hidden');
-  try {
-    const keyRef = doc(db, "artifacts", APP_ID, "users", currentUser.uid, "security", "data");
-    const snap = await getDoc(keyRef);
-    sections.loading.classList.add('hidden');
-    if (snap.exists()) {
-      handleExistingKey(snap.data());
-    } else {
-      sections.noKey.classList.remove('hidden');
-    }
-  } catch (e) { showToast("Erreur de base de données"); }
-}
+                {/* MODAL AVERTISSEMENT (SÉPARÉ ET PRO) */}
+                {showDisclaimer && (
+                  <div className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+                    <div className="bg-[#0a0a0f] border border-[#a855f7]/30 rounded-3xl p-6 md:p-8 max-w-xl w-full shadow-[0_0_50px_rgba(168,85,247,0.2)] animate-in zoom-in duration-300">
+                       <h3 className="text-xl md:text-2xl font-black text-white mb-4 uppercase tracking-widest flex items-center gap-3 border-b border-white/10 pb-4">
+                         <AlertTriangle className="text-red-500 w-8 h-8" /> {t.warningTitle}
+                       </h3>
+                       
+                       <div className="bg-gradient-to-r from-purple-900/40 to-pink-900/40 border border-[#a855f7]/50 p-5 rounded-2xl mb-6 shadow-[0_0_20px_rgba(168,85,247,0.15)]">
+                          <h4 className="text-white font-black text-sm md:text-base mb-2 tracking-widest">{t.recommendationTitle}</h4>
+                          <p className="text-white/80 text-xs md:text-sm leading-relaxed" dangerouslySetInnerHTML={{__html: t.recommendationText}}></p>
+                       </div>
 
-function handleExistingKey(data) {
-  const now = Date.now();
-  const lastViewedAt = data.lastViewedAt || data.createdAt || 0;
-  const viewEndsAt = lastViewedAt + VIEW_DURATION;
-  const cooldownEndsAt = lastViewedAt + COOLDOWN_DURATION;
+                       <p className="text-white/60 text-[10px] md:text-xs leading-relaxed mb-6 text-justify">
+                          {t.warningDisclaimer}
+                       </p>
+                       
+                       <div className="flex flex-wrap gap-4 mb-8 justify-center">
+                          <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-xl shadow-inner">
+                             <svg viewBox="0 0 512 512" className="w-5 h-5" fill="#FF1B2D"><path d="M255.8 48C141 48 48 141.2 48 256s93 208 207.8 208c115 0 208.2-93.2 208.2-208S370.8 48 255.8 48zm0 338.5c-56 0-101.2-58.5-101.2-130.5 0-72 45.2-130.5 101.2-130.5 56 0 101.2 58.5 101.2 130.5 0 72-45.2 130.5-101.2 130.5z"/></svg>
+                             <span className="text-[11px] font-bold text-white tracking-widest uppercase">Opera</span>
+                          </div>
+                          <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-xl shadow-inner">
+                             <svg viewBox="0 0 24 24" className="w-5 h-5 text-[#FF4724]" fill="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                             <span className="text-[11px] font-bold text-white tracking-widest uppercase">Brave</span>
+                          </div>
+                       </div>
 
-  const keyDisplay = document.getElementById('myKeyDisplay');
-  const blurOverlay = document.getElementById('blurOverlay');
-  const copyBtn = document.getElementById('copyBtn');
+                       <label className="flex items-start gap-3 cursor-pointer mb-8 bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition-colors shadow-sm">
+                          <input type="checkbox" checked={disclaimerAccepted} onChange={(e) => setDisclaimerAccepted(e.target.checked)} className="mt-0.5 w-5 h-5 accent-[#a855f7] cursor-pointer" />
+                          <span className="text-white/90 text-xs md:text-sm font-bold leading-tight">{t.disclaimerCheckbox}</span>
+                       </label>
 
-  keyDisplay.classList.remove('blur-secure');
-  blurOverlay.classList.add('hidden');
-  copyBtn.disabled = false;
-  copyBtn.style.opacity = '1';
+                       <div className="flex justify-end gap-3 border-t border-white/10 pt-6">
+                          <button onClick={() => setShowDisclaimer(false)} className="px-6 py-3 rounded-xl font-bold text-[11px] uppercase tracking-widest text-white/50 hover:text-white hover:bg-white/5 transition-colors">{t.cancel}</button>
+                          <button disabled={!disclaimerAccepted} onClick={() => {
+                              setShowDisclaimer(false);
+                              setSelectedServer(pendingServer);
+                              setModalMode('play');
+                          }} className="px-8 py-3 bg-[#a855f7] text-white rounded-xl font-black text-[11px] uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed hover:bg-purple-500 transition-all shadow-[0_0_20px_rgba(168,85,247,0.4)]">{t.acceptPlay}</button>
+                       </div>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="holo-card relative w-full min-h-[100vh] md:min-h-0 md:h-auto max-h-full md:max-h-[90vh] max-w-6xl md:rounded-[2rem] overflow-x-hidden overflow-y-auto shadow-[0_0_80px_rgba(0,0,0,0.9)] border-white/10 animate-in slide-in-from-bottom md:zoom-in duration-300 flex flex-col bg-[#0a0a0f] z-10 md:my-auto my-0">
+                    
+                    {/* Barre de Contrôle Pro */}
+                    <div className="w-full bg-[#0a0a0f] border-b border-white/5 flex justify-between items-center px-4 md:px-8 py-3 shrink-0 sticky top-0 z-[60] shadow-md">
+                        <div className="flex items-center gap-2">
+                            <LevelMovieLogo className="w-4 h-4 text-[#a855f7]" />
+                            <span className="text-white font-black tracking-[0.2em] text-[12px] uppercase drop-shadow-md">Level<span className="text-[#a855f7]">Movie</span></span>
+                        </div>
+                        <button onClick={onClose} className="flex items-center gap-2 px-5 py-2 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl text-[10px] md:text-[11px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all shadow-sm active:scale-95">
+                            <X className="w-3 h-3" /> <span>{t.closePlayer}</span>
+                        </button>
+                    </div>
+                    
+                    <div className="relative pt-[56.25%] md:pt-[45%] w-full bg-black shrink-0 overflow-hidden border-b border-[#a855f7]/30 shadow-lg">
+                        {loading ? (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/80">
+                            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#a855f7]"></div>
+                          </div>
+                        ) : error ? (
+                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#060608] text-center p-6 border-b border-[#a855f7]/30">
+                            <LevelMovieLogo className="w-12 h-12 text-[#a855f7] mb-6 opacity-80" />
+                            <div className="bg-red-500/10 p-4 rounded-full mb-4">
+                                <AlertTriangle className="w-8 h-8 text-red-400" />
+                            </div>
+                            <h3 className="text-lg font-black mb-2 text-white uppercase tracking-widest drop-shadow-md">{t.notFound}</h3>
+                            <p className="text-white/60 text-xs max-w-sm">{t.contentUnavailableDesc}</p>
+                          </div>
+                        ) : renderIframe()}
+                    </div>
+                    
+                    <div className="p-5 md:p-10 shrink-0 bg-gradient-to-b from-[#15092a]/40 to-transparent h-full pb-24">
+                        
+                        {modalMode === 'play' && (
+                          <div className="mb-8 flex flex-col gap-5 bg-black/40 p-5 md:p-6 rounded-2xl border border-white/5 shadow-inner">
+                              <div className="flex justify-between items-center mb-4">
+                                  <span className="text-[11px] font-black text-white/70 uppercase tracking-widest"><Server className="w-4 h-4 inline mr-2 text-[#a855f7]" /> {t.externalSources}</span>
+                                  <button onClick={() => setModalMode('info')} className="text-[10px] font-bold text-white/50 hover:text-white uppercase tracking-widest border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors"><Info className="w-3 h-3 inline mr-1" /> {t.movieInfo}</button>
+                              </div>
+                              <div className="flex flex-wrap gap-3">
+                                  {['vidsrc', 'vidsrc_me', 'superembed'].map(srv => (
+                                    <button key={srv} onClick={() => handleServerClick(srv)} className={`px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase transition-all ${selectedServer === srv ? 'bg-[#a855f7] text-white border border-[#a855f7]/30 shadow-[0_0_15px_rgba(168,85,247,0.3)]' : 'bg-white/5 text-white/70 border border-white/10 hover:bg-white/10'}`}>
+                                      {srv === 'vidsrc' ? t.server1 : srv === 'vidsrc_me' ? t.server2 : t.server3}
+                                    </button>
+                                  ))}
+                                  
+                                  {/* Domaine Public */}
+                                  {(movie.release_date && parseInt(movie.release_date.substring(0, 4)) <= 1970) && (
+                                    <button onClick={() => handleServerClick('archive')} className={`px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase transition-all ${selectedServer === 'archive' ? 'bg-[#a855f7] text-white border border-[#a855f7]/30 shadow-[0_0_15px_rgba(168,85,247,0.3)]' : 'bg-white/5 text-white/70 border border-white/10 hover:bg-white/10'}`}>
+                                      <Library className="w-3 h-3 inline mr-1 text-gray-400" /> {t.publicDomainDirect}
+                                    </button>
+                                  )}
+                                  
+                                  {/* Youtube Full */}
+                                  {getYoutubeFullKey() && (
+                                    <button onClick={() => handleServerClick('youtube_full')} className={`ml-auto px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase transition-all ${selectedServer === 'youtube_full' ? 'bg-red-600 text-white border border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.4)]' : 'bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500 hover:text-white'}`}>
+                                      <Youtube className="w-3 h-3 inline mr-1" /> {t.youtubeFull}
+                                    </button>
+                                  )}
+                              </div>
+                          </div>
+                        )}
 
-  if (now < viewEndsAt) {
-    keyDisplay.innerText = data.key;
-    sections.hasKey.classList.remove('hidden');
-    startViewCountdown(viewEndsAt);
-  } else if (now >= viewEndsAt && now < cooldownEndsAt) {
-    sections.wait.classList.remove('hidden');
-    startCooldownCountdown(cooldownEndsAt);
-  } else {
-    sections.resee.classList.remove('hidden');
-  }
-}
+                        {modalMode === 'info' && details && (
+                          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+                              <div className="flex-1">
+                                  <h2 className="text-3xl md:text-5xl font-black mb-2 text-white uppercase tracking-tighter drop-shadow-lg leading-tight">
+                                    {movie.title || movie.name || movie.original_name}
+                                  </h2>
+                                  <div className="text-[#a855f7] italic text-sm md:text-base font-medium mb-4 drop-shadow-sm flex items-center gap-2">
+                                      <span>{details.tagline ? `"${details.tagline}"` : ''}</span>
+                                  </div>
 
-// Génération de clé
-document.getElementById('generateKeyBtn').onclick = async () => {
-  const btn = document.getElementById('generateKeyBtn');
-  btn.disabled = true;
-  btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Création...`;
+                                  <div className="flex items-center space-x-3 mb-6 flex-wrap gap-y-3">
+                                      <span className="text-green-400 font-black text-[11px] md:text-[12px] uppercase tracking-widest border border-green-400/30 px-2 py-1 rounded bg-green-400/10 shadow-sm">{t.match}</span>
+                                      {details.status && <span className="text-blue-400 font-bold text-[10px] md:text-[11px] uppercase tracking-widest border border-blue-400/30 px-2 py-1 rounded bg-blue-400/10">{details.status}</span>}
+                                      <span className="text-white/80 font-bold text-[12px] md:text-[13px] border-l border-white/20 pl-3">{(movie.release_date || movie.first_air_date || '').substring(0, 4)}</span>
+                                      <span className="text-white/80 font-bold text-[12px] md:text-[13px] border-l border-white/20 pl-3">{getFormatRuntime()}</span>
+                                      {details.original_language && <span className="text-white/60 font-bold text-[11px] uppercase tracking-widest border-l border-white/20 pl-3">{t.originalLang}: {details.original_language.toUpperCase()}</span>}
+                                      <span className="px-2 py-1 border border-white/20 rounded text-[10px] font-bold text-white uppercase tracking-widest bg-white/5 shadow-sm border-l border-white/20 pl-3 ml-2">HD 1080p</span>
+                                  </div>
 
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let p1 = '', p2 = '';
-  for(let i=0; i<5; i++) p1 += chars.charAt(Math.floor(Math.random() * chars.length));
-  for(let i=0; i<5; i++) p2 += chars.charAt(Math.floor(Math.random() * chars.length));
-  const newKey = `LVL-${p1}-${p2}`;
-  const now = Date.now();
+                                  <div className="mb-4">
+                                      <span className="text-white/40 font-bold text-[10px] uppercase tracking-widest block mb-1">{t.originalTitle}</span>
+                                      <span className="text-white/70 font-medium text-[12px] italic">{details.original_title || details.original_name || t.notSpecified}</span>
+                                  </div>
 
-  let emailSentStatus = false;
-  try {
-    if (currentUser.email) {
-      await window.emailjs.send("service_yzyqexy", "template_bmdd4zl", {
-        email: currentUser.email, to_name: currentUser.displayName || "Utilisateur", access_key: newKey
-      }, "7UQM4yu7KUSpooMy9");
-      emailSentStatus = true;
-    }
-  } catch(e) {}
+                                  {/* Légal */}
+                                  {getProviders() ? (
+                                    <div className="mb-6 p-5 bg-white/5 rounded-2xl border border-white/10 shadow-inner">
+                                      <h4 className="text-white/50 text-[10px] md:text-xs uppercase font-bold tracking-widest mb-3 flex items-center gap-2"><Play className="w-4 h-4 text-green-400" /> {t.legalWatch}</h4>
+                                      <div className="flex flex-wrap gap-3">
+                                        {getProviders().unique.slice(0,8).map(p => (
+                                          <a key={p.provider_id} href={getProviders().link} target="_blank" rel="noreferrer" className="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-4 py-2 transition-all hover:scale-105 active:scale-95 no-underline shadow-sm">
+                                              <img src={`https://image.tmdb.org/t/p/w45${p.logo_path}`} className="w-5 h-5 rounded-md shadow-sm" alt="" />
+                                              <span className="text-[11px] font-bold text-white">{p.provider_name}</span>
+                                          </a>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="mb-6 p-5 bg-white/5 rounded-2xl border border-white/10 shadow-inner">
+                                       <h4 className="text-white/50 text-[10px] md:text-xs uppercase font-bold tracking-widest mb-3 flex items-center gap-2"><Play className="w-4 h-4 text-green-400" /> {t.legalWatch}</h4>
+                                       <p className="text-white/40 text-[11px] italic">{t.noLegal}</p>
+                                    </div>
+                                  )}
 
-  try {
-    const keyRef = doc(db, "artifacts", APP_ID, "users", currentUser.uid, "security", "data");
-    await setDoc(keyRef, {
-      key: newKey, uid: currentUser.uid, email: currentUser.email || "",
-      name: currentUser.displayName || "Utilisateur", displayName: currentUser.displayName || "Utilisateur",
-      owner: currentUser.email || "inconnu", photoURL: currentUser.photoURL || "",
-      picture: currentUser.photoURL || "", createdAt: now, lastViewedAt: now, emailSent: emailSentStatus
-    });
-    
-    document.getElementById('myKeyDisplay').innerText = newKey;
-    hideAllSections();
-    sections.hasKey.classList.remove('hidden');
-    startViewCountdown(now + VIEW_DURATION);
-  } catch (e) {
-    showToast("Erreur de création");
-    btn.disabled = false; btn.innerText = "Créer ma clé";
-  }
-};
+                                  <div className="flex flex-wrap gap-3 mb-6">
+                                      <button onClick={() => setModalMode('play')} className="flex-1 sm:flex-none items-center justify-center flex gap-2 px-8 py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl text-[11px] md:text-[13px] font-black uppercase tracking-widest hover:opacity-90 transition-all shadow-[0_0_20px_rgba(168,85,247,0.4)] active:scale-95">
+                                          <Play className="w-4 h-4 fill-white" /> <span>{t.playMovie}</span>
+                                      </button>
+                                      <button onClick={() => {
+                                          setModalMode('info');
+                                          const modalHoloCard = document.querySelector('#videoModal .holo-card');
+                                          if (modalHoloCard) modalHoloCard.scrollTo({top: 0, behavior: 'smooth'});
+                                      }} className="flex-1 sm:flex-none items-center justify-center flex gap-2 px-6 py-3.5 bg-white/10 border border-white/20 rounded-xl text-[11px] md:text-[13px] font-bold text-white uppercase tracking-widest hover:bg-white/20 transition-all active:scale-95 backdrop-blur-md opacity-50 cursor-default">
+                                          <Film className="w-4 h-4" /> <span>{t.trailer}</span> {t.inProgress}
+                                      </button>
+                                  </div>
 
-// Revoir la clé
-document.getElementById('reseeBtn').onclick = async () => {
-  const btn = document.getElementById('reseeBtn');
-  btn.disabled = true;
-  btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Autorisation...`;
+                                  <div className="markdown-pro pr-2 text-justify">
+                                    {movie.overview ? movie.overview.split('\n').filter(p=>p.trim()).map((p,i) => <p key={i} className="mb-3">{p}</p>) : <p>{t.noDesc}</p>}
+                                  </div>
+                                  
+                                  <div className="mt-8 flex gap-4 pt-6 border-t border-white/10">
+                                      <button onClick={() => toggleWatchlist(movie)} className={`flex-1 flex items-center justify-center gap-3 px-5 py-3 rounded-xl border transition-all active:scale-95 outline-none ${isAddedToWatchlist ? 'bg-green-500/10 border-green-500/30 text-green-400' : 'bg-white/5 border-white/20 text-white/80 hover:bg-white/10'}`}>
+                                          {isAddedToWatchlist ? <><CheckCircle className="w-5 h-5" /><span className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest">{t.alreadyInList}</span></> : <><Plus className="w-5 h-5 text-[#a855f7]" /><span className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest">{t.addToList}</span></>}
+                                      </button>
+                                      <button onClick={handleShare} className="flex items-center justify-center gap-3 px-6 py-3 rounded-xl border border-white/20 bg-white/5 text-white/80 hover:text-white hover:bg-white/10 transition-all active:scale-95 outline-none">
+                                          <Share2 className="w-5 h-5 text-blue-400" />
+                                      </button>
+                                  </div>
+                              </div>
+                              
+                              <div className="w-full lg:w-[35%] space-y-6 bg-black/40 p-5 md:p-6 rounded-2xl border border-white/5 shadow-inner h-fit">
+                                  <div>
+                                      <span className="text-white/40 font-bold block mb-3 uppercase tracking-widest text-[10px] flex items-center gap-2"><Users className="w-4 h-4 text-[#a855f7]" /> <span>{t.cast}</span></span>
+                                      <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 row-container cursor-grab active:cursor-grabbing">
+                                          {details.credits?.cast?.slice(0, 15).map(c => (
+                                            <div key={c.id} className="flex flex-col items-center min-w-[70px] gap-1 shrink-0 select-none">
+                                                <img src={c.profile_path ? `https://image.tmdb.org/t/p/w185${c.profile_path}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(c.name)}&background=151520&color=a855f7`} className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover border border-white/10 shadow-md bg-black/50" draggable="false" alt=""/>
+                                                <span className="text-[9px] text-white/90 text-center font-bold w-[80px] truncate px-1 mt-1">{c.name}</span>
+                                                {c.character && <span className="text-[8px] text-[#a855f7] truncate w-[80px] text-center mt-0.5">{c.character}</span>}
+                                            </div>
+                                          )) || <span className="text-white/50 text-xs">{t.noCasting}</span>}
+                                      </div>
+                                  </div>
+                                  <div className="w-full h-px bg-white/10"></div>
+                                  <div>
+                                      <span className="text-white/40 font-bold block mb-1 uppercase tracking-widest text-[10px] flex items-center gap-2"><Film className="w-4 h-4 text-[#a855f7]" /> {t.director}</span>
+                                      <span className="text-white/90 font-medium text-[12px] block mt-2">{getDirector()}</span>
+                                  </div>
+                                  <div className="w-full h-px bg-white/10"></div>
+                                  <div>
+                                      <span className="text-white/40 font-bold block mb-1 uppercase tracking-widest text-[10px] flex items-center gap-2"><Tags className="w-4 h-4 text-[#a855f7]" /> {t.genresOrigin}</span>
+                                      <span className="text-white/90 font-bold text-[11px] uppercase tracking-widest leading-relaxed block mt-2">
+                                        {details.genres?.map(g => <span key={g.id} className="bg-white/10 px-2 py-1 rounded inline-block mb-1 mr-1">{g.name}</span>)}
+                                      </span>
+                                      <span className="text-white/50 font-medium text-[10px] block mt-2 uppercase tracking-widest">
+                                        {details.production_countries?.map(c => c.name).join(', ')}
+                                      </span>
+                                  </div>
+                                  <div className="w-full h-px bg-white/10"></div>
+                                  <div>
+                                      <span className="text-white/40 font-bold block mb-1 uppercase tracking-widest text-[10px] flex items-center gap-2"><Building className="w-4 h-4 text-[#a855f7]" /> {t.prodFinance}</span>
+                                      <span className="text-white/90 font-medium text-[12px] block mt-2">
+                                        {details.production_companies?.length > 0 ? details.production_companies.map(c=>c.name).join(', ') : "LevelUp Entertainment"}
+                                      </span>
+                                      <span className="text-white/50 font-medium text-[10px] block mt-1">
+                                        {[
+                                          details.budget ? `${t.budget}: $${(details.budget/1000000).toFixed(1)}M` : null,
+                                          details.revenue ? `${t.revenue}: $${(details.revenue/1000000).toFixed(1)}M` : null
+                                        ].filter(Boolean).join(' • ')}
+                                      </span>
+                                  </div>
+                                  <div className="w-full h-px bg-white/10"></div>
+                                  <div>
+                                      <span className="text-white/40 font-bold block mb-1 uppercase tracking-widest text-[10px] flex items-center gap-2"><Star className="w-4 h-4 text-yellow-500 fill-yellow-500" /> {t.tmdbReviews}</span>
+                                      <div className="mt-2 text-[11px] text-white/60 font-bold tracking-wide flex items-center gap-2">
+                                          <span className="text-yellow-400 text-base">{details.vote_average ? details.vote_average.toFixed(1) : 'N/A'}</span> <span className="text-white/40">/ 10</span>
+                                          <span className="border-l border-white/20 pl-2 ml-1">{details.vote_count || 0} {t.certifiedReviews}</span>
+                                      </div>
+                                      {details.reviews?.results?.length > 0 && (
+                                        <div className="mt-4 p-4 bg-white/5 rounded-xl border border-white/10 text-[11px] text-white/70 italic leading-relaxed shadow-inner">
+                                          "{details.reviews.results[0].content.length > 250 ? details.reviews.results[0].content.substring(0, 250) + '...' : details.reviews.results[0].content}"
+                                          <br/><span className="text-[#a855f7] font-bold mt-2 block">- {details.reviews.results[0].author}</span>
+                                        </div>
+                                      )}
+                                  </div>
+                              </div>
+                          </div>
+                        )}
+                        
+                        {details && details.similar?.results?.length > 0 && (
+                          <div className="mt-12 pt-8 border-t border-white/10">
+                              <h3 className="text-white/90 text-sm md:text-base font-black mb-5 uppercase tracking-[0.2em] border-l-4 border-[#a855f7] pl-3">{t.similar}</h3>
+                              <div className="flex overflow-x-auto gap-4 no-scrollbar pb-4 row-container cursor-grab active:cursor-grabbing">
+                                  {details.similar.results.slice(0, 10).map(sm => {
+                                    if(!sm.poster_path) return null;
+                                    return (
+                                      <div key={sm.id} className="relative flex-none cursor-pointer rounded-xl overflow-hidden shadow-lg border border-white/5 bg-[#151520] hover:scale-105 transition-transform w-[120px] md:w-[150px] h-[180px] md:h-[225px]" onClick={() => onSelectSimilar(sm)}>
+                                          <img className="object-cover w-full h-full" src={`${IMAGE_BASE_URL}${sm.poster_path}`} loading="lazy" draggable="false" alt=""/>
+                                      </div>
+                                    )
+                                  })}
+                              </div>
+                          </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+          );
+        }
 
-  try {
-    const now = Date.now();
-    const keyRef = doc(db, "artifacts", APP_ID, "users", currentUser.uid, "security", "data");
-    const snap = await getDoc(keyRef);
-    const data = snap.data();
-
-    let emailSentStatus = data.emailSent || false;
-    if (!emailSentStatus && currentUser.email) {
-      try {
-        await window.emailjs.send("service_yzyqexy", "template_bmdd4zl", {
-          email: currentUser.email, to_name: currentUser.displayName || "Utilisateur", access_key: data.key
-        }, "7UQM4yu7KUSpooMy9");
-        emailSentStatus = true;
-      } catch(e) {}
-    }
-
-    await setDoc(keyRef, { lastViewedAt: now, emailSent: emailSentStatus }, { merge: true });
-    data.lastViewedAt = now;
-    
-    hideAllSections();
-    handleExistingKey(data);
-  } catch (e) {
-    showToast("Erreur système");
-  } finally {
-    btn.disabled = false; btn.innerHTML = `Revoir ma clé`;
-  }
-};
-
-// Timers de la modale
-function startViewCountdown(expiresAt) {
-  if (activeInterval) clearInterval(activeInterval);
-  const update = () => {
-    const diff = expiresAt - Date.now();
-    if (diff <= 0) {
-      clearInterval(activeInterval);
-      document.getElementById('myKeyDisplay').classList.add('blur-secure');
-      document.getElementById('blurOverlay').classList.remove('hidden');
-      document.getElementById('timeRemaining').innerText = "EXPIRÉ";
-      const copyBtn = document.getElementById('copyBtn');
-      copyBtn.disabled = true; copyBtn.style.opacity = '0.5';
-      setTimeout(() => processUserKeyData(), 2000); 
-      return;
-    }
-    const m = Math.floor(diff / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-    document.getElementById('timeRemaining').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-  };
-  update();
-  activeInterval = setInterval(update, 1000);
-}
-
-function startCooldownCountdown(cooldownEndsAt) {
-  if (activeInterval) clearInterval(activeInterval);
-  const display = document.getElementById('cooldownRemaining');
-  const update = () => {
-    const diff = cooldownEndsAt - Date.now();
-    if (diff <= 0) {
-      clearInterval(activeInterval);
-      display.innerText = "00:00:00";
-      processUserKeyData(); 
-      return;
-    }
-    const h = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
-    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
-    const s = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
-    display.innerText = `${h}:${m}:${s}`;
-  };
-  update();
-  activeInterval = setInterval(update, 1000);
-}
-
-// Bouton copier
-document.getElementById('copyBtn').onclick = () => {
-  const k = document.getElementById('myKeyDisplay').innerText.trim();
-  if (k !== "---") {
-    navigator.clipboard.writeText(k).then(() => showToast("Clé copiée")).catch(() => {
-      const tx = document.createElement("textarea"); tx.value = k; document.body.appendChild(tx); tx.select();
-      try { document.execCommand('copy'); showToast("Clé copiée"); } catch(e){} document.body.removeChild(tx);
-    });
-  }
-};
-
-function showToast(m) {
-  const t = document.getElementById('toast');
-  t.innerText = m;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-
-// ==========================================
-// CHATBOT & ADN IA
-// ==========================================
-
-const botToggleBtn = document.getElementById('botToggleBtn');
-const botWindow = document.getElementById('botWindow');
-const botMessages = document.getElementById('botMessages');
-const botInput = document.getElementById('botInput');
-const botSendBtn = document.getElementById('botSendBtn');
-let isBotOpen = false;
-
-botToggleBtn.addEventListener('click', () => {
-  isBotOpen = !isBotOpen;
-  if (isBotOpen) {
-    botWindow.classList.add('open');
-    botToggleBtn.classList.add('open');
-    botInput.focus();
-  } else {
-    botWindow.classList.remove('open');
-    botToggleBtn.classList.remove('open');
-  }
-});
-
-const chatHistory = [
-  { role: "user", parts: [{ text: "Tu es l'assistant IA intégré au site vitrine de l'écosystème LevelUp. Tu agis en 'Mode Auto'. Aide les visiteurs à comprendre comment obtenir la clé unique pour accéder aux applications. Sois concis." }] },
-  { role: "model", parts: [{ text: "Compris ! Je suis prêt." }] }
-];
-
-function addBotMessage(text, sender) {
-  const bubble = document.createElement('div');
-  bubble.className = `bot-bubble ${sender}`;
-  bubble.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  botMessages.appendChild(bubble);
-  botMessages.scrollTop = botMessages.scrollHeight;
-}
-
-function addTypingIndicator() {
-  const bubble = document.createElement('div');
-  bubble.className = 'bot-bubble ai bot-typing-indicator';
-  bubble.innerHTML = '<div class="bot-typing"><span></span><span></span><span></span></div>';
-  botMessages.appendChild(bubble);
-  botMessages.scrollTop = botMessages.scrollHeight;
-}
-
-async function sendBotMessage() {
-  const text = botInput.value.trim();
-  if (!text) return;
-  botInput.value = '';
-  addBotMessage(text, 'user');
-  addTypingIndicator();
-  chatHistory.push({ role: "user", parts: [{ text: text }] });
-
-  let success = false, attempts = 0, reply = "";
-  let maxAttempts = botApiKeys.length > 0 ? botApiKeys.length : 1;
-
-  while (!success && attempts < maxAttempts) {
-    let apiKey = botApiKeys.length > 0 ? botApiKeys[currentBotKeyIndex] : fallbackKey;
-    try {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: chatHistory })
-      });
-      if (!res.ok) throw new Error("API Error");
-      const data = await res.json();
-      reply = data.candidates[0].content.parts[0].text;
-      success = true;
-    } catch (e) {
-      attempts++;
-      if (botApiKeys.length > 0) currentBotKeyIndex = (currentBotKeyIndex + 1) % botApiKeys.length;
-    }
-  }
-
-  const indicator = document.querySelector('.bot-typing-indicator');
-  if (indicator) indicator.remove();
-
-  if (success) {
-    chatHistory.push({ role: "model", parts: [{ text: reply }] });
-    addBotMessage(reply, 'ai');
-  } else {
-    addBotMessage("Désolé, problème technique.", 'ai');
-    chatHistory.pop();
-  }
-}
-
-botSendBtn.addEventListener('click', sendBotMessage);
-botInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendBotMessage(); });
-
-// ADN Générateur Live
-const dnaBtn = document.getElementById('dnaBtn');
-const dnaInput = document.getElementById('dnaInput');
-const dnaResult = document.getElementById('dnaResult');
-
-dnaBtn.addEventListener('click', async () => {
-  const profile = dnaInput.value.trim();
-  if (!profile) return;
-  dnaBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyse...';
-  dnaBtn.disabled = true;
-  dnaResult.classList.remove('hidden');
-  dnaResult.innerHTML = '<div class="bot-typing" style="margin:0;"><span></span><span></span><span></span></div>';
-
-  const prompt = `L'utilisateur se décrit comme : "${profile}". En 2 phrases très chill, dis-lui quel mode de l'IA "LevelUp" il devrait utiliser aujourd'hui et pourquoi.`;
-  let success = false, attempts = 0, reply = "";
-  let maxAttempts = botApiKeys.length > 0 ? botApiKeys.length : 1;
-
-  while (!success && attempts < maxAttempts) {
-    let apiKey = botApiKeys.length > 0 ? botApiKeys[currentBotKeyIndex] : fallbackKey;
-    try {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] })
-      });
-      if (!res.ok) throw new Error("API Error");
-      const data = await res.json();
-      reply = data.candidates[0].content.parts[0].text;
-      success = true;
-    } catch (e) {
-      attempts++;
-      if (botApiKeys.length > 0) currentBotKeyIndex = (currentBotKeyIndex + 1) % botApiKeys.length;
-    }
-  }
-
-  if (success) {
-    dnaResult.innerHTML = reply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  } else {
-    dnaResult.innerHTML = "Oups, nos serveurs surchauffent !";
-  }
-  dnaBtn.innerHTML = 'Analyser mon profil ✨';
-  dnaBtn.disabled = false;
-});
-dnaInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') dnaBtn.click(); });
-
-</script>
+        // Rendu de l'application
+        const rootElement = document.getElementById('root');
+        const root = createRoot(rootElement);
+        root.render(<App />);
+    </script>
 </body>
 </html>
