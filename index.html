@@ -163,9 +163,10 @@
             externalSources: "Sources Externes (Gratuites)",
             audioTip: "Astuce : Si le film ne s'affiche pas ou s'il y a trop de publicités, changez de serveur ci-dessous.",
             movieInfo: "Infos du film",
-            server1: "Serveur 1 (Vidsrc.cc) ⭐",
-            server2: "Serveur 2 (Multi-Sources)",
+            server1: "Serveur 1 (Stable) ⭐",
+            server2: "Serveur 2 (Global)",
             server3: "Serveur 3 (Alternatif)",
+            server4: "Serveur 4 (Multi)",
             publicDomainDirect: "Domaine Public",
             youtubeFull: "Serveur Direct (HD)",
             originalTitle: "Titre Original",
@@ -289,9 +290,10 @@
             externalSources: "External Sources (Free)",
             audioTip: "Tip: If the movie doesn't load or has too many ads, please switch to another server below.",
             movieInfo: "Movie Info",
-            server1: "Server 1 (Vidsrc.cc) ⭐",
-            server2: "Server 2 (Multi-Sources)",
+            server1: "Server 1 (Stable) ⭐",
+            server2: "Server 2 (Global)",
             server3: "Server 3 (Alternative)",
+            server4: "Server 4 (Multi)",
             publicDomainDirect: "Public Domain",
             youtubeFull: "Direct Server (HD)",
             originalTitle: "Original Title",
@@ -1202,8 +1204,8 @@
           
           const [showDisclaimer, setShowDisclaimer] = useState(false);
           const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
-          const [selectedServer, setSelectedServer] = useState('vidsrccc'); 
-          const [pendingServer, setPendingServer] = useState('vidsrccc');
+          const [selectedServer, setSelectedServer] = useState('vidsrc'); 
+          const [pendingServer, setPendingServer] = useState('vidsrc');
           const [iframeLoading, setIframeLoading] = useState(true);
 
           const isTV = movie.first_air_date !== undefined;
@@ -1227,7 +1229,7 @@
 
           useEffect(() => {
             if (mode === 'play') {
-               handlePlayRequest('vidsrccc');
+               handlePlayRequest('vidsrc');
             } else {
                setModalMode('info');
             }
@@ -1355,12 +1357,14 @@
             let iframeSrc = '';
             if (selectedServer === 'youtube_full' && getYoutubeFullKey()) {
                 iframeSrc = `https://www.youtube.com/embed/${getYoutubeFullKey()}?autoplay=1`;
-            } else if (selectedServer === 'vidsrccc') {
-                iframeSrc = `https://vidsrc.cc/v2/embed/${typeStr}/${movie.id}?autoPlay=true`;
-            } else if (selectedServer === 'vidsrc_me') {
-                iframeSrc = `https://vidsrc.me/embed/${typeStr}?tmdb=${movie.id}`;
             } else if (selectedServer === 'vidsrc') {
                 iframeSrc = `https://vidsrc.to/embed/${typeStr}/${movie.id}`;
+            } else if (selectedServer === 'vidsrc_me') {
+                iframeSrc = `https://vidsrc.me/embed/${typeStr}?tmdb=${movie.id}`;
+            } else if (selectedServer === 'embedsu') {
+                iframeSrc = `https://embed.su/embed/${typeStr}/${movie.id}`;
+            } else if (selectedServer === 'superembed') {
+                iframeSrc = `https://multiembed.mov/?video_id=${movie.id}&tmdb=1`;
             } else if (selectedServer === 'archive') {
                 const title = movie.title || movie.name;
                 const suffix = lang === 'fr-FR' ? ' film complet' : ' full movie';
@@ -1469,9 +1473,9 @@
                                   <Info className="w-3 h-3 inline mr-1" /> {t.audioTip}
                               </p>
                               <div className="flex flex-wrap gap-3">
-                                  {['vidsrccc', 'vidsrc_me', 'vidsrc'].map(srv => (
+                                  {['vidsrc', 'vidsrc_me', 'embedsu', 'superembed'].map(srv => (
                                     <button key={srv} onClick={() => handlePlayRequest(srv)} className={`px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase transition-all outline-none ${selectedServer === srv ? 'bg-[#a855f7] text-white border border-[#a855f7]/30 shadow-[0_0_15px_rgba(168,85,247,0.3)]' : 'bg-white/5 text-white/70 border border-white/10 hover:bg-white/10'}`}>
-                                      {srv === 'vidsrccc' ? t.server1 : srv === 'vidsrc_me' ? t.server2 : t.server3}
+                                      {srv === 'vidsrc' ? t.server1 : srv === 'vidsrc_me' ? t.server2 : srv === 'embedsu' ? t.server3 : t.server4}
                                     </button>
                                   ))}
                                   
