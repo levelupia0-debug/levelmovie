@@ -1,0 +1,1485 @@
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { 
+  Play, Info, Search, Bell, X, ChevronLeft, ChevronRight, 
+  Star, Key, LogOut, Film, Globe, Shield, Network,
+  AlertTriangle, CheckCircle, Server, Users, Tags, Building, 
+  MessageSquare, Check, Plus, Share2, Youtube, Library, Bookmark, HardDrive, Filter,
+  Home, Tv, Clapperboard
+} from 'lucide-react';
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInAnonymously } from 'firebase/auth';
+import { getFirestore, collectionGroup, getDocs, doc, setDoc, deleteDoc, collection } from 'firebase/firestore';
+
+// --- NOUVEAU LOGO LEVEL MOVIE PRO (Symbole "L" + Play Minimaliste) ---
+const LevelMovieLogo = ({ className = "w-6 h-6", color = "currentColor" }) => (
+  <svg viewBox="0 0 24 24" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M5 4V17C5 19.2091 6.79086 21 9 21H20" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M10 8.35824C10 7.42436 11.0185 6.8488 11.8153 7.33235L17.5855 10.8242C18.3571 11.2915 18.3571 12.4137 17.5855 12.881L11.8153 16.3728C11.0185 16.8564 10 16.2808 10 15.347V8.35824Z" fill={color}/>
+  </svg>
+);
+
+// --- CONFIGURATION FIREBASE (Écosystème LevelUp) ---
+const firebaseConfig = {
+  apiKey: "AIzaSyA3JgvNu5p-43037jvm4WRDaJHI9ES7uGM",
+  authDomain: "levelup-ia.firebaseapp.com",
+  projectId: "levelup-ia",
+  storageBucket: "levelup-ia.firebasestorage.app",
+  messagingSenderId: "229420004282",
+  appId: "1:229420004282:web:6735f059a947f0936ae383",
+  measurementId: "G-MSRDY2574K"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// --- CONFIGURATION TMDB ---
+const API_KEY = '027cc951d888c64e5f15dcb853c7347a';
+const BASE_URL = 'https://api.themoviedb.org/3';
+const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
+const IMAGE_ORIGINAL = 'https://image.tmdb.org/t/p/original';
+
+// --- DICTIONNAIRE DE TRADUCTION COMPLET ---
+const i18n = {
+  fr: {
+    appTitle: "LevelMovie",
+    enterKey: "Clé d'Accès requise",
+    verifyKey: "Déverrouiller",
+    verifyLoading: "Vérification...",
+    forgotKey: "Obtenir une clé",
+    home: "Accueil",
+    series: "Séries",
+    movies: "Films",
+    myList: "Ma liste",
+    trending: "Tendances Mondiales",
+    freeVOD: "Films Gratuits",
+    topRated: "Chefs-d'œuvre",
+    action: "Action & Adrénaline",
+    comedy: "Comédies",
+    horror: "Frissons & Terreur",
+    scifi: "Science-Fiction",
+    animation: "Animation & Anime",
+    docs: "Documentaires",
+    war: "Guerre & Épique",
+    history: "Histoire",
+    mystery: "Mystère & Thriller",
+    crime: "Crime & Enquête",
+    music: "Musique & Concerts",
+    kdrama: "K-Dramas & Séries Asiatiques",
+    fantasy: "Fantastique",
+    family: "En Famille",
+    romance: "Romance & Passion",
+    western: "Western",
+    upcoming: "À Venir (Sorties)",
+    nowPlaying: "En Salle Actuellement",
+    play: "Lecture", 
+    details: "Plus d'infos",
+    playMovie: "Regarder le Film",
+    trailer: "Bande-annonce",
+    notFound: "Contenu Indisponible",
+    notFoundDesc: "Le lecteur sécurisé n'a pas pu trouver de vidéo officielle pour ce titre.",
+    match: "Recommandé",
+    cast: "Casting Principal",
+    similar: "Titres Similaires",
+    legalWatch: "Disponible sur :",
+    noLegal: "Aucune offre de streaming légal recensée dans votre région.",
+    closePlayer: "Fermer le lecteur",
+    warningTitle: "Avertissement Sécurité & Publicités",
+    warningText: "Les films complets sont diffusés via des API tierces. <b>LevelUp n'héberge aucun contenu</b>. Des pop-ups et des publicités indépendantes peuvent apparaître sur ces lecteurs.",
+    warningCheckbox: "J'accepte de visionner le contenu depuis ces serveurs.",
+    warningBtn: "Lancer le film",
+    noDesc: "Aucune description disponible.",
+    addedList: "Ajouté aux favoris !",
+    removedList: "Retiré de la liste",
+    publicDomain: "Classiques du Cinéma",
+    searchPlaceholder: "Rechercher...",
+    defaultUser: "Utilisateur",
+    premiumActive: "Compte Premium Actif",
+    ecosystem: "Écosystème LevelIA",
+    settingsTitle: "Préférences du Contenu",
+    contentOrigin: "Origine des Films",
+    worldAll: "Monde (Tous)",
+    usEnglish: "US / Anglais (VO)",
+    frenchVF: "Français (VF)",
+    interfaceLang: "Langue Interface",
+    favoriteMovies: "Films Favoris",
+    systemVideo: "Système & Vidéo",
+    videoQuality: "Qualité Vidéo",
+    auto4k: "Auto (4K HDR)",
+    parentalFilter: "Filtre Parental",
+    systemCache: "Cache Système",
+    clearCache: "Vider",
+    ourPartners: "Nos Partenaires :",
+    logoutBtn: "Se Déconnecter de LevelMovie",
+    logoutConfirm: "Êtes-vous sûr de vouloir quitter ?",
+    cancel: "Annuler",
+    confirm: "Confirmer",
+    osVersion: "LevelMovie • Architecture V1.0",
+    loginSuccess: "Connexion réussie",
+    cacheCleared: "Cache nettoyé avec succès.",
+    filterApplied: "Filtre appliqué. Rechargement...",
+    linkCopied: "Lien copié dans le presse-papier !",
+    emptyList: "Votre liste est vide.",
+    searchResults: "Résultats de recherche",
+    noResults: "Aucun résultat trouvé.",
+    featured: "À la une",
+    externalSources: "Sources Externes (Gratuites)",
+    movieInfo: "Infos du film",
+    server1: "Serveur 1 (VF/VO)",
+    server2: "Serveur 2 (Global) ⭐",
+    server3: "Serveur 3 (Alternatif)",
+    publicDomainDirect: "Domaine Public",
+    youtubeFull: "YouTube Complet",
+    originalTitle: "Titre Original",
+    notSpecified: "Non spécifié",
+    inProgress: "(En cours)",
+    alreadyInList: "Déjà dans vos favoris",
+    addToList: "Ajouter à Ma Liste",
+    share: "Partager",
+    director: "Réalisation / Écriture",
+    genresOrigin: "Genres & Origine",
+    prodFinance: "Production / Finance",
+    budget: "Budget",
+    revenue: "Revenus",
+    tmdbReviews: "Notes & Avis TMDB",
+    certifiedReviews: "avis certifiés",
+    noCasting: "Casting non disponible",
+    recommendationTitle: "⭐ RECOMMANDATION IMPORTANTE",
+    recommendationText: "Pour une lecture fluide et <b>sans publicité bloquante</b>, nous vous conseillons vivement d'utiliser le <b>Serveur 2 (Global)</b>.",
+    warningDisclaimer: "Les flux vidéo gratuits sont fournis par des serveurs externes et indépendants de LevelUp. Nous n'hébergeons aucun fichier vidéo. Nous recommandons d'utiliser un navigateur web intégrant un bloqueur de publicités natif (ex: Opera, Brave) pour éviter les pop-ups abusives des autres serveurs.",
+    disclaimerCheckbox: "J'ai compris et j'accepte de visionner le contenu depuis un serveur externe.",
+    acceptPlay: "Accepter & Lancer",
+    contentUnavailableDesc: "Nous vous prions de nous excuser. Le flux vidéo officiel pour ce programme est introuvable ou a été retiré de nos serveurs partenaires.",
+    asianDrama: "Séries Asiatiques (K-Dramas)",
+    animeManga: "Animes & Mangas",
+    bollywood: "Bollywood & Inde",
+    martialArts: "Arts Martiaux",
+    horrorThriller: "Horreur & Épouvante",
+    historyBiopic: "Histoire & Biopic",
+    fantasyMagic: "Fantastique & Magie",
+    animeJp: "Animes Japonais",
+    dramaPassion: "Drame & Passion",
+    sciFiFantasy: "Sci-Fi & Fantastique",
+    originalLang: "VO"
+  },
+  en: {
+    appTitle: "LevelMovie",
+    enterKey: "Access Key required",
+    verifyKey: "Unlock",
+    verifyLoading: "Verifying...",
+    forgotKey: "Get a key",
+    home: "Home",
+    series: "TV Shows",
+    movies: "Movies",
+    myList: "My List",
+    trending: "Global Trends",
+    freeVOD: "Free Movies",
+    topRated: "Masterpieces",
+    action: "Action & Adrenaline",
+    comedy: "Comedies",
+    horror: "Thrills & Terror",
+    scifi: "Sci-Fi",
+    animation: "Animation & Anime",
+    docs: "Documentaries",
+    war: "War & Epic",
+    history: "History",
+    mystery: "Mystery & Thriller",
+    crime: "Crime & Investigation",
+    music: "Music & Concerts",
+    kdrama: "K-Dramas & Asian TV",
+    fantasy: "Fantasy",
+    family: "Family Time",
+    romance: "Romance",
+    western: "Western",
+    upcoming: "Upcoming Movies",
+    nowPlaying: "Now Playing",
+    play: "Play", 
+    details: "More Info",
+    playMovie: "Play Movie",
+    trailer: "Trailer",
+    notFound: "Content Unavailable",
+    notFoundDesc: "The secure player could not find an official video for this title.",
+    match: "Recommended",
+    cast: "Main Cast",
+    similar: "Similar Titles",
+    legalWatch: "Available on:",
+    noLegal: "No legal streaming offers found in your region.",
+    closePlayer: "Close Player",
+    warningTitle: "Security & Ads Warning",
+    warningText: "Full movies are streamed via third-party APIs. <b>LevelUp does not host any content</b>. Independent pop-ups and ads may appear on these players.",
+    warningCheckbox: "I agree to watch content from these servers.",
+    warningBtn: "Start Movie",
+    noDesc: "No description available.",
+    addedList: "Added to favorites!",
+    removedList: "Removed from list",
+    publicDomain: "Classic Cinema",
+    searchPlaceholder: "Search...",
+    defaultUser: "User",
+    premiumActive: "Premium Account Active",
+    ecosystem: "LevelIA Ecosystem",
+    settingsTitle: "Content Preferences",
+    contentOrigin: "Movies Origin",
+    worldAll: "World (All)",
+    usEnglish: "US / English (Original)",
+    frenchVF: "French (Dubbed)",
+    interfaceLang: "Interface Language",
+    favoriteMovies: "Favorite Movies",
+    systemVideo: "System & Video",
+    videoQuality: "Video Quality",
+    auto4k: "Auto (4K HDR)",
+    parentalFilter: "Parental Filter",
+    systemCache: "System Cache",
+    clearCache: "Clear",
+    ourPartners: "Our Partners:",
+    logoutBtn: "Log out of LevelMovie",
+    logoutConfirm: "Are you sure you want to log out?",
+    cancel: "Cancel",
+    confirm: "Confirm",
+    osVersion: "LevelMovie • Architecture V1.0",
+    loginSuccess: "Login successful",
+    cacheCleared: "Cache cleared successfully.",
+    filterApplied: "Filter applied. Reloading...",
+    linkCopied: "Link copied to clipboard!",
+    emptyList: "Your list is empty.",
+    searchResults: "Search Results",
+    noResults: "No results found.",
+    featured: "Featured",
+    externalSources: "External Sources (Free)",
+    movieInfo: "Movie Info",
+    server1: "Server 1 (Multi)",
+    server2: "Server 2 (Global) ⭐",
+    server3: "Server 3 (Alt)",
+    publicDomainDirect: "Public Domain",
+    youtubeFull: "Full YouTube",
+    originalTitle: "Original Title",
+    notSpecified: "Not specified",
+    inProgress: "(WIP)",
+    alreadyInList: "Already in favorites",
+    addToList: "Add to My List",
+    share: "Share",
+    director: "Director / Writer",
+    genresOrigin: "Genres & Origin",
+    prodFinance: "Production / Finance",
+    budget: "Budget",
+    revenue: "Revenue",
+    tmdbReviews: "TMDB Ratings & Reviews",
+    certifiedReviews: "certified reviews",
+    noCasting: "Cast not available",
+    recommendationTitle: "⭐ IMPORTANT RECOMMENDATION",
+    recommendationText: "For smooth playback and <b>no blocking ads</b>, we highly recommend using <b>Server 2 (Global)</b>.",
+    warningDisclaimer: "Free video streams are provided by external servers independent of LevelUp. We do not host any video files. We recommend using a web browser with a native ad blocker (e.g. Opera, Brave) to avoid abusive pop-ups from other servers.",
+    disclaimerCheckbox: "I understand and agree to view content from an external server.",
+    acceptPlay: "Accept & Play",
+    contentUnavailableDesc: "We apologize. The official video stream for this program cannot be found or has been removed from our partner servers.",
+    asianDrama: "Asian Dramas (K-Dramas)",
+    animeManga: "Anime & Manga",
+    bollywood: "Bollywood & India",
+    martialArts: "Martial Arts",
+    horrorThriller: "Horror & Thriller",
+    historyBiopic: "History & Biopic",
+    fantasyMagic: "Fantasy & Magic",
+    animeJp: "Japanese Anime",
+    dramaPassion: "Drama & Passion",
+    sciFiFantasy: "Sci-Fi & Fantasy",
+    originalLang: "Orig"
+  }
+};
+
+// --- STYLES GLOBAUX ---
+const globalStyles = `
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+  body { 
+    font-family: 'Plus Jakarta Sans', sans-serif; 
+    background-color: #060608; 
+    color: white;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-top: env(safe-area-inset-top);
+  }
+  ::-webkit-scrollbar { display: none; }
+  * { -ms-overflow-style: none; scrollbar-width: none; }
+  .bg-main { background: radial-gradient(circle at 50% 0%, #15092a 0%, #060608 80%); min-height: 100vh; }
+  .holo-card { background: linear-gradient(135deg, rgba(30,20,45,0.6) 0%, rgba(10,10,15,0.8) 100%); border: 1px solid rgba(168,85,247,0.2); box-shadow: inset 0 0 30px rgba(168,85,247,0.05), 0 30px 60px rgba(0,0,0,0.8); backdrop-filter: blur(30px); }
+  .markdown-pro { font-size: 14px; line-height: 1.8; color: rgba(255,255,255,0.75); text-align: justify; }
+  .markdown-pro strong { color: #fff; font-weight: 700; }
+  
+  .splash-text { 
+      opacity: 0; position: absolute; transform: scale(0.85); filter: blur(15px); 
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); text-align: center; 
+  }
+  .splash-text.active { opacity: 1; transform: scale(1); filter: blur(0px); }
+  .splash-text.exit { opacity: 0; transform: scale(1.2); filter: blur(30px); }
+`;
+
+export default function App() {
+  const [lang, setLang] = useState(localStorage.getItem('levelmovie_lang') || 'fr');
+  const [contentLang, setContentLang] = useState(localStorage.getItem('levelmovie_content_lang') || 'all');
+  
+  const [showSplash, setShowSplash] = useState(true);
+  const [splashStep, setSplashStep] = useState(0);
+
+  const [user, setUser] = useState(null);
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [accessKey, setAccessKey] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [isLoadingAuth, setIsLoadingAuth] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [toasts, setToasts] = useState([]);
+  
+  const [currentCategory, setCurrentCategory] = useState('home');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [heroMovie, setHeroMovie] = useState(null);
+  const [pageSeed, setPageSeed] = useState(1); 
+  
+  const [selectedMovie, setSelectedMovie] = useState(null);
+  const [modalMode, setModalMode] = useState('info'); 
+  const [showSettings, setShowSettings] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  const [watchlist, setWatchlist] = useState([]);
+  const [watchlistData, setWatchlistData] = useState([]);
+
+  const t = i18n[lang] || i18n['fr'];
+  const defaultUserName = userName || t.defaultUser;
+
+  // --- INITIALISATION & ANIMATION SPLASH ---
+  useEffect(() => {
+    signInAnonymously(auth).catch(console.error);
+
+    const savedKey = localStorage.getItem('levelmovie_saved_key');
+    const savedName = localStorage.getItem('levelmovie_user_name');
+    const savedUid = localStorage.getItem('levelmovie_user_uid');
+    const savedEmail = localStorage.getItem('levelmovie_user_email');
+    
+    if (savedKey && savedUid) {
+      setUser({ uid: savedUid });
+      if (savedName) setUserName(savedName);
+      if (savedEmail) setUserEmail(savedEmail);
+    }
+
+    const t1 = setTimeout(() => setSplashStep(1), 200);   
+    const t2 = setTimeout(() => setSplashStep(2), 1400);  
+    const t3 = setTimeout(() => setSplashStep(3), 2800);  
+    const t4 = setTimeout(() => {
+      setSplashStep(4);
+      setShowSplash(false);
+    }, 3200);
+
+    const handleScroll = () => setIsScrolled(window.scrollY > 30);
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+        clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4);
+        window.removeEventListener('scroll', handleScroll);
+    }
+  }, []);
+
+  // --- HYBRID WATCHLIST FETCH ---
+  useEffect(() => {
+    if (!user) return;
+    
+    const localData = JSON.parse(localStorage.getItem('levelmovie_watchlist_' + user.uid) || '[]');
+    if (localData.length > 0) {
+      setWatchlistData(localData);
+      setWatchlist(localData.map(m => m.id));
+    }
+
+    const fetchWatchlist = async () => {
+      try {
+        const q = collection(db, "artifacts", "level-ia-premium", "users", user.uid, "watchlist");
+        const snaps = await getDocs(q);
+        const data = [];
+        snaps.forEach(doc => {
+          data.push(doc.data());
+        });
+        
+        if (data.length > 0 || localData.length > 0) {
+            setWatchlist(data.map(m => m.id));
+            setWatchlistData(data);
+            localStorage.setItem('levelmovie_watchlist_' + user.uid, JSON.stringify(data));
+        }
+      } catch (e) {
+        console.error("🔥 FIREBASE FETCH WATCHLIST ERROR:", e.code, e.message);
+      }
+    };
+    fetchWatchlist();
+  }, [user]);
+
+  // --- TOASTS ---
+  const showToast = useCallback((msg, type = 'info') => {
+    if(type === 'info') return; 
+    const id = Date.now() + Math.random();
+    setToasts(prev => [...prev, { id, msg, type }]);
+    setTimeout(() => {
+      setToasts(prev => prev.filter(toastItem => toastItem.id !== id));
+    }, 3000);
+  }, []);
+
+  // --- ACTIONS LANGUE ---
+  const handleLangToggle = () => {
+    const newLang = lang === 'fr' ? 'en' : 'fr';
+    setLang(newLang);
+    localStorage.setItem('levelmovie_lang', newLang);
+  };
+
+  const changeContentLang = (val) => {
+    setContentLang(val);
+    localStorage.setItem('levelmovie_content_lang', val);
+    showToast(t.filterApplied, 'success');
+  };
+
+  // --- AUTHENTIFICATION ---
+  const formatAccessKey = (val) => {
+    let formatted = val.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+    setAccessKey(formatted.substring(0, 16));
+  };
+
+  const handleLogin = async () => {
+    if (!accessKey) return;
+    setIsLoadingAuth(true);
+    setAuthError('');
+    try {
+      const q = collectionGroup(db, 'security');
+      const querySnapshot = await getDocs(q);
+      let foundUserData = null;
+      querySnapshot.forEach(docSnap => {
+        if (docSnap.data().key === accessKey) foundUserData = docSnap.data();
+      });
+      
+      if (foundUserData) {
+        const email = foundUserData.owner || foundUserData.email || "email@inconnu.com";
+        const name = foundUserData.name || foundUserData.displayName || email.split('@')[0] || t.defaultUser;
+        const uid = foundUserData.uid || accessKey;
+        
+        setIsLoggingIn(true);
+        
+        setTimeout(() => {
+            setUser({ uid });
+            setUserName(name);
+            setUserEmail(email);
+            localStorage.setItem('levelmovie_saved_key', accessKey);
+            localStorage.setItem('levelmovie_user_name', name);
+            localStorage.setItem('levelmovie_user_email', email);
+            localStorage.setItem('levelmovie_user_uid', uid);
+            showToast(t.loginSuccess, 'success');
+            setIsLoggingIn(false);
+        }, 3000);
+      } else {
+        setAuthError(t.enterKey || "Clé invalide.");
+      }
+    } catch (error) {
+      console.error("🔥 LOGIN ERROR:", error);
+      setAuthError("Erreur serveur Firebase.");
+    }
+    setIsLoadingAuth(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    setUser(null);
+    setAccessKey('');
+    setShowSettings(false);
+    setShowLogoutConfirm(false);
+  };
+
+  // --- RECHERCHE ---
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setSearchResults([]);
+      return;
+    }
+    const delayDebounceFn = setTimeout(async () => {
+      const langCode = lang === 'fr' ? 'fr-FR' : 'en-US';
+      try {
+        const res = await fetch(`${BASE_URL}/search/multi?api_key=${API_KEY}&language=${langCode}&query=${encodeURIComponent(searchQuery)}`);
+        const data = await res.json();
+        setSearchResults(data.results?.filter(m => m.media_type === 'movie' || m.media_type === 'tv') || []);
+      } catch (e) { console.error(e); }
+    }, 500);
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery, lang]);
+
+  // --- ACTIONS GLOBALES ---
+  const toggleWatchlist = async (movie) => {
+    if (!user) return;
+    const isAdded = watchlist.includes(movie.id);
+    
+    let newList;
+    if (isAdded) {
+        newList = watchlistData.filter(m => m.id !== movie.id);
+        showToast(t.removedList, "success");
+    } else {
+        const dataObj = {
+          id: movie.id,
+          title: movie.title || movie.name || movie.original_name,
+          poster_path: movie.poster_path,
+          backdrop_path: movie.backdrop_path,
+          vote_average: movie.vote_average,
+          first_air_date: movie.first_air_date || null,
+          release_date: movie.release_date || null,
+          media_type: movie.first_air_date ? 'tv' : 'movie',
+          addedAt: Date.now()
+        };
+        newList = [...watchlistData, dataObj];
+        showToast(t.addedList, "success");
+    }
+
+    setWatchlistData(newList);
+    setWatchlist(newList.map(m => m.id));
+    localStorage.setItem('levelmovie_watchlist_' + user.uid, JSON.stringify(newList));
+
+    try {
+        const movieIdStr = movie.id.toString();
+        const ref = doc(db, "artifacts", "level-ia-premium", "users", user.uid, "watchlist", movieIdStr);
+        if (isAdded) {
+            await deleteDoc(ref);
+        } else {
+            const dataObj = newList.find(m => m.id === movie.id);
+            await setDoc(ref, dataObj);
+        }
+    } catch(e) {
+        console.error("🔥 FIREBASE WATCHLIST SAVE ERROR:", e.code, e.message);
+        showToast(`Erreur: ${e.message}`, "error");
+    }
+  };
+
+  const openModal = (movie, mode = 'info') => {
+    setSelectedMovie(movie);
+    setModalMode(mode);
+  };
+
+  const handleNavCategory = (cat) => {
+    setCurrentCategory(cat);
+    setSearchQuery('');
+    setPageSeed(Math.floor(Math.random() * 5) + 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // --- COMPOSANTS DE BASE ---
+  if (showSplash) {
+    return (
+      <div className={`fixed inset-0 z-[9999] bg-[#060608] flex items-center justify-center flex-col transition-opacity duration-500 ${splashStep === 3 ? 'opacity-0' : 'opacity-100'}`}>
+        <style>{globalStyles}</style>
+        <div className={`splash-text flex flex-col items-center ${splashStep === 1 ? 'active' : ''} ${splashStep >= 2 ? 'exit' : ''}`}>
+           <LevelMovieLogo className="w-20 h-20 text-[#a855f7] mb-6" />
+           <div className="text-4xl font-black tracking-widest">
+             <span className="text-white">Level</span><span className="text-[#a855f7]">Movie</span>
+           </div>
+        </div>
+        <div className={`splash-text flex flex-col items-center justify-center ${splashStep === 2 ? 'active' : ''} ${splashStep >= 3 ? 'exit' : ''}`}>
+           <span className="text-white font-black tracking-[0.6em] text-2xl uppercase">LevelUp</span>
+           <span className="text-[10px] font-bold tracking-[0.5em] text-[#a855f7] mt-4 uppercase">Version 1.0</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoggingIn) {
+    return (
+      <div className="fixed inset-0 z-[9999] bg-[#060608] flex items-center justify-center flex-col transition-opacity duration-500 animate-in fade-in">
+        <style>{globalStyles}</style>
+        <LevelMovieLogo className="w-20 h-20 text-[#a855f7] mb-6 animate-pulse" />
+        <h2 className="text-3xl font-black tracking-widest text-white uppercase drop-shadow-md mb-2">
+          Level<span className="text-[#a855f7]">Movie</span>
+        </h2>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="bg-main flex items-center justify-center p-4 sm:p-8 fixed inset-0 z-[5000]">
+        <style>{globalStyles}</style>
+        <button 
+          onClick={handleLangToggle}
+          className="absolute top-6 right-6 flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-full transition-all text-white/70 hover:text-white text-[11px] font-bold uppercase tracking-widest backdrop-blur-md z-50 shadow-lg"
+        >
+          <Globe className="w-4 h-4 text-[#a855f7]" /> {lang === 'fr' ? 'EN' : 'FR'}
+        </button>
+
+        <div className="w-full max-w-sm text-center py-4 relative glass p-8 rounded-[2rem] border border-white/5 shadow-[0_0_50px_rgba(168,85,247,0.15)]">
+          <LevelMovieLogo className="w-12 h-12 text-[#a855f7] mx-auto mb-4" />
+          <h1 className="text-3xl font-black tracking-widest mb-10 shrink-0 drop-shadow-md">
+            <span className="text-white">Level</span><span className="text-[#a855f7]">Movie</span>
+          </h1>
+          <div className="space-y-6">
+            <p className="text-[11px] font-bold text-[#a855f7] uppercase tracking-[0.1em] mb-2 flex items-center justify-center gap-2">
+              <Shield className="w-4 h-4" /> {t.enterKey}
+            </p>
+            <input 
+              type="text" 
+              value={accessKey}
+              onChange={(e) => formatAccessKey(e.target.value)}
+              placeholder="LVL-XXXXX-XXXXX" 
+              className="w-full bg-[#030305] border border-[#a855f7]/40 rounded-xl py-4 px-5 text-center text-white font-mono text-base tracking-widest outline-none focus:border-[#a855f7] transition-all uppercase shadow-inner"
+            />
+            <button 
+              onClick={handleLogin}
+              disabled={isLoadingAuth}
+              className="w-full bg-gradient-to-r from-[#8b5cf6] to-[#a855f7] text-white py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.1em] hover:opacity-90 active:scale-95 transition-all shadow-[0_0_25px_rgba(168,85,247,0.4)] disabled:opacity-50"
+            >
+              {isLoadingAuth ? t.verifyLoading : t.verifyKey}
+            </button>
+            <div className="mt-6 flex justify-center">
+              <a href="https://levelupia0-debug.github.io/levelupia/" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 hover:text-white hover:border-[#a855f7]/50 transition-all duration-300 no-underline">
+                <Key className="w-3 h-3" /> <span>{t.forgotKey}</span>
+              </a>
+            </div>
+            {authError && <p className="text-[12px] text-red-400 font-bold mt-2 bg-red-500/10 py-2 rounded-lg border border-red-500/20">{authError}</p>}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // --- CONFIGURATION TMDB FETCHES ---
+  const langCode = lang === 'fr' ? 'fr-FR' : 'en-US';
+  const langFilter = contentLang !== 'all' ? `&with_original_language=${contentLang}` : '';
+  const rowsConfig = [];
+  
+  if (currentCategory === 'home' || currentCategory === 'movie') {
+      rowsConfig.push(
+          { title: t.trending, url: `/trending/movie/week?api_key=${API_KEY}&language=${langCode}${langFilter}&page=${pageSeed}`, large: true },
+          { title: t.upcoming, url: `/movie/upcoming?api_key=${API_KEY}&language=${langCode}${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.nowPlaying, url: `/movie/now_playing?api_key=${API_KEY}&language=${langCode}${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.freeVOD, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_watch_monetization_types=free&watch_region=FR&sort_by=popularity.desc${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.publicDomain, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&primary_release_date.lte=1970-01-01&sort_by=vote_average.desc&vote_count.gte=200${langFilter}&page=${pageSeed}`, large: true },
+          { title: t.asianDrama, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_original_language=ko&page=${pageSeed}`, large: false },
+          { title: t.animeManga, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=16&with_original_language=ja&page=${pageSeed}`, large: false },
+          { title: t.topRated, url: `/movie/top_rated?api_key=${API_KEY}&language=${langCode}${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.bollywood, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_original_language=hi&page=${pageSeed}`, large: false },
+          { title: t.action, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=28${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.martialArts, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=28&with_keywords=779&page=${pageSeed}`, large: false },
+          { title: t.scifi, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=878${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.comedy, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=35${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.horror, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=27${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.romance, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=10749${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.docs, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=99${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.western, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=37${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.war, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=10752${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.history, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=36${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.mystery, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=9648${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.crime, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=80${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.music, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=10402${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.fantasy, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=14${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.family, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=10751${langFilter}&page=${pageSeed}`, large: false }
+      );
+  } else if (currentCategory === 'tv') {
+      rowsConfig.push(
+          { title: t.trending, url: `/trending/tv/week?api_key=${API_KEY}&language=${langCode}${langFilter}&page=${pageSeed}`, large: true },
+          { title: t.asianDrama, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_original_language=ko&page=${pageSeed}`, large: false },
+          { title: t.animeJp, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=16&with_original_language=ja&page=${pageSeed}`, large: false },
+          { title: t.topRated, url: `/tv/top_rated?api_key=${API_KEY}&language=${langCode}${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.action, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=10759${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.comedy, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=35${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.crime, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=80${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.dramaPassion, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=18${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.mystery, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=9648${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.sciFiFantasy, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=10765${langFilter}&page=${pageSeed}`, large: false },
+          { title: t.docs, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=99${langFilter}&page=${pageSeed}`, large: false }
+      );
+  }
+
+  return (
+    <div className="bg-main text-white min-h-screen">
+      <style>{globalStyles}</style>
+      
+      {/* TOASTS REFAITS */}
+      <div className="fixed top-4 right-4 md:top-6 md:right-6 z-[9999] flex flex-col gap-3 pointer-events-none items-end">
+        {toasts.map(toast => {
+          let icon = <CheckCircle className="w-5 h-5 text-green-400" />;
+          let colorClass = 'border-green-500/30 bg-[#0a0a0f]/95 text-green-50';
+          if (toast.type === 'error') {
+            icon = <AlertTriangle className="w-5 h-5 text-red-400" />;
+            colorClass = 'border-red-500/30 bg-[#0a0a0f]/95 text-red-50';
+          }
+          return (
+            <div key={toast.id} className={`flex items-center gap-4 p-4 rounded-2xl backdrop-blur-3xl border shadow-2xl transition-all duration-500 animate-in slide-in-from-right fade-in ${colorClass} min-w-[280px] pointer-events-auto`}>
+              {icon} <span className="text-[12px] font-bold tracking-wide">{toast.msg}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* HEADER */}
+      <header className={`fixed top-0 w-full z-50 transition-all duration-500 ease-in-out flex items-center justify-between px-4 md:px-10 py-3 md:py-4 ${isScrolled ? 'bg-black/80 backdrop-blur-2xl border-b border-white/5 shadow-xl' : 'bg-gradient-to-b from-[#060608] via-[#060608]/90 to-transparent'}`}>
+        <div className="flex items-center space-x-6 md:space-x-10">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => handleNavCategory('home')}>
+            <h1 className="text-xl md:text-2xl font-black tracking-widest leading-none drop-shadow-lg hidden sm:block">
+              <span className="text-white">Level</span><span className="text-[#a855f7]">Movie</span>
+            </h1>
+          </div>
+          
+          <nav className="hidden lg:flex space-x-6 text-[12px] font-bold uppercase tracking-widest text-white/60">
+            <button onClick={() => handleNavCategory('home')} className={`transition-colors hover:text-white ${currentCategory === 'home' ? 'text-[#a855f7]' : ''}`}>{t.home}</button>
+            <button onClick={() => handleNavCategory('tv')} className={`transition-colors hover:text-white ${currentCategory === 'tv' ? 'text-[#a855f7]' : ''}`}>{t.series}</button>
+            <button onClick={() => handleNavCategory('movie')} className={`transition-colors hover:text-white ${currentCategory === 'movie' ? 'text-[#a855f7]' : ''}`}>{t.movies}</button>
+            <button onClick={() => handleNavCategory('watchlist')} className={`transition-colors hover:text-white ${currentCategory === 'watchlist' ? 'text-[#a855f7]' : ''}`}>{t.myList}</button>
+          </nav>
+        </div>
+
+        <div className="flex items-center space-x-3 md:space-x-6">
+          <div className="flex items-center relative">
+            <input 
+              type="text" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t.searchPlaceholder} 
+              className="bg-[#151520] border border-white/10 text-white text-xs px-4 py-2 rounded-full outline-none w-36 md:w-64 focus:border-[#a855f7] transition-colors shadow-inner"
+            />
+          </div>
+          
+          <div className="flex items-center gap-3 p-1.5 pr-3 md:pr-4 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all cursor-pointer shadow-md" onClick={() => setShowSettings(true)}>
+            <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#151520] flex items-center justify-center overflow-hidden border border-[#a855f7]/40 shadow-inner shrink-0">
+              <span className="text-[12px] md:text-[13px] font-black text-[#a855f7]">{defaultUserName.charAt(0).toUpperCase()}</span>
+            </div>
+            <div className="hidden md:block min-w-0">
+              <p className="text-[12px] font-bold uppercase truncate tracking-wide text-white/90">{defaultUserName}</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* NAVBAR MOBILE */}
+      <nav className="lg:hidden fixed bottom-0 w-full z-50 bg-[#060608]/95 backdrop-blur-xl border-t border-white/5 flex justify-around items-center py-3 shadow-[0_-10px_20px_rgba(0,0,0,0.5)] pb-[env(safe-area-inset-bottom)]">
+        <button onClick={() => handleNavCategory('home')} className={`flex flex-col items-center gap-1 transition-colors ${currentCategory === 'home' ? 'text-[#a855f7]' : 'text-white/50 hover:text-white'}`}>
+          <Home className="w-5 h-5" /> <span className="text-[9px] font-bold uppercase tracking-widest">{t.home}</span>
+        </button>
+        <button onClick={() => handleNavCategory('tv')} className={`flex flex-col items-center gap-1 transition-colors ${currentCategory === 'tv' ? 'text-[#a855f7]' : 'text-white/50 hover:text-white'}`}>
+          <Tv className="w-5 h-5" /> <span className="text-[9px] font-bold uppercase tracking-widest">{t.series}</span>
+        </button>
+        <button onClick={() => handleNavCategory('movie')} className={`flex flex-col items-center gap-1 transition-colors ${currentCategory === 'movie' ? 'text-[#a855f7]' : 'text-white/50 hover:text-white'}`}>
+          <Clapperboard className="w-5 h-5" /> <span className="text-[9px] font-bold uppercase tracking-widest">{t.movies}</span>
+        </button>
+        <button onClick={() => handleNavCategory('watchlist')} className={`flex flex-col items-center gap-1 transition-colors ${currentCategory === 'watchlist' ? 'text-[#a855f7]' : 'text-white/50 hover:text-white'}`}>
+          <Bookmark className="w-5 h-5" /> <span className="text-[9px] font-bold uppercase tracking-widest">{t.myList}</span>
+        </button>
+      </nav>
+
+      {/* CONTENU PRINCIPAL */}
+      {searchQuery ? (
+        <div className="pt-24 px-4 md:px-14 pb-24 relative z-30 min-h-screen">
+          <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-widest border-l-4 border-[#a855f7] pl-3">{t.searchResults}</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-6">
+            {searchResults.length > 0 ? searchResults.map(movie => {
+              if(!movie.poster_path) return null;
+              return (
+                <div key={movie.id} className="relative cursor-pointer rounded-xl overflow-hidden shadow-lg border border-white/5 bg-[#151520] hover:scale-105 transition-transform" onClick={() => openModal(movie, 'info')}>
+                    <img className="object-cover w-full h-[220px] md:h-[280px]" src={`${IMAGE_BASE_URL}${movie.poster_path}`} loading="lazy" alt="" />
+                </div>
+              );
+            }) : <p className="text-white/50 py-10 col-span-full text-center">{t.noResults}</p>}
+          </div>
+        </div>
+      ) : currentCategory === 'watchlist' ? (
+        <div className="pt-24 px-0 pb-24 min-h-screen">
+          <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-widest pl-4 md:pl-14 mb-6"><Bookmark className="w-6 h-6 text-[#a855f7] inline mr-2" /> {t.myList}</h2>
+          {watchlistData.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-32 opacity-50">
+                <Bookmark className="w-16 h-16 mb-4" />
+                <p className="text-sm uppercase tracking-widest font-bold">{t.emptyList}</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 px-4 md:px-14">
+              {watchlistData.map(movie => (
+                <div key={movie.id} className="relative cursor-pointer rounded-xl overflow-hidden shadow-lg border border-white/5 bg-[#151520] hover:scale-105 transition-transform" onClick={() => openModal(movie, 'info')}>
+                    <img className="object-cover w-full h-[220px] md:h-[280px]" src={`${IMAGE_BASE_URL}${movie.poster_path}`} loading="lazy" alt="" />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <>
+          {/* BANNER */}
+          <Banner url={`/trending/all/week?api_key=${API_KEY}&language=${langCode}${langFilter}&page=${pageSeed}`} onPlay={() => openModal(heroMovie, 'play')} onInfo={() => openModal(heroMovie, 'info')} setHero={setHeroMovie} heroMovie={heroMovie} t={t} />
+          
+          {/* ROWS */}
+          <main className="pb-24 relative z-20 space-y-8 md:space-y-10 mt-6 md:-mt-10">
+            {rowsConfig.map((row, i) => (
+              <Row key={i} title={row.title} fetchUrl={row.url} isLarge={row.large} onMovieClick={(m) => openModal(m, 'info')} />
+            ))}
+          </main>
+        </>
+      )}
+
+      {/* MODAL SETTINGS */}
+      {showSettings && (
+        <div className="fixed inset-0 z-[9000] flex justify-center items-center p-4 sm:p-8 bg-[#060608]/95 backdrop-blur-3xl overflow-hidden">
+            <div className="holo-card relative w-full max-w-3xl rounded-[2rem] p-6 md:p-8 flex flex-col text-center animate-in zoom-in duration-300 z-10 shadow-[0_0_80px_rgba(0,0,0,0.9)] max-h-[95vh] overflow-y-auto no-scrollbar">
+                
+                <button onClick={() => setShowSettings(false)} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 hover:bg-red-500 flex items-center justify-center text-white/50 hover:text-white transition-colors shadow-sm z-20">
+                    <X className="w-5 h-5" />
+                </button>
+                
+                <div className="flex flex-col items-center mb-6">
+                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-[#151520] border-2 border-[#a855f7]/50 shadow-[0_0_20px_rgba(168,85,247,0.3)] overflow-hidden mb-4 flex items-center justify-center">
+                        <span className="text-4xl font-black text-[#a855f7]">{defaultUserName.charAt(0).toUpperCase()}</span>
+                    </div>
+                    <h2 className="text-2xl font-black text-white uppercase tracking-widest mb-1 drop-shadow-md">{defaultUserName}</h2>
+                    <p className="text-xs text-white/50 font-mono mb-4">{userEmail || 'email@inconnu.com'}</p>
+                    
+                    {/* Petit bouton LevelIA discret et élégant */}
+                    <a href="https://levelupia.vercel.app" target="_blank" rel="noreferrer" className="px-5 py-2 bg-white/5 hover:bg-white/10 text-white/80 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/10 transition-colors flex items-center gap-2 no-underline shadow-md hover:border-[#a855f7]/50">
+                        <Star className="w-3 h-3 text-[#a855f7] fill-[#a855f7]" /> {t.ecosystem}
+                    </a>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full text-left">
+                    <div className="space-y-4">
+                        <h3 className="text-[10px] font-black text-[#a855f7] uppercase tracking-widest pl-2 border-l-2 border-[#a855f7]">{t.settingsTitle}</h3>
+                        
+                        <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-inner">
+                            <span className="text-[11px] font-bold text-white/80 uppercase tracking-widest flex items-center gap-3"><Filter className="w-4 h-4 text-[#a855f7]" /> {t.contentOrigin}</span>
+                            <select value={contentLang} onChange={(e) => changeContentLang(e.target.value)} className="bg-black/80 border border-white/20 rounded-lg text-white text-[10px] font-bold uppercase tracking-widest p-2 outline-none cursor-pointer">
+                                <option value="all">{t.worldAll}</option>
+                                <option value="en">{t.usEnglish}</option>
+                                <option value="fr">{t.frenchVF}</option>
+                            </select>
+                        </div>
+
+                        <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-inner">
+                            <span className="text-[11px] font-bold text-white/80 uppercase tracking-widest flex items-center gap-3"><Globe className="w-4 h-4 text-[#a855f7]" /> {t.interfaceLang}</span>
+                            <button onClick={handleLangToggle} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 border border-white/10">
+                                {lang === 'fr' ? 'FR' : 'EN'}
+                            </button>
+                        </div>
+
+                        <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-inner">
+                            <span className="text-[11px] font-bold text-white/80 uppercase tracking-widest flex items-center gap-3"><Bookmark className="w-4 h-4 text-[#a855f7]" /> {t.favoriteMovies}</span>
+                            <span className="px-3 py-1 bg-[#a855f7]/20 text-[#a855f7] rounded-lg text-xs font-bold border border-[#a855f7]/30">{watchlist.length}</span>
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <h3 className="text-[10px] font-black text-[#a855f7] uppercase tracking-widest pl-2 border-l-2 border-[#a855f7]">{t.systemVideo}</h3>
+                        
+                        <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-inner">
+                            <span className="text-[11px] font-bold text-white/80 uppercase tracking-widest flex items-center gap-3"><Film className="w-4 h-4 text-[#a855f7]" /> {t.videoQuality}</span>
+                            <span className="px-3 py-1 bg-white/10 text-white/70 rounded-lg text-[10px] font-black tracking-widest border border-white/10 uppercase">{t.auto4k}</span>
+                        </div>
+
+                        <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-inner">
+                            <span className="text-[11px] font-bold text-white/80 uppercase tracking-widest flex items-center gap-3"><Shield className="w-4 h-4 text-[#a855f7]" /> {t.parentalFilter}</span>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" className="sr-only peer" />
+                                <div className="w-9 h-5 bg-black/50 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white/70 after:border-white/20 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#a855f7] peer-checked:after:bg-white shadow-inner"></div>
+                            </label>
+                        </div>
+
+                        <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-inner">
+                            <span className="text-[11px] font-bold text-white/80 uppercase tracking-widest flex items-center gap-3"><HardDrive className="w-4 h-4 text-[#a855f7]" /> {t.systemCache}</span>
+                            <button onClick={() => showToast(t.cacheCleared, 'success')} className="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-lg text-[10px] font-bold uppercase hover:bg-red-500 hover:text-white transition-all border border-red-500/30">{t.clearCache}</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="w-full mt-8 pt-6 border-t border-white/10 text-center">
+                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-4">{t.ourPartners}</span>
+                    <div className="flex justify-center items-center gap-6 opacity-80 flex-wrap">
+                        <span className="text-sm font-black tracking-widest text-[#90cea1]">TMDB</span>
+                        <span className="text-sm font-black tracking-widest text-[#f5c518]">OMDb</span>
+                        <span className="text-sm font-black tracking-widest text-[#3c948b]">TVMaze</span>
+                        <span className="text-sm font-black tracking-widest text-white flex items-center gap-1"><Library className="w-4 h-4"/> ARCHIVE</span>
+                    </div>
+                </div>
+                
+                {!showLogoutConfirm ? (
+                    <button onClick={() => setShowLogoutConfirm(true)} className="w-full text-center px-4 py-4 mt-8 bg-red-500/10 text-[11px] font-bold text-red-400 uppercase tracking-widest hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-colors flex justify-center items-center gap-3 active:scale-95 shadow-md">
+                        <LogOut className="w-4 h-4" /> {t.logoutBtn}
+                    </button>
+                ) : (
+                    <div className="w-full mt-8 bg-red-500/10 border border-red-500/30 p-5 rounded-xl flex flex-col items-center animate-in zoom-in duration-300">
+                        <p className="text-red-400 font-black text-xs uppercase tracking-widest mb-4">{t.logoutConfirm}</p>
+                        <div className="flex gap-4 w-full">
+                            <button onClick={() => setShowLogoutConfirm(false)} className="flex-1 py-3 bg-white/5 text-white/70 rounded-xl text-[10px] font-bold uppercase hover:bg-white/10 transition-colors">{t.cancel}</button>
+                            <button onClick={handleLogout} className="flex-1 py-3 bg-red-500 text-white rounded-xl text-[10px] font-bold uppercase shadow-[0_0_15px_rgba(239,68,68,0.4)] hover:bg-red-600 transition-colors">{t.confirm}</button>
+                        </div>
+                    </div>
+                )}
+
+                <p className="text-[9px] text-white/20 uppercase tracking-widest mt-6">{t.osVersion}</p>
+            </div>
+        </div>
+      )}
+
+      {/* MODAL MOVIE */}
+      {selectedMovie && (
+        <MovieModal 
+          movie={selectedMovie} 
+          mode={modalMode} 
+          onClose={() => setSelectedMovie(null)} 
+          onSelectSimilar={(m) => {
+            setSelectedMovie(m);
+            setModalMode('info');
+          }}
+          t={t} 
+          lang={langCode} 
+          user={user}
+          watchlist={watchlist}
+          toggleWatchlist={toggleWatchlist}
+          showToast={showToast}
+        />
+      )}
+    </div>
+  );
+}
+
+// --- BANNER COMPONENT ---
+function Banner({ url, onPlay, onInfo, setHero, heroMovie, t }) {
+  useEffect(() => {
+    const fetchMovie = async () => {
+      try {
+        const req = await fetch(`${BASE_URL}${url}`);
+        const data = await req.json();
+        const valids = data.results.filter(m => m.backdrop_path);
+        setHero(valids[Math.floor(Math.random() * valids.length)]);
+      } catch(e) {}
+    };
+    fetchMovie();
+  }, [url]);
+
+  if (!heroMovie) return <div className="h-[80vh] w-full bg-[#060608] animate-pulse"></div>;
+
+  return (
+    <header className="relative h-[65vh] md:h-[80vh] min-h-[500px] text-white transition-all duration-700 bg-[#060608]" style={{ backgroundSize: 'cover', backgroundPosition: '50% 20%', backgroundImage: `url("${IMAGE_ORIGINAL}${heroMovie.backdrop_path}")` }}>
+        <div className="absolute inset-0 bg-gradient-to-r from-[#060608] via-[#060608]/70 to-transparent w-full md:w-[80%]"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#060608] via-transparent to-[#060608]/40 h-full"></div>
+        
+        <div className="relative z-10 flex flex-col justify-end h-full px-4 md:px-14 pb-12 md:pb-24 max-w-4xl w-full">
+            <div className="flex items-center space-x-3 mb-3 md:mb-4 animate-in slide-in-from-left duration-500">
+                <span className="text-white/80 font-black tracking-[0.3em] text-[9px] md:text-[11px] uppercase bg-white/5 px-3 py-1 rounded-full border border-white/10 shadow-sm"><LevelMovieLogo className="w-3 h-3 text-[#a855f7] inline mr-1" /> {t.featured}</span>
+            </div>
+            
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black pb-2 tracking-tighter text-white drop-shadow-[0_0_30px_rgba(0,0,0,0.9)] leading-tight animate-in slide-in-from-bottom duration-700 line-clamp-3">
+                {heroMovie.title || heroMovie.name}
+            </h1>
+            
+            <div className="flex items-center gap-3 mt-1 mb-3 text-[10px] md:text-xs font-bold text-white/60 uppercase tracking-widest">
+                <span className="text-green-400 border border-green-400/30 bg-green-400/10 px-2 py-0.5 rounded shadow-sm">{t.match}</span>
+                <span>{(heroMovie.release_date || heroMovie.first_air_date || '').substring(0,4)}</span>
+                <span><Star className="w-3 h-3 text-[#a855f7] inline mb-0.5" /> {heroMovie.vote_average?.toFixed(1)}</span>
+            </div>
+
+            <p className="w-full text-[12px] md:text-[15px] text-white/80 font-medium leading-relaxed max-w-2xl text-justify drop-shadow-lg animate-in fade-in duration-1000 delay-300 line-clamp-3 md:line-clamp-4">
+                {heroMovie.overview}
+            </p>
+
+            <div className="flex flex-wrap gap-3 mt-5 md:mt-6">
+                <button onClick={onPlay} className="flex-1 md:flex-none items-center justify-center flex gap-2 px-6 md:px-8 py-3 bg-white text-black rounded-xl text-[11px] md:text-[13px] font-black uppercase tracking-widest hover:bg-gray-200 transition-all shadow-[0_0_30px_rgba(255,255,255,0.3)] active:scale-95">
+                    <Play className="w-4 h-4 fill-black" /> <span>{t.play}</span>
+                </button>
+                <button onClick={onInfo} className="flex-1 md:flex-none items-center justify-center flex gap-2 px-6 md:px-8 py-3 bg-white/10 border border-white/20 rounded-xl text-[11px] md:text-[13px] font-bold text-white uppercase tracking-widest hover:bg-white/20 transition-all active:scale-95 backdrop-blur-md">
+                    <Info className="w-4 h-4" /> <span>{t.details}</span>
+                </button>
+            </div>
+        </div>
+    </header>
+  );
+}
+
+// --- ROW COMPONENT ---
+function Row({ title, fetchUrl, isLarge, onMovieClick }) {
+  const [movies, setMovies] = useState([]);
+  const rowRef = useRef(null);
+
+  useEffect(() => {
+    const fetchM = async () => {
+      try {
+        const req = await fetch(`${BASE_URL}${fetchUrl}`);
+        const data = await req.json();
+        setMovies(data.results.filter(m => m.poster_path));
+      } catch(e) {}
+    };
+    fetchM();
+  }, [fetchUrl]);
+
+  let isDown = false;
+  let startX;
+  let scrollLeft;
+
+  const handleMouseDown = (e) => {
+    isDown = true;
+    startX = e.pageX - rowRef.current.offsetLeft;
+    scrollLeft = rowRef.current.scrollLeft;
+  };
+  const handleMouseLeave = () => { isDown = false; };
+  const handleMouseUp = () => { isDown = false; };
+  const handleMouseMove = (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - rowRef.current.offsetLeft;
+    const walk = (x - startX) * 2; 
+    rowRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const scrollAction = (direction) => {
+      const scrollAmt = 400;
+      if (rowRef.current) {
+          rowRef.current.scrollBy({ left: direction === 'left' ? -scrollAmt : scrollAmt, behavior: 'smooth' });
+      }
+  }
+
+  if (movies.length === 0) return null;
+
+  return (
+    <div className="group relative ml-4 md:ml-12 animate-in fade-in duration-700">
+        <h2 className="text-white/90 text-[13px] md:text-lg font-black mb-3 md:mb-5 uppercase tracking-[0.2em] border-l-4 border-[#a855f7] pl-3 md:pl-4 drop-shadow-sm flex items-center gap-3">
+            {title} <ChevronRight className="w-4 h-4 text-white/30" />
+        </h2>
+        
+        <div onClick={() => scrollAction('left')} className="absolute left-0 top-12 bottom-0 z-40 w-10 bg-gradient-to-r from-[#060608] via-[#060608]/80 to-transparent opacity-0 md:group-hover:opacity-100 flex items-center justify-start cursor-pointer transition-opacity duration-300 -ml-4 md:-ml-12 hidden md:flex">
+            <ChevronLeft className="text-white hover:text-[#a855f7] transition-colors w-10 h-10 ml-1 drop-shadow-lg" />
+        </div>
+        
+        <div 
+          ref={rowRef}
+          onMouseDown={handleMouseDown} onMouseLeave={handleMouseLeave} onMouseUp={handleMouseUp} onMouseMove={handleMouseMove}
+          className="flex overflow-y-hidden overflow-x-scroll py-2 md:py-4 space-x-3 md:space-x-5 no-scrollbar pr-8 cursor-grab active:cursor-grabbing"
+        >
+            {movies.map(movie => {
+              const imgClass = isLarge ? 'w-[140px] md:w-[200px] h-[210px] md:h-[300px]' : 'w-[200px] md:w-[260px] h-[112px] md:h-[146px]';
+              const imgSrc = `${IMAGE_BASE_URL}${isLarge ? movie.poster_path : (movie.backdrop_path || movie.poster_path)}`;
+              return (
+                  <div key={movie.id} className="relative flex-none movie-card-hover cursor-pointer rounded-xl overflow-hidden shadow-lg border border-white/5 bg-[#151520]" onClick={() => onMovieClick(movie)}>
+                      <img className={`object-cover ${imgClass} transition-opacity duration-500`} src={imgSrc} loading="lazy" alt="" draggable="false"/>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3 md:p-4 pointer-events-none">
+                          <p className="text-white font-black text-[10px] md:text-sm uppercase tracking-wider truncate drop-shadow-md">{movie.title || movie.name}</p>
+                          <div className="flex items-center gap-2 mt-1 md:mt-2">
+                              <span className="text-[#a855f7] font-bold text-[9px] md:text-[10px]"><Star className="w-3 h-3 inline mb-0.5" /> {movie.vote_average?.toFixed(1)}</span>
+                          </div>
+                      </div>
+                  </div>
+              )
+            })}
+        </div>
+        
+        <div onClick={() => scrollAction('right')} className="absolute right-0 top-12 bottom-0 z-40 w-12 bg-gradient-to-l from-[#060608] via-[#060608]/80 to-transparent opacity-0 md:group-hover:opacity-100 flex items-center justify-end cursor-pointer transition-opacity duration-300 hidden md:flex">
+            <ChevronRight className="text-white hover:text-[#a855f7] transition-colors w-10 h-10 mr-2 drop-shadow-lg" />
+        </div>
+    </div>
+  )
+}
+
+// --- MODAL MOVIE ---
+function MovieModal({ movie, mode, onClose, onSelectSimilar, t, lang, user, watchlist, toggleWatchlist, showToast }) {
+  const [details, setDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [modalMode, setModalMode] = useState(mode);
+  
+  // Avertissement Externe
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
+  const [selectedServer, setSelectedServer] = useState('vidsrc');
+  const [pendingServer, setPendingServer] = useState('vidsrc');
+
+  const isTV = movie.first_air_date !== undefined;
+  const typeStr = isTV ? 'tv' : 'movie';
+  const isAddedToWatchlist = watchlist.includes(movie.id);
+  
+  useEffect(() => {
+    const fetchDetails = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/${typeStr}/${movie.id}?api_key=${API_KEY}&language=${lang}&append_to_response=credits,similar,watch/providers,videos,reviews`);
+        const data = await res.json();
+        setDetails(data);
+        setLoading(false);
+      } catch (e) {
+        setError(true);
+        setLoading(false);
+      }
+    };
+    fetchDetails();
+  }, [movie, typeStr, lang]);
+
+  useEffect(() => {
+    if (mode === 'play') {
+       handleServerClick('vidsrc');
+    } else {
+       setModalMode('info');
+    }
+  }, [mode]);
+
+  const handleShare = () => {
+    const url = `https://www.themoviedb.org/${typeStr}/${movie.id}`;
+    const text = `${t.share} "${movie.title || movie.name}" !`;
+    if (navigator.share) {
+      navigator.share({ title: 'LevelMovie', text: text, url: url }).catch(()=>{});
+    } else {
+      navigator.clipboard.writeText(`${text} ${url}`);
+      showToast(t.linkCopied, 'success');
+    }
+  };
+
+  const getTrailerKey = () => {
+    if (!details?.videos?.results) return '';
+    const trailer = details.videos.results.find(v => v.type === 'Trailer' && v.site === 'YouTube') || details.videos.results.find(v=>v.site==='YouTube');
+    return trailer ? trailer.key : '';
+  };
+
+  const getYoutubeFullKey = () => {
+    if (!details?.videos?.results) return null;
+    const full = details.videos.results.find(v => v.type === 'Feature Film' && v.site === 'YouTube');
+    return full ? full.key : null;
+  };
+
+  const getProviders = () => {
+    const region = lang === 'fr-FR' ? 'FR' : 'US';
+    const providerData = details?.['watch/providers']?.results?.[region];
+    if (!providerData) return null;
+    
+    const allProviders = [...(providerData.flatrate || []), ...(providerData.free || []), ...(providerData.ads || [])];
+    const unique = [];
+    const seen = new Set();
+    for (const p of allProviders) {
+        if (!seen.has(p.provider_id)) {
+            seen.add(p.provider_id);
+            unique.push(p);
+        }
+    }
+    return unique.length > 0 ? { unique, link: providerData.link } : null;
+  };
+
+  const handleServerClick = (serverId) => {
+      if (!disclaimerAccepted) {
+          setPendingServer(serverId);
+          setShowDisclaimer(true);
+      } else {
+          setSelectedServer(serverId);
+          setModalMode('play');
+      }
+  };
+
+  const getFormatRuntime = () => {
+    if(!details) return '';
+    if (details.runtime) {
+        const h = Math.floor(details.runtime / 60);
+        const m = details.runtime % 60;
+        return `${h}h ${m}m`;
+    } else if (details.episode_run_time && details.episode_run_time.length > 0) {
+        return `${details.episode_run_time[0]} min/ep`;
+    }
+    return '';
+  };
+
+  const getDirector = () => {
+      if(!details) return t.notSpecified;
+      let directors = [];
+      if (details.credits && details.credits.crew) {
+          directors = details.credits.crew.filter(c => c.job === 'Director').map(c => c.name);
+      }
+      if (directors.length === 0 && details.created_by) {
+          directors = details.created_by.map(c => c.name);
+      }
+      return directors.length > 0 ? directors.join(', ') : t.notSpecified;
+  };
+
+  const renderIframe = () => {
+    if (modalMode === 'info') {
+      const tKey = getTrailerKey();
+      if (tKey) {
+        return (
+          <>
+            <div className="absolute inset-0 bg-transparent z-10 pointer-events-none"></div>
+            <iframe className="absolute inset-0 w-full h-full bg-black" src={`https://www.youtube.com/embed/${tKey}?autoplay=1&controls=1&modestbranding=1&rel=0&showinfo=0&disablekb=1&mute=1&loop=1&playlist=${tKey}`} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+          </>
+        );
+      } else if (movie.backdrop_path) {
+        return <img src={`${IMAGE_ORIGINAL}${movie.backdrop_path}`} className="absolute inset-0 w-full h-full object-cover opacity-60" alt="" />;
+      }
+      return <div className="absolute inset-0 bg-black flex items-center justify-center text-white/30"><Film className="w-16 h-16" /></div>;
+    }
+
+    let iframeSrc = '';
+    if (selectedServer === 'youtube_full' && getYoutubeFullKey()) {
+        iframeSrc = `https://www.youtube.com/embed/${getYoutubeFullKey()}?autoplay=1`;
+    } else if (selectedServer === 'vidsrc') {
+        iframeSrc = `https://vidsrc.to/embed/${typeStr}/${movie.id}`;
+    } else if (selectedServer === 'vidsrc_me') {
+        iframeSrc = `https://vidsrc.me/embed/${typeStr}?tmdb=${movie.id}`;
+    } else if (selectedServer === 'superembed') {
+        iframeSrc = `https://multiembed.mov/?video_id=${movie.id}&tmdb=1`;
+    } else if (selectedServer === 'archive') {
+        const title = movie.title || movie.name;
+        const suffix = lang === 'fr-FR' ? ' film complet' : ' full movie';
+        const q = encodeURIComponent(title + suffix);
+        iframeSrc = `https://www.youtube.com/embed?listType=search&list=${q}&autoplay=1`;
+    }
+
+    return (
+        <>
+            <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-0">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#a855f7]"></div>
+            </div>
+            <iframe className="absolute inset-0 w-full h-full bg-transparent z-10" src={iframeSrc} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+        </>
+    );
+  };
+
+  return (
+    <div className="fixed inset-0 z-[8000] flex justify-center items-start md:items-center p-0 md:p-6 bg-[#060608]/95 backdrop-blur-3xl overflow-y-auto no-scrollbar">
+        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#a855f7]/10 rounded-full blur-[150px] pointer-events-none z-0"></div>
+        <div className="fixed inset-0 z-0" onClick={onClose}></div>
+
+        {/* MODAL AVERTISSEMENT (SÉPARÉ ET PRO) */}
+        {showDisclaimer && (
+          <div className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-[#0a0a0f] border border-[#a855f7]/30 rounded-3xl p-6 md:p-8 max-w-xl w-full shadow-[0_0_50px_rgba(168,85,247,0.2)] animate-in zoom-in duration-300">
+               <h3 className="text-xl md:text-2xl font-black text-white mb-4 uppercase tracking-widest flex items-center gap-3 border-b border-white/10 pb-4">
+                 <AlertTriangle className="text-red-500 w-8 h-8" /> {t.warningTitle}
+               </h3>
+               
+               <div className="bg-gradient-to-r from-purple-900/40 to-pink-900/40 border border-[#a855f7]/50 p-5 rounded-2xl mb-6 shadow-[0_0_20px_rgba(168,85,247,0.15)]">
+                  <h4 className="text-white font-black text-sm md:text-base mb-2 tracking-widest">{t.recommendationTitle}</h4>
+                  <p className="text-white/80 text-xs md:text-sm leading-relaxed" dangerouslySetInnerHTML={{__html: t.recommendationText}}></p>
+               </div>
+
+               <p className="text-white/60 text-[10px] md:text-xs leading-relaxed mb-6 text-justify">
+                  {t.warningDisclaimer}
+               </p>
+               
+               <div className="flex flex-wrap gap-4 mb-8 justify-center">
+                  <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-xl shadow-inner">
+                     <svg viewBox="0 0 512 512" className="w-5 h-5" fill="#FF1B2D"><path d="M255.8 48C141 48 48 141.2 48 256s93 208 207.8 208c115 0 208.2-93.2 208.2-208S370.8 48 255.8 48zm0 338.5c-56 0-101.2-58.5-101.2-130.5 0-72 45.2-130.5 101.2-130.5 56 0 101.2 58.5 101.2 130.5 0 72-45.2 130.5-101.2 130.5z"/></svg>
+                     <span className="text-[11px] font-bold text-white tracking-widest uppercase">Opera</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-xl shadow-inner">
+                     <svg viewBox="0 0 24 24" className="w-5 h-5 text-[#FF4724]" fill="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                     <span className="text-[11px] font-bold text-white tracking-widest uppercase">Brave</span>
+                  </div>
+               </div>
+
+               <label className="flex items-start gap-3 cursor-pointer mb-8 bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition-colors shadow-sm">
+                  <input type="checkbox" checked={disclaimerAccepted} onChange={(e) => setDisclaimerAccepted(e.target.checked)} className="mt-0.5 w-5 h-5 accent-[#a855f7] cursor-pointer" />
+                  <span className="text-white/90 text-xs md:text-sm font-bold leading-tight">{t.disclaimerCheckbox}</span>
+               </label>
+
+               <div className="flex justify-end gap-3 border-t border-white/10 pt-6">
+                  <button onClick={() => setShowDisclaimer(false)} className="px-6 py-3 rounded-xl font-bold text-[11px] uppercase tracking-widest text-white/50 hover:text-white hover:bg-white/5 transition-colors">{t.cancel}</button>
+                  <button disabled={!disclaimerAccepted} onClick={() => {
+                      setShowDisclaimer(false);
+                      setSelectedServer(pendingServer);
+                      setModalMode('play');
+                  }} className="px-8 py-3 bg-[#a855f7] text-white rounded-xl font-black text-[11px] uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed hover:bg-purple-500 transition-all shadow-[0_0_20px_rgba(168,85,247,0.4)]">{t.acceptPlay}</button>
+               </div>
+            </div>
+          </div>
+        )}
+        
+        <div className="holo-card relative w-full min-h-[100vh] md:min-h-0 md:h-auto max-h-full md:max-h-[90vh] max-w-6xl md:rounded-[2rem] overflow-x-hidden overflow-y-auto shadow-[0_0_80px_rgba(0,0,0,0.9)] border-white/10 animate-in slide-in-from-bottom md:zoom-in duration-300 flex flex-col bg-[#0a0a0f] z-10 md:my-auto my-0">
+            
+            {/* Barre de Contrôle Pro */}
+            <div className="w-full bg-[#0a0a0f] border-b border-white/5 flex justify-between items-center px-4 md:px-8 py-3 shrink-0 sticky top-0 z-[60] shadow-md">
+                <div className="flex items-center gap-2">
+                    <LevelMovieLogo className="w-4 h-4 text-[#a855f7]" />
+                    <span className="text-white font-black tracking-[0.2em] text-[12px] uppercase drop-shadow-md">Level<span className="text-[#a855f7]">Movie</span></span>
+                </div>
+                <button onClick={onClose} className="flex items-center gap-2 px-5 py-2 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl text-[10px] md:text-[11px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all shadow-sm active:scale-95">
+                    <X className="w-3 h-3" /> <span>{t.closePlayer}</span>
+                </button>
+            </div>
+            
+            <div className="relative pt-[56.25%] md:pt-[45%] w-full bg-black shrink-0 overflow-hidden border-b border-[#a855f7]/30 shadow-lg">
+                {loading ? (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/80">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#a855f7]"></div>
+                  </div>
+                ) : error ? (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#060608] text-center p-6 border-b border-[#a855f7]/30">
+                    <LevelMovieLogo className="w-12 h-12 text-[#a855f7] mb-6 opacity-80" />
+                    <div className="bg-red-500/10 p-4 rounded-full mb-4">
+                        <AlertTriangle className="w-8 h-8 text-red-400" />
+                    </div>
+                    <h3 className="text-lg font-black mb-2 text-white uppercase tracking-widest drop-shadow-md">{t.notFound}</h3>
+                    <p className="text-white/60 text-xs max-w-sm">{t.contentUnavailableDesc}</p>
+                  </div>
+                ) : renderIframe()}
+            </div>
+            
+            <div className="p-5 md:p-10 shrink-0 bg-gradient-to-b from-[#15092a]/40 to-transparent h-full pb-24">
+                
+                {modalMode === 'play' && (
+                  <div className="mb-8 flex flex-col gap-5 bg-black/40 p-5 md:p-6 rounded-2xl border border-white/5 shadow-inner">
+                      <div className="flex justify-between items-center mb-4">
+                          <span className="text-[11px] font-black text-white/70 uppercase tracking-widest"><Server className="w-4 h-4 inline mr-2 text-[#a855f7]" /> {t.externalSources}</span>
+                          <button onClick={() => setModalMode('info')} className="text-[10px] font-bold text-white/50 hover:text-white uppercase tracking-widest border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors"><Info className="w-3 h-3 inline mr-1" /> {t.movieInfo}</button>
+                      </div>
+                      <div className="flex flex-wrap gap-3">
+                          {['vidsrc', 'vidsrc_me', 'superembed'].map(srv => (
+                            <button key={srv} onClick={() => handleServerClick(srv)} className={`px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase transition-all ${selectedServer === srv ? 'bg-[#a855f7] text-white border border-[#a855f7]/30 shadow-[0_0_15px_rgba(168,85,247,0.3)]' : 'bg-white/5 text-white/70 border border-white/10 hover:bg-white/10'}`}>
+                              {srv === 'vidsrc' ? t.server1 : srv === 'vidsrc_me' ? t.server2 : t.server3}
+                            </button>
+                          ))}
+                          
+                          {/* Domaine Public */}
+                          {(movie.release_date && parseInt(movie.release_date.substring(0, 4)) <= 1970) && (
+                            <button onClick={() => handleServerClick('archive')} className={`px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase transition-all ${selectedServer === 'archive' ? 'bg-[#a855f7] text-white border border-[#a855f7]/30 shadow-[0_0_15px_rgba(168,85,247,0.3)]' : 'bg-white/5 text-white/70 border border-white/10 hover:bg-white/10'}`}>
+                              <Library className="w-3 h-3 inline mr-1 text-gray-400" /> {t.publicDomainDirect}
+                            </button>
+                          )}
+                          
+                          {/* Youtube Full */}
+                          {getYoutubeFullKey() && (
+                            <button onClick={() => handleServerClick('youtube_full')} className={`ml-auto px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase transition-all ${selectedServer === 'youtube_full' ? 'bg-red-600 text-white border border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.4)]' : 'bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500 hover:text-white'}`}>
+                              <Youtube className="w-3 h-3 inline mr-1" /> {t.youtubeFull}
+                            </button>
+                          )}
+                      </div>
+                  </div>
+                )}
+
+                {modalMode === 'info' && details && (
+                  <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+                      <div className="flex-1">
+                          <h2 className="text-3xl md:text-5xl font-black mb-2 text-white uppercase tracking-tighter drop-shadow-lg leading-tight">
+                            {movie.title || movie.name || movie.original_name}
+                          </h2>
+                          <div className="text-[#a855f7] italic text-sm md:text-base font-medium mb-4 drop-shadow-sm flex items-center gap-2">
+                              <span>{details.tagline ? `"${details.tagline}"` : ''}</span>
+                          </div>
+
+                          <div className="flex items-center space-x-3 mb-6 flex-wrap gap-y-3">
+                              <span className="text-green-400 font-black text-[11px] md:text-[12px] uppercase tracking-widest border border-green-400/30 px-2 py-1 rounded bg-green-400/10 shadow-sm">{t.match}</span>
+                              {details.status && <span className="text-blue-400 font-bold text-[10px] md:text-[11px] uppercase tracking-widest border border-blue-400/30 px-2 py-1 rounded bg-blue-400/10">{details.status}</span>}
+                              <span className="text-white/80 font-bold text-[12px] md:text-[13px] border-l border-white/20 pl-3">{(movie.release_date || movie.first_air_date || '').substring(0, 4)}</span>
+                              <span className="text-white/80 font-bold text-[12px] md:text-[13px] border-l border-white/20 pl-3">{getFormatRuntime()}</span>
+                              {details.original_language && <span className="text-white/60 font-bold text-[11px] uppercase tracking-widest border-l border-white/20 pl-3">{t.originalLang}: {details.original_language.toUpperCase()}</span>}
+                              <span className="px-2 py-1 border border-white/20 rounded text-[10px] font-bold text-white uppercase tracking-widest bg-white/5 shadow-sm border-l border-white/20 pl-3 ml-2">HD 1080p</span>
+                          </div>
+
+                          <div className="mb-4">
+                              <span className="text-white/40 font-bold text-[10px] uppercase tracking-widest block mb-1">{t.originalTitle}</span>
+                              <span className="text-white/70 font-medium text-[12px] italic">{details.original_title || details.original_name || t.notSpecified}</span>
+                          </div>
+
+                          {/* Légal */}
+                          {getProviders() ? (
+                            <div className="mb-6 p-5 bg-white/5 rounded-2xl border border-white/10 shadow-inner">
+                              <h4 className="text-white/50 text-[10px] md:text-xs uppercase font-bold tracking-widest mb-3 flex items-center gap-2"><Play className="w-4 h-4 text-green-400" /> {t.legalWatch}</h4>
+                              <div className="flex flex-wrap gap-3">
+                                {getProviders().unique.slice(0,8).map(p => (
+                                  <a key={p.provider_id} href={getProviders().link} target="_blank" rel="noreferrer" className="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-4 py-2 transition-all hover:scale-105 active:scale-95 no-underline shadow-sm">
+                                      <img src={`https://image.tmdb.org/t/p/w45${p.logo_path}`} className="w-5 h-5 rounded-md shadow-sm" alt="" />
+                                      <span className="text-[11px] font-bold text-white">{p.provider_name}</span>
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="mb-6 p-5 bg-white/5 rounded-2xl border border-white/10 shadow-inner">
+                               <h4 className="text-white/50 text-[10px] md:text-xs uppercase font-bold tracking-widest mb-3 flex items-center gap-2"><Play className="w-4 h-4 text-green-400" /> {t.legalWatch}</h4>
+                               <p className="text-white/40 text-[11px] italic">{t.noLegal}</p>
+                            </div>
+                          )}
+
+                          <div className="flex flex-wrap gap-3 mb-6">
+                              <button onClick={() => setModalMode('play')} className="flex-1 sm:flex-none items-center justify-center flex gap-2 px-8 py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl text-[11px] md:text-[13px] font-black uppercase tracking-widest hover:opacity-90 transition-all shadow-[0_0_20px_rgba(168,85,247,0.4)] active:scale-95">
+                                  <Play className="w-4 h-4 fill-white" /> <span>{t.playMovie}</span>
+                              </button>
+                              <button onClick={() => {
+                                  setModalMode('info');
+                                  const modalHoloCard = document.querySelector('#videoModal .holo-card');
+                                  if (modalHoloCard) modalHoloCard.scrollTo({top: 0, behavior: 'smooth'});
+                              }} className="flex-1 sm:flex-none items-center justify-center flex gap-2 px-6 py-3.5 bg-white/10 border border-white/20 rounded-xl text-[11px] md:text-[13px] font-bold text-white uppercase tracking-widest hover:bg-white/20 transition-all active:scale-95 backdrop-blur-md opacity-50 cursor-default">
+                                  <Film className="w-4 h-4" /> <span>{t.trailer}</span> {t.inProgress}
+                              </button>
+                          </div>
+
+                          <div className="markdown-pro pr-2 text-justify">
+                            {movie.overview ? movie.overview.split('\n').filter(p=>p.trim()).map((p,i) => <p key={i} className="mb-3">{p}</p>) : <p>{t.noDesc}</p>}
+                          </div>
+                          
+                          <div className="mt-8 flex gap-4 pt-6 border-t border-white/10">
+                              <button onClick={() => toggleWatchlist(movie)} className={`flex-1 flex items-center justify-center gap-3 px-5 py-3 rounded-xl border transition-all active:scale-95 outline-none ${isAddedToWatchlist ? 'bg-green-500/10 border-green-500/30 text-green-400' : 'bg-white/5 border-white/20 text-white/80 hover:bg-white/10'}`}>
+                                  {isAddedToWatchlist ? <><CheckCircle className="w-5 h-5" /><span className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest">{t.alreadyInList}</span></> : <><Plus className="w-5 h-5 text-[#a855f7]" /><span className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest">{t.addToList}</span></>}
+                              </button>
+                              <button onClick={handleShare} className="flex items-center justify-center gap-3 px-6 py-3 rounded-xl border border-white/20 bg-white/5 text-white/80 hover:text-white hover:bg-white/10 transition-all active:scale-95 outline-none">
+                                  <Share2 className="w-5 h-5 text-blue-400" />
+                              </button>
+                          </div>
+                      </div>
+                      
+                      <div className="w-full lg:w-[35%] space-y-6 bg-black/40 p-5 md:p-6 rounded-2xl border border-white/5 shadow-inner h-fit">
+                          <div>
+                              <span className="text-white/40 font-bold block mb-3 uppercase tracking-widest text-[10px] flex items-center gap-2"><Users className="w-4 h-4 text-[#a855f7]" /> <span>{t.cast}</span></span>
+                              <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 row-container cursor-grab active:cursor-grabbing">
+                                  {details.credits?.cast?.slice(0, 15).map(c => (
+                                    <div key={c.id} className="flex flex-col items-center min-w-[70px] gap-1 shrink-0 select-none">
+                                        <img src={c.profile_path ? `https://image.tmdb.org/t/p/w185${c.profile_path}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(c.name)}&background=151520&color=a855f7`} className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover border border-white/10 shadow-md bg-black/50" draggable="false" alt=""/>
+                                        <span className="text-[9px] text-white/90 text-center font-bold w-[80px] truncate px-1 mt-1">{c.name}</span>
+                                        {c.character && <span className="text-[8px] text-[#a855f7] truncate w-[80px] text-center mt-0.5">{c.character}</span>}
+                                    </div>
+                                  )) || <span className="text-white/50 text-xs">{t.noCasting}</span>}
+                              </div>
+                          </div>
+                          <div className="w-full h-px bg-white/10"></div>
+                          <div>
+                              <span className="text-white/40 font-bold block mb-1 uppercase tracking-widest text-[10px] flex items-center gap-2"><Film className="w-4 h-4 text-[#a855f7]" /> {t.director}</span>
+                              <span className="text-white/90 font-medium text-[12px] block mt-2">{getDirector()}</span>
+                          </div>
+                          <div className="w-full h-px bg-white/10"></div>
+                          <div>
+                              <span className="text-white/40 font-bold block mb-1 uppercase tracking-widest text-[10px] flex items-center gap-2"><Tags className="w-4 h-4 text-[#a855f7]" /> {t.genresOrigin}</span>
+                              <span className="text-white/90 font-bold text-[11px] uppercase tracking-widest leading-relaxed block mt-2">
+                                {details.genres?.map(g => <span key={g.id} className="bg-white/10 px-2 py-1 rounded inline-block mb-1 mr-1">{g.name}</span>)}
+                              </span>
+                              <span className="text-white/50 font-medium text-[10px] block mt-2 uppercase tracking-widest">
+                                {details.production_countries?.map(c => c.name).join(', ')}
+                              </span>
+                          </div>
+                          <div className="w-full h-px bg-white/10"></div>
+                          <div>
+                              <span className="text-white/40 font-bold block mb-1 uppercase tracking-widest text-[10px] flex items-center gap-2"><Building className="w-4 h-4 text-[#a855f7]" /> {t.prodFinance}</span>
+                              <span className="text-white/90 font-medium text-[12px] block mt-2">
+                                {details.production_companies?.length > 0 ? details.production_companies.map(c=>c.name).join(', ') : "LevelUp Entertainment"}
+                              </span>
+                              <span className="text-white/50 font-medium text-[10px] block mt-1">
+                                {[
+                                  details.budget ? `${t.budget}: $${(details.budget/1000000).toFixed(1)}M` : null,
+                                  details.revenue ? `${t.revenue}: $${(details.revenue/1000000).toFixed(1)}M` : null
+                                ].filter(Boolean).join(' • ')}
+                              </span>
+                          </div>
+                          <div className="w-full h-px bg-white/10"></div>
+                          <div>
+                              <span className="text-white/40 font-bold block mb-1 uppercase tracking-widest text-[10px] flex items-center gap-2"><Star className="w-4 h-4 text-yellow-500 fill-yellow-500" /> {t.tmdbReviews}</span>
+                              <div className="mt-2 text-[11px] text-white/60 font-bold tracking-wide flex items-center gap-2">
+                                  <span className="text-yellow-400 text-base">{details.vote_average ? details.vote_average.toFixed(1) : 'N/A'}</span> <span className="text-white/40">/ 10</span>
+                                  <span className="border-l border-white/20 pl-2 ml-1">{details.vote_count || 0} {t.certifiedReviews}</span>
+                              </div>
+                              {details.reviews?.results?.length > 0 && (
+                                <div className="mt-4 p-4 bg-white/5 rounded-xl border border-white/10 text-[11px] text-white/70 italic leading-relaxed shadow-inner">
+                                  "{details.reviews.results[0].content.length > 250 ? details.reviews.results[0].content.substring(0, 250) + '...' : details.reviews.results[0].content}"
+                                  <br/><span className="text-[#a855f7] font-bold mt-2 block">- {details.reviews.results[0].author}</span>
+                                </div>
+                              )}
+                          </div>
+                      </div>
+                  </div>
+                )}
+                
+                {details && details.similar?.results?.length > 0 && (
+                  <div className="mt-12 pt-8 border-t border-white/10">
+                      <h3 className="text-white/90 text-sm md:text-base font-black mb-5 uppercase tracking-[0.2em] border-l-4 border-[#a855f7] pl-3">{t.similar}</h3>
+                      <div className="flex overflow-x-auto gap-4 no-scrollbar pb-4 row-container cursor-grab active:cursor-grabbing">
+                          {details.similar.results.slice(0, 10).map(sm => {
+                            if(!sm.poster_path) return null;
+                            return (
+                              <div key={sm.id} className="relative flex-none cursor-pointer rounded-xl overflow-hidden shadow-lg border border-white/5 bg-[#151520] hover:scale-105 transition-transform w-[120px] md:w-[150px] h-[180px] md:h-[225px]" onClick={() => onSelectSimilar(sm)}>
+                                  <img className="object-cover w-full h-full" src={`${IMAGE_BASE_URL}${sm.poster_path}`} loading="lazy" draggable="false" alt=""/>
+                              </div>
+                            )
+                          })}
+                      </div>
+                  </div>
+                )}
+            </div>
+        </div>
+    </div>
+  );
+}
