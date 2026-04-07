@@ -37,12 +37,12 @@
           Play, Info, Search, Bell, X, ChevronLeft, ChevronRight, 
           Star, Key, LogOut, Film, Globe, Shield, Network,
           AlertTriangle, CheckCircle, Server, Users, Tags, Building, 
-          MessageSquare, Check, Plus, Share2, Youtube, Library, Bookmark, HardDrive, Filter,
-          Home, Tv, Clapperboard
+          MessageSquare, Check, Plus, Share2, Library, Bookmark, HardDrive, Filter,
+          Home, Tv, Clapperboard, History
         } from 'lucide-react';
         import { initializeApp } from 'firebase/app';
         import { getAuth, signInAnonymously } from 'firebase/auth';
-        import { getFirestore, collectionGroup, getDocs, doc, setDoc, deleteDoc, collection } from 'firebase/firestore';
+        import { getFirestore, collectionGroup, getDocs, doc, setDoc, getDoc, deleteDoc, collection } from 'firebase/firestore';
 
         // --- NOUVEAU LOGO LEVEL MOVIE PRO (Symbole "L" + Play Minimaliste) ---
         const LevelMovieLogo = ({ className = "w-6 h-6", color = "currentColor" }) => (
@@ -66,6 +66,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const APP_ID = "level-ia-premium";
 
         // --- CONFIGURATION TMDB ---
         const API_KEY = '027cc951d888c64e5f15dcb853c7347a';
@@ -78,14 +79,16 @@
           fr: {
             appTitle: "LevelMovie",
             enterKey: "Clé d'Accès requise",
-            verifyKey: "Déverrouiller",
+            verifyKey: "Connexion",
             verifyLoading: "Vérification...",
-            forgotKey: "Obtenir une clé",
+            forgotKey: "Obtenir ma clé",
             home: "Accueil",
             series: "Séries",
             movies: "Films",
             myList: "Ma liste",
             trending: "Tendances Mondiales",
+            frenchCinema: "Cinéma Francophone",
+            frenchSeries: "Séries Francophones",
             freeVOD: "Films Gratuits",
             topRated: "Chefs-d'œuvre",
             action: "Action & Adrénaline",
@@ -126,15 +129,15 @@
             addedList: "Ajouté aux favoris !",
             removedList: "Retiré de la liste",
             publicDomain: "Classiques du Cinéma",
-            searchPlaceholder: "Rechercher...",
+            searchPlaceholder: "Rechercher un film, une série...",
             defaultUser: "Utilisateur",
             premiumActive: "Compte Premium Actif",
             ecosystem: "Écosystème LevelIA",
-            settingsTitle: "Préférences du Contenu",
+            settingsTitle: "Préférences Générales",
             contentOrigin: "Origine des Films",
             worldAll: "Monde (Tous)",
-            usEnglish: "US / Anglais (VO)",
-            frenchVF: "Français (VF)",
+            usEnglish: "Anglais (VO)",
+            frenchVF: "Français (Langue parlée)",
             interfaceLang: "Langue Interface",
             favoriteMovies: "Films Favoris",
             systemVideo: "Système & Vidéo",
@@ -151,22 +154,23 @@
             osVersion: "LevelMovie • Architecture V1.0",
             loginSuccess: "Connexion réussie",
             cacheCleared: "Cache nettoyé avec succès.",
-            filterApplied: "Filtre appliqué. Rechargement...",
+            filterApplied: "Préférences mises à jour.",
             linkCopied: "Lien copié dans le presse-papier !",
             emptyList: "Votre liste est vide.",
             searchResults: "Résultats de recherche",
-            noResults: "Aucun résultat trouvé.",
+            noResults: "Aucun résultat trouvé dans la base de données mondiale.",
             featured: "À la une",
             externalSources: "Sources Externes (Gratuites)",
+            audioTip: "Astuce : Si le film ne s'affiche pas ou s'il y a trop de publicités, changez de serveur ci-dessous.",
             movieInfo: "Infos du film",
-            server1: "Serveur 1 (Multi)",
-            server2: "Serveur 2 (Global) ⭐",
-            server3: "Serveur 3 (Alt)",
+            server1: "Serveur 1 (Vidsrc) ⭐",
+            server2: "Serveur 2 (Embed.su)",
             publicDomainDirect: "Domaine Public",
-            youtubeFull: "YouTube Complet",
+            youtubeFull: "Serveur Direct (HD)",
             originalTitle: "Titre Original",
             notSpecified: "Non spécifié",
             inProgress: "(En cours)",
+            trailerPlaying: "Bande-annonce en cours",
             alreadyInList: "Déjà dans vos favoris",
             addToList: "Ajouter à Ma Liste",
             share: "Partager",
@@ -179,7 +183,7 @@
             certifiedReviews: "avis certifiés",
             noCasting: "Casting non disponible",
             recommendationTitle: "⭐ RECOMMANDATION IMPORTANTE",
-            recommendationText: "Pour une lecture fluide et <b>sans publicité bloquante</b>, nous vous conseillons vivement d'utiliser le <b>Serveur 2 (Global)</b>.",
+            recommendationText: "Pour une lecture fluide et <b>sans publicité bloquante</b>, nous vous conseillons vivement d'utiliser le <b>Serveur 1 (Recommandé)</b>.",
             warningDisclaimer: "Les flux vidéo gratuits sont fournis par des serveurs externes et indépendants de LevelUp. Nous n'hébergeons aucun fichier vidéo. Nous recommandons d'utiliser un navigateur web intégrant un bloqueur de publicités natif (ex: Opera, Brave) pour éviter les pop-ups abusives des autres serveurs.",
             disclaimerCheckbox: "J'ai compris et j'accepte de visionner le contenu depuis un serveur externe.",
             acceptPlay: "Accepter & Lancer",
@@ -194,19 +198,22 @@
             animeJp: "Animes Japonais",
             dramaPassion: "Drame & Passion",
             sciFiFantasy: "Sci-Fi & Fantastique",
-            originalLang: "VO"
+            originalLang: "VO",
+            recentlyViewed: "Récemment consultés"
           },
           en: {
             appTitle: "LevelMovie",
             enterKey: "Access Key required",
-            verifyKey: "Unlock",
+            verifyKey: "Login",
             verifyLoading: "Verifying...",
-            forgotKey: "Get a key",
+            forgotKey: "Get my key",
             home: "Home",
             series: "TV Shows",
             movies: "Movies",
             myList: "My List",
             trending: "Global Trends",
+            frenchCinema: "French Spoken Movies",
+            frenchSeries: "French Spoken TV",
             freeVOD: "Free Movies",
             topRated: "Masterpieces",
             action: "Action & Adrenaline",
@@ -247,15 +254,15 @@
             addedList: "Added to favorites!",
             removedList: "Removed from list",
             publicDomain: "Classic Cinema",
-            searchPlaceholder: "Search...",
+            searchPlaceholder: "Search global database...",
             defaultUser: "User",
             premiumActive: "Premium Account Active",
             ecosystem: "LevelIA Ecosystem",
-            settingsTitle: "Content Preferences",
-            contentOrigin: "Movies Origin",
+            settingsTitle: "General Preferences",
+            contentOrigin: "Original Language",
             worldAll: "World (All)",
-            usEnglish: "US / English (Original)",
-            frenchVF: "French (Dubbed)",
+            usEnglish: "English (Original)",
+            frenchVF: "French (Spoken)",
             interfaceLang: "Interface Language",
             favoriteMovies: "Favorite Movies",
             systemVideo: "System & Video",
@@ -272,22 +279,23 @@
             osVersion: "LevelMovie • Architecture V1.0",
             loginSuccess: "Login successful",
             cacheCleared: "Cache cleared successfully.",
-            filterApplied: "Filter applied. Reloading...",
+            filterApplied: "Preferences updated.",
             linkCopied: "Link copied to clipboard!",
             emptyList: "Your list is empty.",
             searchResults: "Search Results",
-            noResults: "No results found.",
+            noResults: "No results found in the global database.",
             featured: "Featured",
             externalSources: "External Sources (Free)",
+            audioTip: "Tip: If the movie doesn't load or has too many ads, please switch to another server below.",
             movieInfo: "Movie Info",
-            server1: "Server 1 (Multi)",
-            server2: "Server 2 (Global) ⭐",
-            server3: "Server 3 (Alt)",
+            server1: "Server 1 (Vidsrc) ⭐",
+            server2: "Server 2 (Embed.su)",
             publicDomainDirect: "Public Domain",
-            youtubeFull: "Full YouTube",
+            youtubeFull: "Direct Server (HD)",
             originalTitle: "Original Title",
             notSpecified: "Not specified",
             inProgress: "(WIP)",
+            trailerPlaying: "Trailer playing",
             alreadyInList: "Already in favorites",
             addToList: "Add to My List",
             share: "Share",
@@ -300,7 +308,7 @@
             certifiedReviews: "certified reviews",
             noCasting: "Cast not available",
             recommendationTitle: "⭐ IMPORTANT RECOMMENDATION",
-            recommendationText: "For smooth playback and <b>no blocking ads</b>, we highly recommend using <b>Server 2 (Global)</b>.",
+            recommendationText: "For smooth playback and <b>no blocking ads</b>, we highly recommend using <b>Server 1 (Recommended)</b>.",
             warningDisclaimer: "Free video streams are provided by external servers independent of LevelUp. We do not host any video files. We recommend using a web browser with a native ad blocker (e.g. Opera, Brave) to avoid abusive pop-ups from other servers.",
             disclaimerCheckbox: "I understand and agree to view content from an external server.",
             acceptPlay: "Accept & Play",
@@ -315,13 +323,27 @@
             animeJp: "Japanese Anime",
             dramaPassion: "Drama & Passion",
             sciFiFantasy: "Sci-Fi & Fantasy",
-            originalLang: "Orig"
+            originalLang: "Orig",
+            recentlyViewed: "Recently Viewed"
           }
         };
 
         // --- STYLES GLOBAUX ---
         const globalStyles = `
           @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+          
+          /* ANTI-SÉLECTION (Comportement Native App) */
+          * { 
+            user-select: none; 
+            -webkit-user-select: none; 
+            -ms-overflow-style: none; 
+            scrollbar-width: none; 
+          }
+          input, textarea { 
+            user-select: auto; 
+            -webkit-user-select: auto; 
+          }
+
           body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: #060608; 
@@ -332,7 +354,6 @@
             padding-top: env(safe-area-inset-top);
           }
           ::-webkit-scrollbar { display: none; }
-          * { -ms-overflow-style: none; scrollbar-width: none; }
           .bg-main { background: radial-gradient(circle at 50% 0%, #15092a 0%, #060608 80%); min-height: 100vh; }
           .holo-card { background: linear-gradient(135deg, rgba(30,20,45,0.6) 0%, rgba(10,10,15,0.8) 100%); border: 1px solid rgba(168,85,247,0.2); box-shadow: inset 0 0 30px rgba(168,85,247,0.05), 0 30px 60px rgba(0,0,0,0.8); backdrop-filter: blur(30px); }
           .markdown-pro { font-size: 14px; line-height: 1.8; color: rgba(255,255,255,0.75); text-align: justify; }
@@ -376,6 +397,8 @@
 
           const [watchlist, setWatchlist] = useState([]);
           const [watchlistData, setWatchlistData] = useState([]);
+          
+          const [recentlyViewed, setRecentlyViewed] = useState([]); 
 
           const t = i18n[lang] || i18n['fr'];
           const defaultUserName = userName || t.defaultUser;
@@ -412,7 +435,7 @@
             }
           }, []);
 
-          // --- HYBRID WATCHLIST FETCH ---
+          // --- FETCH DONNÉES UTILISATEUR ---
           useEffect(() => {
             if (!user) return;
             
@@ -422,25 +445,38 @@
               setWatchlist(localData.map(m => m.id));
             }
 
-            const fetchWatchlist = async () => {
+            const fetchUserData = async () => {
               try {
-                const q = collection(db, "artifacts", "level-ia-premium", "users", user.uid, "watchlist");
+                // Fetch Watchlist
+                const q = collection(db, "artifacts", APP_ID, "users", user.uid, "watchlist");
                 const snaps = await getDocs(q);
                 const data = [];
-                snaps.forEach(doc => {
-                  data.push(doc.data());
-                });
-                
+                snaps.forEach(doc => data.push(doc.data()));
                 if (data.length > 0 || localData.length > 0) {
                     setWatchlist(data.map(m => m.id));
                     setWatchlistData(data);
                     localStorage.setItem('levelmovie_watchlist_' + user.uid, JSON.stringify(data));
                 }
+
+                // Fetch Preferences
+                const prefSnap = await getDoc(doc(db, "artifacts", APP_ID, "users", user.uid, "preferences", "settings"));
+                if (prefSnap.exists()) {
+                    const pref = prefSnap.data();
+                    if (pref.lang) { setLang(pref.lang); localStorage.setItem('levelmovie_lang', pref.lang); }
+                    if (pref.contentLang) { setContentLang(pref.contentLang); localStorage.setItem('levelmovie_content_lang', pref.contentLang); }
+                }
+
+                // Fetch Recent History
+                const histSnap = await getDoc(doc(db, "artifacts", APP_ID, "users", user.uid, "history", "recent"));
+                if (histSnap.exists() && histSnap.data().items) {
+                    setRecentlyViewed(histSnap.data().items);
+                }
+
               } catch (e) {
-                console.error("🔥 FIREBASE FETCH WATCHLIST ERROR:", e.code, e.message);
+                console.error("🔥 FIREBASE FETCH DATA ERROR:", e);
               }
             };
-            fetchWatchlist();
+            fetchUserData();
           }, [user]);
 
           // --- TOASTS ---
@@ -453,17 +489,36 @@
             }, 3000);
           }, []);
 
-          // --- ACTIONS LANGUE ---
+          // --- SAUVEGARDE PRÉFÉRENCES CLOUD ---
+          const syncPreferencesToDb = async (newPrefs) => {
+             if (!user) return;
+             try {
+                await setDoc(doc(db, "artifacts", APP_ID, "users", user.uid, "preferences", "settings"), newPrefs, { merge: true });
+             } catch(e) {}
+          };
+
+          // --- ACTIONS LANGUE / FILTRES (BOUTONS RÉPARÉS) ---
           const handleLangToggle = () => {
             const newLang = lang === 'fr' ? 'en' : 'fr';
             setLang(newLang);
             localStorage.setItem('levelmovie_lang', newLang);
+            syncPreferencesToDb({ lang: newLang });
+            showToast(t.filterApplied, 'success');
           };
 
-          const changeContentLang = (val) => {
-            setContentLang(val);
-            localStorage.setItem('levelmovie_content_lang', val);
+          const cycleContentLang = () => {
+            const nextLang = contentLang === 'all' ? 'fr' : (contentLang === 'fr' ? 'en' : 'all');
+            setContentLang(nextLang);
+            localStorage.setItem('levelmovie_content_lang', nextLang);
+            syncPreferencesToDb({ contentLang: nextLang });
+            setPageSeed(prev => prev === 1 ? 2 : 1);
             showToast(t.filterApplied, 'success');
+          };
+
+          const getContentLangLabel = () => {
+              if (contentLang === 'fr') return t.frenchVF;
+              if (contentLang === 'en') return t.usEnglish;
+              return t.worldAll;
           };
 
           // --- AUTHENTIFICATION ---
@@ -506,7 +561,6 @@
                 setAuthError(t.enterKey || "Clé invalide.");
               }
             } catch (error) {
-              console.error("🔥 LOGIN ERROR:", error);
               setAuthError("Erreur serveur Firebase.");
             }
             setIsLoadingAuth(false);
@@ -532,7 +586,7 @@
                 const res = await fetch(`${BASE_URL}/search/multi?api_key=${API_KEY}&language=${langCode}&query=${encodeURIComponent(searchQuery)}`);
                 const data = await res.json();
                 setSearchResults(data.results?.filter(m => m.media_type === 'movie' || m.media_type === 'tv') || []);
-              } catch (e) { console.error(e); }
+              } catch (e) {}
             }, 500);
             return () => clearTimeout(delayDebounceFn);
           }, [searchQuery, lang]);
@@ -548,15 +602,10 @@
                 showToast(t.removedList, "success");
             } else {
                 const dataObj = {
-                  id: movie.id,
-                  title: movie.title || movie.name || movie.original_name,
-                  poster_path: movie.poster_path,
-                  backdrop_path: movie.backdrop_path,
-                  vote_average: movie.vote_average,
-                  first_air_date: movie.first_air_date || null,
-                  release_date: movie.release_date || null,
-                  media_type: movie.first_air_date ? 'tv' : 'movie',
-                  addedAt: Date.now()
+                  id: movie.id, title: movie.title || movie.name || movie.original_name,
+                  poster_path: movie.poster_path, backdrop_path: movie.backdrop_path,
+                  vote_average: movie.vote_average, first_air_date: movie.first_air_date || null,
+                  release_date: movie.release_date || null, media_type: movie.first_air_date ? 'tv' : 'movie', addedAt: Date.now()
                 };
                 newList = [...watchlistData, dataObj];
                 showToast(t.addedList, "success");
@@ -567,31 +616,84 @@
             localStorage.setItem('levelmovie_watchlist_' + user.uid, JSON.stringify(newList));
 
             try {
-                const movieIdStr = movie.id.toString();
-                const ref = doc(db, "artifacts", "level-ia-premium", "users", user.uid, "watchlist", movieIdStr);
-                if (isAdded) {
-                    await deleteDoc(ref);
-                } else {
-                    const dataObj = newList.find(m => m.id === movie.id);
-                    await setDoc(ref, dataObj);
-                }
-            } catch(e) {
-                console.error("🔥 FIREBASE WATCHLIST SAVE ERROR:", e.code, e.message);
-                showToast(`Erreur: ${e.message}`, "error");
-            }
+                const ref = doc(db, "artifacts", APP_ID, "users", user.uid, "watchlist", movie.id.toString());
+                if (isAdded) await deleteDoc(ref);
+                else await setDoc(ref, newList.find(m => m.id === movie.id));
+            } catch(e) {}
+          };
+
+          const addToHistory = async (movie) => {
+              if (!user) return;
+              const dataObj = {
+                  id: movie.id, title: movie.title || movie.name || movie.original_name,
+                  poster_path: movie.poster_path, backdrop_path: movie.backdrop_path,
+                  vote_average: movie.vote_average, media_type: movie.first_air_date ? 'tv' : 'movie', viewedAt: Date.now()
+              };
+              
+              const updatedHistory = [dataObj, ...recentlyViewed.filter(m => m.id !== movie.id)].slice(0, 15);
+              setRecentlyViewed(updatedHistory);
+              
+              try {
+                  await setDoc(doc(db, "artifacts", APP_ID, "users", user.uid, "history", "recent"), { items: updatedHistory });
+              } catch(e) {}
           };
 
           const openModal = (movie, mode = 'info') => {
             setSelectedMovie(movie);
             setModalMode(mode);
+            addToHistory(movie);
           };
 
           const handleNavCategory = (cat) => {
             setCurrentCategory(cat);
             setSearchQuery('');
-            setPageSeed(Math.floor(Math.random() * 5) + 1);
             window.scrollTo({ top: 0, behavior: 'smooth' });
           };
+
+          // --- COMPILATION DES LIGNES MONDIALES ---
+          const langCode = lang === 'fr' ? 'fr-FR' : 'en-US';
+          const langFilter = contentLang !== 'all' ? `&with_original_language=${contentLang}` : '';
+          const rowsConfig = [];
+
+          const buildUrl = (base) => `${base}?api_key=${API_KEY}&language=${langCode}${langFilter}`;
+          const buildUrlNoFilter = (base) => `${base}?api_key=${API_KEY}&language=${langCode}`;
+          
+          if (currentCategory === 'home' || currentCategory === 'movie') {
+              rowsConfig.push(
+                  { title: t.trending, url: buildUrlNoFilter('/trending/movie/week'), large: true },
+                  { title: t.frenchCinema, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_spoken_languages=fr&sort_by=popularity.desc`, large: false },
+                  { title: t.upcoming, url: buildUrl('/movie/upcoming'), large: false },
+                  { title: t.nowPlaying, url: buildUrl('/movie/now_playing'), large: false },
+                  { title: t.topRated, url: buildUrl('/movie/top_rated'), large: false },
+                  { title: t.freeVOD, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_watch_monetization_types=free&watch_region=FR&sort_by=popularity.desc${langFilter}`, large: false },
+                  { title: t.publicDomain, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&primary_release_date.lte=1970-01-01&sort_by=vote_average.desc&vote_count.gte=200${langFilter}`, large: true },
+                  { title: t.asianDrama, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_original_language=ko`, large: false },
+                  { title: t.animeManga, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=16&with_original_language=ja`, large: false },
+                  { title: t.bollywood, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_original_language=hi`, large: false },
+                  { title: t.action, url: buildUrl('/discover/movie') + '&with_genres=28', large: false },
+                  { title: t.martialArts, url: buildUrl('/discover/movie') + '&with_genres=28&with_keywords=779', large: false },
+                  { title: t.scifi, url: buildUrl('/discover/movie') + '&with_genres=878', large: false },
+                  { title: t.comedy, url: buildUrl('/discover/movie') + '&with_genres=35', large: false },
+                  { title: t.horror, url: buildUrl('/discover/movie') + '&with_genres=27', large: false },
+                  { title: t.romance, url: buildUrl('/discover/movie') + '&with_genres=10749', large: false },
+                  { title: t.docs, url: buildUrl('/discover/movie') + '&with_genres=99', large: false }
+              );
+          } else if (currentCategory === 'tv') {
+              rowsConfig.push(
+                  { title: t.trending, url: buildUrlNoFilter('/trending/tv/week'), large: true },
+                  { title: t.frenchSeries, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_spoken_languages=fr&sort_by=popularity.desc`, large: false },
+                  { title: t.asianDrama, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_original_language=ko`, large: false },
+                  { title: t.animeJp, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=16&with_original_language=ja`, large: false },
+                  { title: t.topRated, url: buildUrl('/tv/top_rated'), large: false },
+                  { title: t.action, url: buildUrl('/discover/tv') + '&with_genres=10759', large: false },
+                  { title: t.comedy, url: buildUrl('/discover/tv') + '&with_genres=35', large: false },
+                  { title: t.crime, url: buildUrl('/discover/tv') + '&with_genres=80', large: false },
+                  { title: t.dramaPassion, url: buildUrl('/discover/tv') + '&with_genres=18', large: false },
+                  { title: t.mystery, url: buildUrl('/discover/tv') + '&with_genres=9648', large: false },
+                  { title: t.sciFiFantasy, url: buildUrl('/discover/tv') + '&with_genres=10765', large: false },
+                  { title: t.docs, url: buildUrl('/discover/tv') + '&with_genres=99', large: false }
+              );
+          }
 
           // --- COMPOSANTS DE BASE ---
           if (showSplash) {
@@ -630,7 +732,7 @@
                 <style>{globalStyles}</style>
                 <button 
                   onClick={handleLangToggle}
-                  className="absolute top-6 right-6 flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-full transition-all text-white/70 hover:text-white text-[11px] font-bold uppercase tracking-widest backdrop-blur-md z-50 shadow-lg"
+                  className="absolute top-6 right-6 flex items-center justify-center min-w-[60px] gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-full transition-all text-white/70 hover:text-white text-[11px] font-bold uppercase tracking-widest backdrop-blur-md z-50 shadow-lg outline-none"
                 >
                   <Globe className="w-4 h-4 text-[#a855f7]" /> {lang === 'fr' ? 'EN' : 'FR'}
                 </button>
@@ -654,13 +756,13 @@
                     <button 
                       onClick={handleLogin}
                       disabled={isLoadingAuth}
-                      className="w-full bg-gradient-to-r from-[#8b5cf6] to-[#a855f7] text-white py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.1em] hover:opacity-90 active:scale-95 transition-all shadow-[0_0_25px_rgba(168,85,247,0.4)] disabled:opacity-50"
+                      className="w-full bg-gradient-to-r from-[#8b5cf6] to-[#a855f7] text-white py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.1em] hover:opacity-90 active:scale-95 transition-all shadow-[0_0_25px_rgba(168,85,247,0.4)] disabled:opacity-50 outline-none"
                     >
                       {isLoadingAuth ? t.verifyLoading : t.verifyKey}
                     </button>
-                    <div className="mt-6 flex justify-center">
-                      <a href="https://levelupia0-debug.github.io/levelupia/" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 hover:text-white hover:border-[#a855f7]/50 transition-all duration-300 no-underline">
-                        <Key className="w-3 h-3" /> <span>{t.forgotKey}</span>
+                    <div className="mt-4 flex justify-center">
+                      <a href="https://levelupia0-debug.github.io/levelupia/" target="_blank" rel="noreferrer" className="flex items-center justify-center w-full gap-2 px-6 py-4 rounded-xl bg-white/10 border border-white/20 text-[11px] font-black uppercase tracking-[0.1em] text-white/90 hover:text-white hover:bg-white/20 hover:border-[#a855f7] transition-all duration-300 no-underline outline-none shadow-md">
+                        <Key className="w-4 h-4 text-[#a855f7]" /> <span>{t.forgotKey}</span>
                       </a>
                     </div>
                     {authError && <p className="text-[12px] text-red-400 font-bold mt-2 bg-red-500/10 py-2 rounded-lg border border-red-500/20">{authError}</p>}
@@ -670,58 +772,11 @@
             );
           }
 
-          const langCode = lang === 'fr' ? 'fr-FR' : 'en-US';
-          const langFilter = contentLang !== 'all' ? `&with_original_language=${contentLang}` : '';
-          const rowsConfig = [];
-          
-          if (currentCategory === 'home' || currentCategory === 'movie') {
-              rowsConfig.push(
-                  { title: t.trending, url: `/trending/movie/week?api_key=${API_KEY}&language=${langCode}${langFilter}&page=${pageSeed}`, large: true },
-                  { title: t.upcoming, url: `/movie/upcoming?api_key=${API_KEY}&language=${langCode}${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.nowPlaying, url: `/movie/now_playing?api_key=${API_KEY}&language=${langCode}${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.freeVOD, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_watch_monetization_types=free&watch_region=FR&sort_by=popularity.desc${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.publicDomain, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&primary_release_date.lte=1970-01-01&sort_by=vote_average.desc&vote_count.gte=200${langFilter}&page=${pageSeed}`, large: true },
-                  { title: t.asianDrama, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_original_language=ko&page=${pageSeed}`, large: false },
-                  { title: t.animeManga, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=16&with_original_language=ja&page=${pageSeed}`, large: false },
-                  { title: t.topRated, url: `/movie/top_rated?api_key=${API_KEY}&language=${langCode}${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.bollywood, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_original_language=hi&page=${pageSeed}`, large: false },
-                  { title: t.action, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=28${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.martialArts, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=28&with_keywords=779&page=${pageSeed}`, large: false },
-                  { title: t.scifi, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=878${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.comedy, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=35${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.horror, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=27${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.romance, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=10749${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.docs, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=99${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.western, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=37${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.war, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=10752${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.history, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=36${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.mystery, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=9648${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.crime, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=80${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.music, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=10402${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.fantasy, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=14${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.family, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_genres=10751${langFilter}&page=${pageSeed}`, large: false }
-              );
-          } else if (currentCategory === 'tv') {
-              rowsConfig.push(
-                  { title: t.trending, url: `/trending/tv/week?api_key=${API_KEY}&language=${langCode}${langFilter}&page=${pageSeed}`, large: true },
-                  { title: t.asianDrama, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_original_language=ko&page=${pageSeed}`, large: false },
-                  { title: t.animeJp, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=16&with_original_language=ja&page=${pageSeed}`, large: false },
-                  { title: t.topRated, url: `/tv/top_rated?api_key=${API_KEY}&language=${langCode}${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.action, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=10759${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.comedy, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=35${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.crime, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=80${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.dramaPassion, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=18${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.mystery, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=9648${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.sciFiFantasy, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=10765${langFilter}&page=${pageSeed}`, large: false },
-                  { title: t.docs, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=99${langFilter}&page=${pageSeed}`, large: false }
-              );
-          }
-
           return (
             <div className="bg-main text-white min-h-screen">
               <style>{globalStyles}</style>
               
-              {/* TOASTS REFAITS */}
+              {/* TOASTS */}
               <div className="fixed top-4 right-4 md:top-6 md:right-6 z-[9999] flex flex-col gap-3 pointer-events-none items-end">
                 {toasts.map(toast => {
                   let icon = <CheckCircle className="w-5 h-5 text-green-400" />;
@@ -741,17 +796,18 @@
               {/* HEADER */}
               <header className={`fixed top-0 w-full z-50 transition-all duration-500 ease-in-out flex items-center justify-between px-4 md:px-10 py-3 md:py-4 ${isScrolled ? 'bg-black/80 backdrop-blur-2xl border-b border-white/5 shadow-xl' : 'bg-gradient-to-b from-[#060608] via-[#060608]/90 to-transparent'}`}>
                 <div className="flex items-center space-x-6 md:space-x-10">
-                  <div className="flex items-center gap-3 cursor-pointer" onClick={() => handleNavCategory('home')}>
-                    <h1 className="text-xl md:text-2xl font-black tracking-widest leading-none drop-shadow-lg hidden sm:block">
-                      <span className="text-white">Level</span><span className="text-[#a855f7]">Movie</span>
+                  <div className="flex items-center gap-3 cursor-pointer outline-none" onClick={() => handleNavCategory('home')}>
+                    <h1 className="text-xl md:text-2xl font-black tracking-widest leading-none drop-shadow-lg flex items-center gap-2">
+                      <LevelMovieLogo className="w-6 h-6 text-[#a855f7] sm:hidden" />
+                      <span className="hidden sm:inline"><span className="text-white">Level</span><span className="text-[#a855f7]">Movie</span></span>
                     </h1>
                   </div>
                   
                   <nav className="hidden lg:flex space-x-6 text-[12px] font-bold uppercase tracking-widest text-white/60">
-                    <button onClick={() => handleNavCategory('home')} className={`transition-colors hover:text-white ${currentCategory === 'home' ? 'text-[#a855f7]' : ''}`}>{t.home}</button>
-                    <button onClick={() => handleNavCategory('tv')} className={`transition-colors hover:text-white ${currentCategory === 'tv' ? 'text-[#a855f7]' : ''}`}>{t.series}</button>
-                    <button onClick={() => handleNavCategory('movie')} className={`transition-colors hover:text-white ${currentCategory === 'movie' ? 'text-[#a855f7]' : ''}`}>{t.movies}</button>
-                    <button onClick={() => handleNavCategory('watchlist')} className={`transition-colors hover:text-white ${currentCategory === 'watchlist' ? 'text-[#a855f7]' : ''}`}>{t.myList}</button>
+                    <button onClick={() => handleNavCategory('home')} className={`transition-colors hover:text-white outline-none ${currentCategory === 'home' ? 'text-[#a855f7]' : ''}`}>{t.home}</button>
+                    <button onClick={() => handleNavCategory('tv')} className={`transition-colors hover:text-white outline-none ${currentCategory === 'tv' ? 'text-[#a855f7]' : ''}`}>{t.series}</button>
+                    <button onClick={() => handleNavCategory('movie')} className={`transition-colors hover:text-white outline-none ${currentCategory === 'movie' ? 'text-[#a855f7]' : ''}`}>{t.movies}</button>
+                    <button onClick={() => handleNavCategory('watchlist')} className={`transition-colors hover:text-white outline-none ${currentCategory === 'watchlist' ? 'text-[#a855f7]' : ''}`}>{t.myList}</button>
                   </nav>
                 </div>
 
@@ -766,7 +822,7 @@
                     />
                   </div>
                   
-                  <div className="flex items-center gap-3 p-1.5 pr-3 md:pr-4 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all cursor-pointer shadow-md" onClick={() => setShowSettings(true)}>
+                  <div className="flex items-center gap-3 p-1.5 pr-3 md:pr-4 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all cursor-pointer shadow-md outline-none" onClick={() => setShowSettings(true)}>
                     <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#151520] flex items-center justify-center overflow-hidden border border-[#a855f7]/40 shadow-inner shrink-0">
                       <span className="text-[12px] md:text-[13px] font-black text-[#a855f7]">{defaultUserName.charAt(0).toUpperCase()}</span>
                     </div>
@@ -779,16 +835,16 @@
 
               {/* NAVBAR MOBILE */}
               <nav className="lg:hidden fixed bottom-0 w-full z-50 bg-[#060608]/95 backdrop-blur-xl border-t border-white/5 flex justify-around items-center py-3 shadow-[0_-10px_20px_rgba(0,0,0,0.5)] pb-[env(safe-area-inset-bottom)]">
-                <button onClick={() => handleNavCategory('home')} className={`flex flex-col items-center gap-1 transition-colors ${currentCategory === 'home' ? 'text-[#a855f7]' : 'text-white/50 hover:text-white'}`}>
+                <button onClick={() => handleNavCategory('home')} className={`flex flex-col items-center gap-1 transition-colors outline-none ${currentCategory === 'home' ? 'text-[#a855f7]' : 'text-white/50 hover:text-white'}`}>
                   <Home className="w-5 h-5" /> <span className="text-[9px] font-bold uppercase tracking-widest">{t.home}</span>
                 </button>
-                <button onClick={() => handleNavCategory('tv')} className={`flex flex-col items-center gap-1 transition-colors ${currentCategory === 'tv' ? 'text-[#a855f7]' : 'text-white/50 hover:text-white'}`}>
+                <button onClick={() => handleNavCategory('tv')} className={`flex flex-col items-center gap-1 transition-colors outline-none ${currentCategory === 'tv' ? 'text-[#a855f7]' : 'text-white/50 hover:text-white'}`}>
                   <Tv className="w-5 h-5" /> <span className="text-[9px] font-bold uppercase tracking-widest">{t.series}</span>
                 </button>
-                <button onClick={() => handleNavCategory('movie')} className={`flex flex-col items-center gap-1 transition-colors ${currentCategory === 'movie' ? 'text-[#a855f7]' : 'text-white/50 hover:text-white'}`}>
+                <button onClick={() => handleNavCategory('movie')} className={`flex flex-col items-center gap-1 transition-colors outline-none ${currentCategory === 'movie' ? 'text-[#a855f7]' : 'text-white/50 hover:text-white'}`}>
                   <Clapperboard className="w-5 h-5" /> <span className="text-[9px] font-bold uppercase tracking-widest">{t.movies}</span>
                 </button>
-                <button onClick={() => handleNavCategory('watchlist')} className={`flex flex-col items-center gap-1 transition-colors ${currentCategory === 'watchlist' ? 'text-[#a855f7]' : 'text-white/50 hover:text-white'}`}>
+                <button onClick={() => handleNavCategory('watchlist')} className={`flex flex-col items-center gap-1 transition-colors outline-none ${currentCategory === 'watchlist' ? 'text-[#a855f7]' : 'text-white/50 hover:text-white'}`}>
                   <Bookmark className="w-5 h-5" /> <span className="text-[9px] font-bold uppercase tracking-widest">{t.myList}</span>
                 </button>
               </nav>
@@ -829,12 +885,30 @@
               ) : (
                 <>
                   {/* BANNER */}
-                  <Banner url={`/trending/all/week?api_key=${API_KEY}&language=${langCode}${langFilter}&page=${pageSeed}`} onPlay={() => openModal(heroMovie, 'play')} onInfo={() => openModal(heroMovie, 'info')} setHero={setHeroMovie} heroMovie={heroMovie} t={t} />
+                  <Banner url={buildUrlNoFilter('/trending/all/week')} onPlay={() => openModal(heroMovie, 'play')} onInfo={() => openModal(heroMovie, 'info')} setHero={setHeroMovie} heroMovie={heroMovie} t={t} pageSeed={pageSeed} />
                   
                   {/* ROWS */}
                   <main className="pb-24 relative z-20 space-y-8 md:space-y-10 mt-6 md:-mt-10">
+                    
+                    {/* HISTORIQUE (Récemment Consultés) */}
+                    {recentlyViewed.length > 0 && (
+                        <div className="group relative ml-4 md:ml-12 animate-in fade-in duration-700">
+                            <h2 className="text-white/90 text-[13px] md:text-lg font-black mb-3 md:mb-5 uppercase tracking-[0.2em] border-l-4 border-[#a855f7] pl-3 md:pl-4 drop-shadow-sm flex items-center gap-3">
+                                {t.recentlyViewed} <History className="w-4 h-4 text-[#a855f7]" />
+                            </h2>
+                            <div className="flex overflow-y-hidden overflow-x-scroll py-2 md:py-4 space-x-3 md:space-x-5 no-scrollbar pr-8">
+                                {recentlyViewed.map(movie => (
+                                    <div key={movie.id} className="relative flex-none cursor-pointer rounded-xl overflow-hidden shadow-lg border border-[#a855f7]/30 bg-[#151520] hover:scale-105 transition-transform" onClick={() => openModal(movie, 'info')}>
+                                        <img className="object-cover w-[140px] md:w-[200px] h-[210px] md:h-[300px]" src={`${IMAGE_BASE_URL}${movie.poster_path}`} loading="lazy" draggable="false" alt=""/>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* AUTRES LIGNES (Catalog complet mondial) */}
                     {rowsConfig.map((row, i) => (
-                      <Row key={i} title={row.title} fetchUrl={row.url} isLarge={row.large} onMovieClick={(m) => openModal(m, 'info')} />
+                      <Row key={i} title={row.title} fetchUrl={row.url} isLarge={row.large} onMovieClick={(m) => openModal(m, 'info')} pageSeed={pageSeed} />
                     ))}
                   </main>
                 </>
@@ -845,7 +919,7 @@
                 <div className="fixed inset-0 z-[9000] flex justify-center items-center p-4 sm:p-8 bg-[#060608]/95 backdrop-blur-3xl overflow-hidden">
                     <div className="holo-card relative w-full max-w-3xl rounded-[2rem] p-6 md:p-8 flex flex-col text-center animate-in zoom-in duration-300 z-10 shadow-[0_0_80px_rgba(0,0,0,0.9)] max-h-[95vh] overflow-y-auto no-scrollbar">
                         
-                        <button onClick={() => setShowSettings(false)} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 hover:bg-red-500 flex items-center justify-center text-white/50 hover:text-white transition-colors shadow-sm z-20">
+                        <button onClick={() => setShowSettings(false)} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 hover:bg-red-500 flex items-center justify-center text-white/50 hover:text-white transition-colors shadow-sm z-20 outline-none">
                             <X className="w-5 h-5" />
                         </button>
                         
@@ -856,8 +930,7 @@
                             <h2 className="text-2xl font-black text-white uppercase tracking-widest mb-1 drop-shadow-md">{defaultUserName}</h2>
                             <p className="text-xs text-white/50 font-mono mb-4">{userEmail || 'email@inconnu.com'}</p>
                             
-                            {/* Petit bouton LevelIA discret et élégant */}
-                            <a href="https://levelupia.vercel.app" target="_blank" rel="noreferrer" className="px-5 py-2 bg-white/5 hover:bg-white/10 text-white/80 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/10 transition-colors flex items-center gap-2 no-underline shadow-md hover:border-[#a855f7]/50">
+                            <a href="https://levelupia.vercel.app" target="_blank" rel="noreferrer" className="px-5 py-2 bg-white/5 hover:bg-white/10 text-white/80 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/10 transition-colors flex items-center gap-2 no-underline shadow-md hover:border-[#a855f7]/50 outline-none">
                                 <Star className="w-3 h-3 text-[#a855f7] fill-[#a855f7]" /> {t.ecosystem}
                             </a>
                         </div>
@@ -868,16 +941,14 @@
                                 
                                 <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-inner">
                                     <span className="text-[11px] font-bold text-white/80 uppercase tracking-widest flex items-center gap-3"><Filter className="w-4 h-4 text-[#a855f7]" /> {t.contentOrigin}</span>
-                                    <select value={contentLang} onChange={(e) => changeContentLang(e.target.value)} className="bg-black/80 border border-white/20 rounded-lg text-white text-[10px] font-bold uppercase tracking-widest p-2 outline-none cursor-pointer">
-                                        <option value="all">{t.worldAll}</option>
-                                        <option value="en">{t.usEnglish}</option>
-                                        <option value="fr">{t.frenchVF}</option>
-                                    </select>
+                                    <button onClick={cycleContentLang} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-[10px] font-bold uppercase transition-colors border border-white/20 outline-none text-white tracking-widest text-center min-w-[120px]">
+                                        {getContentLangLabel()}
+                                    </button>
                                 </div>
 
                                 <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-inner">
                                     <span className="text-[11px] font-bold text-white/80 uppercase tracking-widest flex items-center gap-3"><Globe className="w-4 h-4 text-[#a855f7]" /> {t.interfaceLang}</span>
-                                    <button onClick={handleLangToggle} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 border border-white/10">
+                                    <button onClick={handleLangToggle} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-bold transition-colors flex items-center justify-center min-w-[60px] gap-2 border border-white/20 outline-none text-white">
                                         {lang === 'fr' ? 'FR' : 'EN'}
                                     </button>
                                 </div>
@@ -898,7 +969,7 @@
 
                                 <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-inner">
                                     <span className="text-[11px] font-bold text-white/80 uppercase tracking-widest flex items-center gap-3"><Shield className="w-4 h-4 text-[#a855f7]" /> {t.parentalFilter}</span>
-                                    <label className="relative inline-flex items-center cursor-pointer">
+                                    <label className="relative inline-flex items-center cursor-pointer outline-none">
                                         <input type="checkbox" className="sr-only peer" />
                                         <div className="w-9 h-5 bg-black/50 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white/70 after:border-white/20 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#a855f7] peer-checked:after:bg-white shadow-inner"></div>
                                     </label>
@@ -906,7 +977,7 @@
 
                                 <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-inner">
                                     <span className="text-[11px] font-bold text-white/80 uppercase tracking-widest flex items-center gap-3"><HardDrive className="w-4 h-4 text-[#a855f7]" /> {t.systemCache}</span>
-                                    <button onClick={() => showToast(t.cacheCleared, 'success')} className="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-lg text-[10px] font-bold uppercase hover:bg-red-500 hover:text-white transition-all border border-red-500/30">{t.clearCache}</button>
+                                    <button onClick={() => showToast(t.cacheCleared, 'success')} className="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-lg text-[10px] font-bold uppercase hover:bg-red-500 hover:text-white transition-all border border-red-500/30 outline-none">{t.clearCache}</button>
                                 </div>
                             </div>
                         </div>
@@ -922,15 +993,15 @@
                         </div>
                         
                         {!showLogoutConfirm ? (
-                            <button onClick={() => setShowLogoutConfirm(true)} className="w-full text-center px-4 py-4 mt-8 bg-red-500/10 text-[11px] font-bold text-red-400 uppercase tracking-widest hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-colors flex justify-center items-center gap-3 active:scale-95 shadow-md">
+                            <button onClick={() => setShowLogoutConfirm(true)} className="w-full text-center px-4 py-4 mt-8 bg-red-500/10 text-[11px] font-bold text-red-400 uppercase tracking-widest hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-colors flex justify-center items-center gap-3 active:scale-95 shadow-md outline-none">
                                 <LogOut className="w-4 h-4" /> {t.logoutBtn}
                             </button>
                         ) : (
                             <div className="w-full mt-8 bg-red-500/10 border border-red-500/30 p-5 rounded-xl flex flex-col items-center animate-in zoom-in duration-300">
                                 <p className="text-red-400 font-black text-xs uppercase tracking-widest mb-4">{t.logoutConfirm}</p>
                                 <div className="flex gap-4 w-full">
-                                    <button onClick={() => setShowLogoutConfirm(false)} className="flex-1 py-3 bg-white/5 text-white/70 rounded-xl text-[10px] font-bold uppercase hover:bg-white/10 transition-colors">{t.cancel}</button>
-                                    <button onClick={handleLogout} className="flex-1 py-3 bg-red-500 text-white rounded-xl text-[10px] font-bold uppercase shadow-[0_0_15px_rgba(239,68,68,0.4)] hover:bg-red-600 transition-colors">{t.confirm}</button>
+                                    <button onClick={() => setShowLogoutConfirm(false)} className="flex-1 py-3 bg-white/5 text-white/70 rounded-xl text-[10px] font-bold uppercase hover:bg-white/10 transition-colors outline-none">{t.cancel}</button>
+                                    <button onClick={handleLogout} className="flex-1 py-3 bg-red-500 text-white rounded-xl text-[10px] font-bold uppercase shadow-[0_0_15px_rgba(239,68,68,0.4)] hover:bg-red-600 transition-colors outline-none">{t.confirm}</button>
                                 </div>
                             </div>
                         )}
@@ -949,6 +1020,7 @@
                   onSelectSimilar={(m) => {
                     setSelectedMovie(m);
                     setModalMode('info');
+                    addToHistory(m);
                   }}
                   t={t} 
                   lang={langCode} 
@@ -963,18 +1035,23 @@
         }
 
         // --- BANNER COMPONENT ---
-        function Banner({ url, onPlay, onInfo, setHero, heroMovie, t }) {
+        function Banner({ url, onPlay, onInfo, setHero, heroMovie, t, pageSeed }) {
           useEffect(() => {
             const fetchMovie = async () => {
               try {
-                const req = await fetch(`${BASE_URL}${url}`);
-                const data = await req.json();
-                const valids = data.results.filter(m => m.backdrop_path);
+                const req1 = fetch(`${BASE_URL}${url}&page=${pageSeed}`);
+                const req2 = fetch(`${BASE_URL}${url}&page=${pageSeed + 1}`);
+                const [res1, res2] = await Promise.all([req1, req2]);
+                const data1 = await res1.json();
+                const data2 = await res2.json();
+                const combined = [...(data1.results||[]), ...(data2.results||[])];
+                
+                const valids = combined.filter(m => m.backdrop_path);
                 setHero(valids[Math.floor(Math.random() * valids.length)]);
               } catch(e) {}
             };
             fetchMovie();
-          }, [url]);
+          }, [url, pageSeed]);
 
           if (!heroMovie) return <div className="h-[80vh] w-full bg-[#060608] animate-pulse"></div>;
 
@@ -1003,10 +1080,10 @@
                     </p>
 
                     <div className="flex flex-wrap gap-3 mt-5 md:mt-6">
-                        <button onClick={onPlay} className="flex-1 md:flex-none items-center justify-center flex gap-2 px-6 md:px-8 py-3 bg-white text-black rounded-xl text-[11px] md:text-[13px] font-black uppercase tracking-widest hover:bg-gray-200 transition-all shadow-[0_0_30px_rgba(255,255,255,0.3)] active:scale-95">
+                        <button onClick={onPlay} className="flex-1 md:flex-none items-center justify-center flex gap-2 px-6 md:px-8 py-3 bg-white text-black rounded-xl text-[11px] md:text-[13px] font-black uppercase tracking-widest hover:bg-gray-200 transition-all shadow-[0_0_30px_rgba(255,255,255,0.3)] active:scale-95 outline-none">
                             <Play className="w-4 h-4 fill-black" /> <span>{t.play}</span>
                         </button>
-                        <button onClick={onInfo} className="flex-1 md:flex-none items-center justify-center flex gap-2 px-6 md:px-8 py-3 bg-white/10 border border-white/20 rounded-xl text-[11px] md:text-[13px] font-bold text-white uppercase tracking-widest hover:bg-white/20 transition-all active:scale-95 backdrop-blur-md">
+                        <button onClick={onInfo} className="flex-1 md:flex-none items-center justify-center flex gap-2 px-6 md:px-8 py-3 bg-white/10 border border-white/20 rounded-xl text-[11px] md:text-[13px] font-bold text-white uppercase tracking-widest hover:bg-white/20 transition-all active:scale-95 backdrop-blur-md outline-none">
                             <Info className="w-4 h-4" /> <span>{t.details}</span>
                         </button>
                     </div>
@@ -1016,20 +1093,36 @@
         }
 
         // --- ROW COMPONENT ---
-        function Row({ title, fetchUrl, isLarge, onMovieClick }) {
+        function Row({ title, fetchUrl, isLarge, onMovieClick, pageSeed }) {
           const [movies, setMovies] = useState([]);
           const rowRef = useRef(null);
 
           useEffect(() => {
             const fetchM = async () => {
               try {
-                const req = await fetch(`${BASE_URL}${fetchUrl}`);
-                const data = await req.json();
-                setMovies(data.results.filter(m => m.poster_path));
+                const reqs = [];
+                for (let i = 0; i < 4; i++) {
+                    reqs.push(fetch(`${BASE_URL}${fetchUrl}&page=${pageSeed + i}`));
+                }
+                
+                const responses = await Promise.all(reqs);
+                const dataPromises = responses.map(r => r.json());
+                const allData = await Promise.all(dataPromises);
+                
+                let combined = [];
+                allData.forEach(d => {
+                    if(d.results) combined = [...combined, ...d.results];
+                });
+                
+                const uniqueMovies = Array.from(new Set(combined.map(a => a.id)))
+                  .map(id => combined.find(a => a.id === id))
+                  .filter(m => m && m.poster_path);
+
+                setMovies(uniqueMovies);
               } catch(e) {}
             };
             fetchM();
-          }, [fetchUrl]);
+          }, [fetchUrl, pageSeed]);
 
           let isDown = false;
           let startX;
@@ -1065,7 +1158,7 @@
                     {title} <ChevronRight className="w-4 h-4 text-white/30" />
                 </h2>
                 
-                <div onClick={() => scrollAction('left')} className="absolute left-0 top-12 bottom-0 z-40 w-10 bg-gradient-to-r from-[#060608] via-[#060608]/80 to-transparent opacity-0 md:group-hover:opacity-100 flex items-center justify-start cursor-pointer transition-opacity duration-300 -ml-4 md:-ml-12 hidden md:flex">
+                <div onClick={() => scrollAction('left')} className="absolute left-0 top-12 bottom-0 z-40 w-10 bg-gradient-to-r from-[#060608] via-[#060608]/80 to-transparent opacity-0 md:group-hover:opacity-100 flex items-center justify-start cursor-pointer transition-opacity duration-300 -ml-4 md:-ml-12 hidden md:flex outline-none">
                     <ChevronLeft className="text-white hover:text-[#a855f7] transition-colors w-10 h-10 ml-1 drop-shadow-lg" />
                 </div>
                 
@@ -1091,7 +1184,7 @@
                     })}
                 </div>
                 
-                <div onClick={() => scrollAction('right')} className="absolute right-0 top-12 bottom-0 z-40 w-12 bg-gradient-to-l from-[#060608] via-[#060608]/80 to-transparent opacity-0 md:group-hover:opacity-100 flex items-center justify-end cursor-pointer transition-opacity duration-300 hidden md:flex">
+                <div onClick={() => scrollAction('right')} className="absolute right-0 top-12 bottom-0 z-40 w-12 bg-gradient-to-l from-[#060608] via-[#060608]/80 to-transparent opacity-0 md:group-hover:opacity-100 flex items-center justify-end cursor-pointer transition-opacity duration-300 hidden md:flex outline-none">
                     <ChevronRight className="text-white hover:text-[#a855f7] transition-colors w-10 h-10 mr-2 drop-shadow-lg" />
                 </div>
             </div>
@@ -1107,8 +1200,9 @@
           
           const [showDisclaimer, setShowDisclaimer] = useState(false);
           const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
-          const [selectedServer, setSelectedServer] = useState('vidsrc');
+          const [selectedServer, setSelectedServer] = useState('vidsrc'); 
           const [pendingServer, setPendingServer] = useState('vidsrc');
+          const [iframeLoading, setIframeLoading] = useState(true);
 
           const isTV = movie.first_air_date !== undefined;
           const typeStr = isTV ? 'tv' : 'movie';
@@ -1117,7 +1211,7 @@
           useEffect(() => {
             const fetchDetails = async () => {
               try {
-                const res = await fetch(`${BASE_URL}/${typeStr}/${movie.id}?api_key=${API_KEY}&language=${lang}&append_to_response=credits,similar,watch/providers,videos,reviews`);
+                const res = await fetch(`${BASE_URL}/${typeStr}/${movie.id}?api_key=${API_KEY}&language=${lang}&append_to_response=credits,similar,watch/providers,videos,reviews&include_video_language=fr,en`);
                 const data = await res.json();
                 setDetails(data);
                 setLoading(false);
@@ -1131,7 +1225,7 @@
 
           useEffect(() => {
             if (mode === 'play') {
-               handleServerClick('vidsrc');
+               handlePlayRequest('vidsrc');
             } else {
                setModalMode('info');
             }
@@ -1150,8 +1244,10 @@
 
           const getTrailerKey = () => {
             if (!details?.videos?.results) return '';
-            const trailer = details.videos.results.find(v => v.type === 'Trailer' && v.site === 'YouTube') || details.videos.results.find(v=>v.site==='YouTube');
-            return trailer ? trailer.key : '';
+            const frTrailer = details.videos.results.find(v => v.type === 'Trailer' && v.site === 'YouTube' && v.iso_639_1 === 'fr');
+            if (frTrailer) return frTrailer.key;
+            const anyTrailer = details.videos.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+            return anyTrailer ? anyTrailer.key : (details.videos.results[0]?.key || '');
           };
 
           const getYoutubeFullKey = () => {
@@ -1177,11 +1273,12 @@
             return unique.length > 0 ? { unique, link: providerData.link } : null;
           };
 
-          const handleServerClick = (serverId) => {
+          const handlePlayRequest = (serverId) => {
               if (!disclaimerAccepted) {
                   setPendingServer(serverId);
                   setShowDisclaimer(true);
               } else {
+                  if (selectedServer !== serverId) setIframeLoading(true);
                   setSelectedServer(serverId);
                   setModalMode('play');
               }
@@ -1214,17 +1311,43 @@
           const renderIframe = () => {
             if (modalMode === 'info') {
               const tKey = getTrailerKey();
+              if (movie.backdrop_path) {
+                return (
+                   <div className="absolute inset-0 w-full h-full group cursor-pointer bg-black" onClick={() => { 
+                      if (tKey) {
+                          setIframeLoading(true);
+                          setModalMode('trailer'); 
+                      }
+                      else showToast(t.notFound, 'error'); 
+                   }}>
+                      <img src={`${IMAGE_ORIGINAL}${movie.backdrop_path}`} className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-30 transition-opacity duration-500" alt="" draggable="false" />
+                      {tKey && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                          <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-black/60 border border-white/20 flex items-center justify-center group-hover:scale-110 group-hover:bg-[#a855f7]/90 group-hover:border-[#a855f7] transition-all shadow-[0_0_30px_rgba(0,0,0,0.5)] backdrop-blur-sm">
+                            <Play className="w-8 h-8 md:w-10 md:h-10 fill-white text-white ml-1 md:ml-1.5 opacity-80 group-hover:opacity-100" />
+                          </div>
+                          <span className="mt-4 text-[10px] md:text-xs font-bold text-white/70 uppercase tracking-[0.2em] group-hover:text-white transition-colors">{t.trailer}</span>
+                        </div>
+                      )}
+                   </div>
+                );
+              }
+              return <div className="absolute inset-0 bg-black flex items-center justify-center text-white/30"><Film className="w-16 h-16" /></div>;
+            }
+
+            if (modalMode === 'trailer') {
+              const tKey = getTrailerKey();
               if (tKey) {
                 return (
                   <>
-                    <div className="absolute inset-0 bg-transparent z-10 pointer-events-none"></div>
-                    <iframe className="absolute inset-0 w-full h-full bg-black" src={`https://www.youtube.com/embed/${tKey}?autoplay=1&controls=1&modestbranding=1&rel=0&showinfo=0&disablekb=1&mute=1&loop=1&playlist=${tKey}`} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-0">
+                          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#a855f7]"></div>
+                      </div>
+                      <iframe key={`trailer-${tKey}`} className={`absolute inset-0 w-full h-full bg-black z-10 transition-opacity duration-500 ${iframeLoading ? 'opacity-0' : 'opacity-100'}`} src={`https://www.youtube.com/embed/${tKey}?autoplay=1&controls=1&modestbranding=1&rel=0&playsinline=1`} onLoad={() => setIframeLoading(false)} allow="autoplay; encrypted-media; picture-in-picture" frameBorder="0" allowFullScreen></iframe>
                   </>
                 );
-              } else if (movie.backdrop_path) {
-                return <img src={`${IMAGE_ORIGINAL}${movie.backdrop_path}`} className="absolute inset-0 w-full h-full object-cover opacity-60" alt="" />;
               }
-              return <div className="absolute inset-0 bg-black flex items-center justify-center text-white/30"><Film className="w-16 h-16" /></div>;
+              return <div className="absolute inset-0 bg-black flex flex-col items-center justify-center text-white/50"><Clapperboard className="w-12 h-12 mb-2 opacity-50"/><span>{t.notFound}</span></div>;
             }
 
             let iframeSrc = '';
@@ -1232,10 +1355,8 @@
                 iframeSrc = `https://www.youtube.com/embed/${getYoutubeFullKey()}?autoplay=1`;
             } else if (selectedServer === 'vidsrc') {
                 iframeSrc = `https://vidsrc.to/embed/${typeStr}/${movie.id}`;
-            } else if (selectedServer === 'vidsrc_me') {
-                iframeSrc = `https://vidsrc.me/embed/${typeStr}?tmdb=${movie.id}`;
-            } else if (selectedServer === 'superembed') {
-                iframeSrc = `https://multiembed.mov/?video_id=${movie.id}&tmdb=1`;
+            } else if (selectedServer === 'embedsu') {
+                iframeSrc = `https://embed.su/embed/${typeStr}/${movie.id}`;
             } else if (selectedServer === 'archive') {
                 const title = movie.title || movie.name;
                 const suffix = lang === 'fr-FR' ? ' film complet' : ' full movie';
@@ -1248,7 +1369,7 @@
                     <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-0">
                         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#a855f7]"></div>
                     </div>
-                    <iframe className="absolute inset-0 w-full h-full bg-transparent z-10" src={iframeSrc} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+                    <iframe key={iframeSrc} className={`absolute inset-0 w-full h-full bg-transparent z-10 transition-opacity duration-500 ${iframeLoading ? 'opacity-0' : 'opacity-100'}`} src={iframeSrc} onLoad={() => setIframeLoading(false)} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
                 </>
             );
           };
@@ -1258,7 +1379,7 @@
                 <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#a855f7]/10 rounded-full blur-[150px] pointer-events-none z-0"></div>
                 <div className="fixed inset-0 z-0" onClick={onClose}></div>
 
-                {/* MODAL AVERTISSEMENT (SÉPARÉ ET PRO) */}
+                {/* MODAL AVERTISSEMENT */}
                 {showDisclaimer && (
                   <div className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
                     <div className="bg-[#0a0a0f] border border-[#a855f7]/30 rounded-3xl p-6 md:p-8 max-w-xl w-full shadow-[0_0_50px_rgba(168,85,247,0.2)] animate-in zoom-in duration-300">
@@ -1286,18 +1407,18 @@
                           </div>
                        </div>
 
-                       <label className="flex items-start gap-3 cursor-pointer mb-8 bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition-colors shadow-sm">
+                       <label className="flex items-start gap-3 cursor-pointer mb-8 bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition-colors shadow-sm outline-none">
                           <input type="checkbox" checked={disclaimerAccepted} onChange={(e) => setDisclaimerAccepted(e.target.checked)} className="mt-0.5 w-5 h-5 accent-[#a855f7] cursor-pointer" />
                           <span className="text-white/90 text-xs md:text-sm font-bold leading-tight">{t.disclaimerCheckbox}</span>
                        </label>
 
                        <div className="flex justify-end gap-3 border-t border-white/10 pt-6">
-                          <button onClick={() => setShowDisclaimer(false)} className="px-6 py-3 rounded-xl font-bold text-[11px] uppercase tracking-widest text-white/50 hover:text-white hover:bg-white/5 transition-colors">{t.cancel}</button>
+                          <button onClick={() => setShowDisclaimer(false)} className="px-6 py-3 rounded-xl font-bold text-[11px] uppercase tracking-widest text-white/50 hover:text-white hover:bg-white/5 transition-colors outline-none">{t.cancel}</button>
                           <button disabled={!disclaimerAccepted} onClick={() => {
                               setShowDisclaimer(false);
                               setSelectedServer(pendingServer);
                               setModalMode('play');
-                          }} className="px-8 py-3 bg-[#a855f7] text-white rounded-xl font-black text-[11px] uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed hover:bg-purple-500 transition-all shadow-[0_0_20px_rgba(168,85,247,0.4)]">{t.acceptPlay}</button>
+                          }} className="px-8 py-3 bg-[#a855f7] text-white rounded-xl font-black text-[11px] uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed hover:bg-purple-500 transition-all shadow-[0_0_20px_rgba(168,85,247,0.4)] outline-none">{t.acceptPlay}</button>
                        </div>
                     </div>
                   </div>
@@ -1305,13 +1426,12 @@
                 
                 <div className="holo-card relative w-full min-h-[100vh] md:min-h-0 md:h-auto max-h-full md:max-h-[90vh] max-w-6xl md:rounded-[2rem] overflow-x-hidden overflow-y-auto shadow-[0_0_80px_rgba(0,0,0,0.9)] border-white/10 animate-in slide-in-from-bottom md:zoom-in duration-300 flex flex-col bg-[#0a0a0f] z-10 md:my-auto my-0">
                     
-                    {/* Barre de Contrôle Pro */}
                     <div className="w-full bg-[#0a0a0f] border-b border-white/5 flex justify-between items-center px-4 md:px-8 py-3 shrink-0 sticky top-0 z-[60] shadow-md">
                         <div className="flex items-center gap-2">
                             <LevelMovieLogo className="w-4 h-4 text-[#a855f7]" />
                             <span className="text-white font-black tracking-[0.2em] text-[12px] uppercase drop-shadow-md">Level<span className="text-[#a855f7]">Movie</span></span>
                         </div>
-                        <button onClick={onClose} className="flex items-center gap-2 px-5 py-2 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl text-[10px] md:text-[11px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all shadow-sm active:scale-95">
+                        <button onClick={onClose} className="flex items-center gap-2 px-5 py-2 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl text-[10px] md:text-[11px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all shadow-sm active:scale-95 outline-none">
                             <X className="w-3 h-3" /> <span>{t.closePlayer}</span>
                         </button>
                     </div>
@@ -1337,35 +1457,38 @@
                         
                         {modalMode === 'play' && (
                           <div className="mb-8 flex flex-col gap-5 bg-black/40 p-5 md:p-6 rounded-2xl border border-white/5 shadow-inner">
-                              <div className="flex justify-between items-center mb-4">
+                              <div className="flex justify-between items-center mb-2">
                                   <span className="text-[11px] font-black text-white/70 uppercase tracking-widest"><Server className="w-4 h-4 inline mr-2 text-[#a855f7]" /> {t.externalSources}</span>
-                                  <button onClick={() => setModalMode('info')} className="text-[10px] font-bold text-white/50 hover:text-white uppercase tracking-widest border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors"><Info className="w-3 h-3 inline mr-1" /> {t.movieInfo}</button>
+                                  <button onClick={() => setModalMode('info')} className="text-[10px] font-bold text-white/50 hover:text-white uppercase tracking-widest border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors outline-none"><Info className="w-3 h-3 inline mr-1" /> {t.movieInfo}</button>
                               </div>
+                              <p className="text-[10px] text-[#a855f7] mb-2 font-bold uppercase tracking-widest">
+                                  <Info className="w-3 h-3 inline mr-1" /> {t.audioTip}
+                              </p>
                               <div className="flex flex-wrap gap-3">
-                                  {['vidsrc', 'vidsrc_me', 'superembed'].map(srv => (
-                                    <button key={srv} onClick={() => handleServerClick(srv)} className={`px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase transition-all ${selectedServer === srv ? 'bg-[#a855f7] text-white border border-[#a855f7]/30 shadow-[0_0_15px_rgba(168,85,247,0.3)]' : 'bg-white/5 text-white/70 border border-white/10 hover:bg-white/10'}`}>
-                                      {srv === 'vidsrc' ? t.server1 : srv === 'vidsrc_me' ? t.server2 : t.server3}
+                                  {['vidsrc', 'embedsu'].map(srv => (
+                                    <button key={srv} onClick={() => handlePlayRequest(srv)} className={`px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase transition-all outline-none ${selectedServer === srv ? 'bg-[#a855f7] text-white border border-[#a855f7]/30 shadow-[0_0_15px_rgba(168,85,247,0.3)]' : 'bg-white/5 text-white/70 border border-white/10 hover:bg-white/10'}`}>
+                                      {srv === 'vidsrc' ? t.server1 : t.server2}
                                     </button>
                                   ))}
                                   
                                   {/* Domaine Public */}
                                   {(movie.release_date && parseInt(movie.release_date.substring(0, 4)) <= 1970) && (
-                                    <button onClick={() => handleServerClick('archive')} className={`px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase transition-all ${selectedServer === 'archive' ? 'bg-[#a855f7] text-white border border-[#a855f7]/30 shadow-[0_0_15px_rgba(168,85,247,0.3)]' : 'bg-white/5 text-white/70 border border-white/10 hover:bg-white/10'}`}>
+                                    <button onClick={() => handlePlayRequest('archive')} className={`px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase transition-all outline-none ${selectedServer === 'archive' ? 'bg-[#a855f7] text-white border border-[#a855f7]/30 shadow-[0_0_15px_rgba(168,85,247,0.3)]' : 'bg-white/5 text-white/70 border border-white/10 hover:bg-white/10'}`}>
                                       <Library className="w-3 h-3 inline mr-1 text-gray-400" /> {t.publicDomainDirect}
                                     </button>
                                   )}
                                   
-                                  {/* Youtube Full */}
+                                  {/* Serveur Direct (HD) */}
                                   {getYoutubeFullKey() && (
-                                    <button onClick={() => handleServerClick('youtube_full')} className={`ml-auto px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase transition-all ${selectedServer === 'youtube_full' ? 'bg-red-600 text-white border border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.4)]' : 'bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500 hover:text-white'}`}>
-                                      <Youtube className="w-3 h-3 inline mr-1" /> {t.youtubeFull}
+                                    <button onClick={() => handlePlayRequest('youtube_full')} className={`ml-auto px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase transition-all outline-none ${selectedServer === 'youtube_full' ? 'bg-[#a855f7] text-white border border-[#a855f7]/50 shadow-[0_0_15px_rgba(168,85,247,0.4)]' : 'bg-white/5 text-white/70 border border-white/20 hover:bg-white/10'}`}>
+                                      <Clapperboard className="w-3 h-3 inline mr-1 text-[#a855f7]" /> {t.youtubeFull}
                                     </button>
                                   )}
                               </div>
                           </div>
                         )}
 
-                        {modalMode === 'info' && details && (
+                        {(modalMode === 'info' || modalMode === 'trailer') && details && (
                           <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
                               <div className="flex-1">
                                   <h2 className="text-3xl md:text-5xl font-black mb-2 text-white uppercase tracking-tighter drop-shadow-lg leading-tight">
@@ -1395,8 +1518,8 @@
                                       <h4 className="text-white/50 text-[10px] md:text-xs uppercase font-bold tracking-widest mb-3 flex items-center gap-2"><Play className="w-4 h-4 text-green-400" /> {t.legalWatch}</h4>
                                       <div className="flex flex-wrap gap-3">
                                         {getProviders().unique.slice(0,8).map(p => (
-                                          <a key={p.provider_id} href={getProviders().link} target="_blank" rel="noreferrer" className="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-4 py-2 transition-all hover:scale-105 active:scale-95 no-underline shadow-sm">
-                                              <img src={`https://image.tmdb.org/t/p/w45${p.logo_path}`} className="w-5 h-5 rounded-md shadow-sm" alt="" />
+                                          <a key={p.provider_id} href={getProviders().link} target="_blank" rel="noreferrer" className="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-4 py-2 transition-all hover:scale-105 active:scale-95 no-underline shadow-sm outline-none">
+                                              <img src={`https://image.tmdb.org/t/p/w45${p.logo_path}`} className="w-5 h-5 rounded-md shadow-sm" alt="" draggable="false"/>
                                               <span className="text-[11px] font-bold text-white">{p.provider_name}</span>
                                           </a>
                                         ))}
@@ -1410,15 +1533,37 @@
                                   )}
 
                                   <div className="flex flex-wrap gap-3 mb-6">
-                                      <button onClick={() => setModalMode('play')} className="flex-1 sm:flex-none items-center justify-center flex gap-2 px-8 py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl text-[11px] md:text-[13px] font-black uppercase tracking-widest hover:opacity-90 transition-all shadow-[0_0_20px_rgba(168,85,247,0.4)] active:scale-95">
+                                      <button onClick={() => handlePlayRequest(selectedServer)} className="flex-1 sm:flex-none items-center justify-center flex gap-2 px-8 py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl text-[11px] md:text-[13px] font-black uppercase tracking-widest hover:opacity-90 transition-all shadow-[0_0_20px_rgba(168,85,247,0.4)] active:scale-95 outline-none">
                                           <Play className="w-4 h-4 fill-white" /> <span>{t.playMovie}</span>
                                       </button>
-                                      <button onClick={() => {
-                                          setModalMode('info');
-                                          const modalHoloCard = document.querySelector('#videoModal .holo-card');
-                                          if (modalHoloCard) modalHoloCard.scrollTo({top: 0, behavior: 'smooth'});
-                                      }} className="flex-1 sm:flex-none items-center justify-center flex gap-2 px-6 py-3.5 bg-white/10 border border-white/20 rounded-xl text-[11px] md:text-[13px] font-bold text-white uppercase tracking-widest hover:bg-white/20 transition-all active:scale-95 backdrop-blur-md opacity-50 cursor-default">
-                                          <Film className="w-4 h-4" /> <span>{t.trailer}</span> {t.inProgress}
+                                      
+                                      <button 
+                                          onClick={() => {
+                                              if (modalMode !== 'trailer') {
+                                                  setIframeLoading(true);
+                                                  setModalMode('trailer');
+                                                  const modalHoloCard = document.querySelector('.holo-card');
+                                                  if (modalHoloCard) modalHoloCard.scrollTo({top: 0, behavior: 'smooth'});
+                                              }
+                                          }} 
+                                          disabled={modalMode === 'trailer'}
+                                          className={`flex-1 sm:flex-none items-center justify-center flex gap-2 px-6 py-3.5 rounded-xl text-[11px] md:text-[13px] font-black uppercase tracking-widest transition-all active:scale-95 outline-none ${
+                                              modalMode === 'trailer' 
+                                              ? 'bg-[#a855f7]/10 border border-[#a855f7]/50 text-[#a855f7] cursor-default shadow-inner' 
+                                              : 'bg-white/5 border border-white/20 text-white hover:bg-white/10 backdrop-blur-md shadow-md'
+                                          }`}>
+                                          {modalMode === 'trailer' ? (
+                                              <>
+                                                  <div className="flex gap-1 items-center justify-center">
+                                                      <div className="w-1.5 h-1.5 bg-[#a855f7] rounded-full animate-bounce"></div>
+                                                      <div className="w-1.5 h-1.5 bg-[#a855f7] rounded-full animate-bounce" style={{animationDelay: "0.1s"}}></div>
+                                                      <div className="w-1.5 h-1.5 bg-[#a855f7] rounded-full animate-bounce" style={{animationDelay: "0.2s"}}></div>
+                                                  </div> 
+                                                  <span>{t.trailerPlaying}</span>
+                                              </>
+                                          ) : (
+                                              <><Clapperboard className="w-4 h-4" /> <span>{t.trailer}</span></>
+                                          )}
                                       </button>
                                   </div>
 
