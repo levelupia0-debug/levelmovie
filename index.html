@@ -37,7 +37,7 @@
           Play, Info, Search, Bell, X, ChevronLeft, ChevronRight, 
           Star, Key, LogOut, Film, Globe, Shield, Network,
           AlertTriangle, CheckCircle, Server, Users, Tags, Building, 
-          MessageSquare, Check, Plus, Share2, Youtube, Library, Bookmark, HardDrive, Filter,
+          MessageSquare, Check, Plus, Share2, Library, Bookmark, HardDrive, Filter,
           Home, Tv, Clapperboard
         } from 'lucide-react';
         import { initializeApp } from 'firebase/app';
@@ -163,10 +163,11 @@
             server2: "Serveur 2 (Global) ⭐",
             server3: "Serveur 3 (Alt)",
             publicDomainDirect: "Domaine Public",
-            youtubeFull: "YouTube Complet",
+            youtubeFull: "Serveur Direct (HD)",
             originalTitle: "Titre Original",
             notSpecified: "Non spécifié",
             inProgress: "(En cours)",
+            trailerPlaying: "Bande-annonce en cours",
             alreadyInList: "Déjà dans vos favoris",
             addToList: "Ajouter à Ma Liste",
             share: "Partager",
@@ -284,10 +285,11 @@
             server2: "Server 2 (Global) ⭐",
             server3: "Server 3 (Alt)",
             publicDomainDirect: "Public Domain",
-            youtubeFull: "Full YouTube",
+            youtubeFull: "Direct Server (HD)",
             originalTitle: "Original Title",
             notSpecified: "Not specified",
             inProgress: "(WIP)",
+            trailerPlaying: "Trailer playing",
             alreadyInList: "Already in favorites",
             addToList: "Add to My List",
             share: "Share",
@@ -1214,17 +1216,35 @@
           const renderIframe = () => {
             if (modalMode === 'info') {
               const tKey = getTrailerKey();
-              if (tKey) {
+              if (movie.backdrop_path) {
                 return (
-                  <>
-                    <div className="absolute inset-0 bg-transparent z-10 pointer-events-none"></div>
-                    <iframe className="absolute inset-0 w-full h-full bg-black" src={`https://www.youtube.com/embed/${tKey}?autoplay=1&controls=1&modestbranding=1&rel=0&showinfo=0&disablekb=1&mute=1&loop=1&playlist=${tKey}`} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
-                  </>
+                   <div className="absolute inset-0 w-full h-full group cursor-pointer bg-black" onClick={() => { 
+                      if (tKey) setModalMode('trailer'); 
+                      else showToast(t.notFound, 'error'); 
+                   }}>
+                      <img src={`${IMAGE_ORIGINAL}${movie.backdrop_path}`} className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-40 transition-opacity duration-500" alt="" />
+                      {tKey && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                          <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-black/60 border border-white/20 flex items-center justify-center group-hover:scale-110 group-hover:bg-[#a855f7]/90 group-hover:border-[#a855f7] transition-all shadow-[0_0_30px_rgba(0,0,0,0.5)] backdrop-blur-sm">
+                            <Play className="w-8 h-8 md:w-10 md:h-10 fill-white text-white ml-1 md:ml-1.5 opacity-80 group-hover:opacity-100" />
+                          </div>
+                          <span className="mt-4 text-[10px] md:text-xs font-bold text-white/70 uppercase tracking-[0.2em] group-hover:text-white transition-colors">{t.trailer}</span>
+                        </div>
+                      )}
+                   </div>
                 );
-              } else if (movie.backdrop_path) {
-                return <img src={`${IMAGE_ORIGINAL}${movie.backdrop_path}`} className="absolute inset-0 w-full h-full object-cover opacity-60" alt="" />;
               }
               return <div className="absolute inset-0 bg-black flex items-center justify-center text-white/30"><Film className="w-16 h-16" /></div>;
+            }
+
+            if (modalMode === 'trailer') {
+              const tKey = getTrailerKey();
+              if (tKey) {
+                return (
+                  <iframe className="absolute inset-0 w-full h-full bg-black z-10" src={`https://www.youtube.com/embed/${tKey}?autoplay=1&controls=1&modestbranding=1&rel=0`} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+                );
+              }
+              return <div className="absolute inset-0 bg-black flex flex-col items-center justify-center text-white/50"><Clapperboard className="w-12 h-12 mb-2 opacity-50"/><span>{t.notFound}</span></div>;
             }
 
             let iframeSrc = '';
@@ -1355,17 +1375,17 @@
                                     </button>
                                   )}
                                   
-                                  {/* Youtube Full */}
+                                  {/* Serveur Direct (HD) */}
                                   {getYoutubeFullKey() && (
-                                    <button onClick={() => handleServerClick('youtube_full')} className={`ml-auto px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase transition-all ${selectedServer === 'youtube_full' ? 'bg-red-600 text-white border border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.4)]' : 'bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500 hover:text-white'}`}>
-                                      <Youtube className="w-3 h-3 inline mr-1" /> {t.youtubeFull}
+                                    <button onClick={() => handleServerClick('youtube_full')} className={`ml-auto px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase transition-all ${selectedServer === 'youtube_full' ? 'bg-[#a855f7] text-white border border-[#a855f7]/50 shadow-[0_0_15px_rgba(168,85,247,0.4)]' : 'bg-white/5 text-white/70 border border-white/20 hover:bg-white/10'}`}>
+                                      <Clapperboard className="w-3 h-3 inline mr-1 text-[#a855f7]" /> {t.youtubeFull}
                                     </button>
                                   )}
                               </div>
                           </div>
                         )}
 
-                        {modalMode === 'info' && details && (
+                        {(modalMode === 'info' || modalMode === 'trailer') && details && (
                           <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
                               <div className="flex-1">
                                   <h2 className="text-3xl md:text-5xl font-black mb-2 text-white uppercase tracking-tighter drop-shadow-lg leading-tight">
@@ -1413,12 +1433,33 @@
                                       <button onClick={() => setModalMode('play')} className="flex-1 sm:flex-none items-center justify-center flex gap-2 px-8 py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl text-[11px] md:text-[13px] font-black uppercase tracking-widest hover:opacity-90 transition-all shadow-[0_0_20px_rgba(168,85,247,0.4)] active:scale-95">
                                           <Play className="w-4 h-4 fill-white" /> <span>{t.playMovie}</span>
                                       </button>
-                                      <button onClick={() => {
-                                          setModalMode('info');
-                                          const modalHoloCard = document.querySelector('#videoModal .holo-card');
-                                          if (modalHoloCard) modalHoloCard.scrollTo({top: 0, behavior: 'smooth'});
-                                      }} className="flex-1 sm:flex-none items-center justify-center flex gap-2 px-6 py-3.5 bg-white/10 border border-white/20 rounded-xl text-[11px] md:text-[13px] font-bold text-white uppercase tracking-widest hover:bg-white/20 transition-all active:scale-95 backdrop-blur-md opacity-50 cursor-default">
-                                          <Film className="w-4 h-4" /> <span>{t.trailer}</span> {t.inProgress}
+                                      
+                                      <button 
+                                          onClick={() => {
+                                              if (modalMode !== 'trailer') {
+                                                  setModalMode('trailer');
+                                                  const modalHoloCard = document.querySelector('.holo-card');
+                                                  if (modalHoloCard) modalHoloCard.scrollTo({top: 0, behavior: 'smooth'});
+                                              }
+                                          }} 
+                                          disabled={modalMode === 'trailer'}
+                                          className={`flex-1 sm:flex-none items-center justify-center flex gap-2 px-6 py-3.5 rounded-xl text-[11px] md:text-[13px] font-black uppercase tracking-widest transition-all active:scale-95 ${
+                                              modalMode === 'trailer' 
+                                              ? 'bg-[#a855f7]/10 border border-[#a855f7]/50 text-[#a855f7] cursor-default shadow-inner' 
+                                              : 'bg-white/5 border border-white/20 text-white hover:bg-white/10 backdrop-blur-md shadow-md'
+                                          }`}>
+                                          {modalMode === 'trailer' ? (
+                                              <>
+                                                  <div className="flex gap-1 items-center justify-center">
+                                                      <div className="w-1.5 h-1.5 bg-[#a855f7] rounded-full animate-bounce"></div>
+                                                      <div className="w-1.5 h-1.5 bg-[#a855f7] rounded-full animate-bounce" style={{animationDelay: "0.1s"}}></div>
+                                                      <div className="w-1.5 h-1.5 bg-[#a855f7] rounded-full animate-bounce" style={{animationDelay: "0.2s"}}></div>
+                                                  </div> 
+                                                  <span>{t.trailerPlaying}</span>
+                                              </>
+                                          ) : (
+                                              <><Clapperboard className="w-4 h-4" /> <span>{t.trailer}</span></>
+                                          )}
                                       </button>
                                   </div>
 
