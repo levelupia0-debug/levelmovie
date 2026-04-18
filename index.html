@@ -1,3 +1,4 @@
+html
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -68,6 +69,52 @@ const OperaLogoSVG = ({ className }) => (
 <svg className={className} viewBox="0 0 512 512" fill="#FF1B2D"><path d="M255.8 48C141 48 48 141.2 48 256s93 208 207.8 208c115 0 208.2-93.2 208.2-208S370.8 48 255.8 48zm0 338.5c-56 0-101.2-58.5-101.2-130.5 0-72 45.2-130.5 101.2-130.5 56 0 101.2 58.5 101.2 130.5 0 72-45.2 130.5-101.2 130.5z"/></svg>
 );
 
+const ChromeLogoSVG = ({ className }) => (
+<svg viewBox="0 0 48 48" className={className} xmlns="http://www.w3.org/2000/svg">
+<path fill="#4CAF50" d="M24 24L10.8 1.8C14.7.6 19.3 0 24 0c11.9 0 21.8 8.6 23.7 20H24v4z"/>
+<path fill="#FFC107" d="M24 24H47.7c.2 1.3.3 2.6.3 4 0 13.3-10.7 24-24 24-4.8 0-9.2-1.4-13.1-3.8L24 24z"/>
+<path fill="#F44336" d="M24 24L10.9 44.2C4.2 39.4 0 32.2 0 24c0-4.6 1.3-8.9 3.5-12.6L24 24z"/>
+<circle fill="#1976D2" cx="24" cy="24" r="11"/>
+<circle fill="#FFF" cx="24" cy="24" r="9"/>
+<circle fill="#1976D2" cx="24" cy="24" r="7"/>
+</svg>
+);
+
+const SafariLogoSVG = ({ className }) => (
+<svg viewBox="0 0 48 48" className={className} xmlns="http://www.w3.org/2000/svg">
+<circle fill="#03A9F4" cx="24" cy="24" r="21"/>
+<path fill="#FFF" d="M24 4C13 4 4 13 4 24s9 20 20 20 20-9 20-20S35 4 24 4zm0 38c-9.9 0-18-8.1-18-18S14.1 6 24 6s18 8.1 18 18-8.1 18-18 18z"/>
+<path fill="#FF9800" d="M25 10l-4 12 15 5-11-17z"/>
+<path fill="#F44336" d="M21 22l-15-5 11 17 4-12z"/>
+<circle fill="#FFF" cx="24" cy="24" r="3"/>
+<circle fill="#212121" cx="24" cy="24" r="1.5"/>
+</svg>
+);
+
+const FirefoxLogoSVG = ({ className }) => (
+<svg viewBox="0 0 48 48" className={className} xmlns="http://www.w3.org/2000/svg">
+<path fill="#FF9800" d="M43.7 16.5c-1-2.9-2.7-5.5-4.8-7.7.4 3.7-.4 7.6-2.5 10.9-1.9 3.1-4.7 5.5-8.1 6.8 1.8-2.6 2.3-5.9 1.4-8.9-3.2-.2-6.3 1.2-8.2 3.8-1 1.4-1.6 3.1-1.7 4.8-2.6-1.5-4.6-4.1-5.4-7.1-.6 2.6-.2 5.4 1 7.7 1.4 2.5 3.6 4.4 6.3 5.4 1.7.6 3.5.9 5.3.8 2.7-.2 5.3-1.1 7.6-2.6.8-.5 1.5-1.1 2.2-1.7.3 1.2.4 2.4.2 3.6-.5 3.3-2.3 6.2-4.9 8.1-2.6 1.9-5.7 2.8-8.9 2.5-3.2-.3-6.2-1.7-8.4-4C7.4 36.3 6 32.5 6.3 28.6c.3-3.6 1.9-6.9 4.4-9.3.4-.4.8-.8 1.3-1.1-1.1.9-2 2.1-2.7 3.4-.6-1.5-.9-3.1-.8-4.7C4.6 19.3 2 24.3 2.1 29.6c.1 4.7 2.1 9.2 5.5 12.3C11 45 15.6 46.8 20.3 46.8c5.4 0 10.6-2.2 14.3-6.1 4.1-4.3 6.2-10.2 5.9-16.2-.1-2.8-.8-5.5-2.1-7.9z"/>
+<path fill="#03A9F4" d="M24 10.8c-2.3 0-4.6.6-6.5 1.7.7-.8 1.4-1.5 2.3-2.1C21 9.4 22.5 9 24 9c2.5 0 4.9.8 6.9 2.2-1.3-.9-2.9-1.4-4.5-1.4h-2.4z"/>
+</svg>
+);
+
+const EdgeLogoSVG = ({ className }) => (
+<svg viewBox="0 0 48 48" className={className} xmlns="http://www.w3.org/2000/svg">
+<path fill="#03A9F4" d="M2.3 23c.3-3.9 1.9-7.5 4.6-10.2C10.7 8.9 16.3 7 22.1 7.6c3.2.3 6.3 1.5 8.9 3.5.3-1.1.5-2.2.5-3.4 0-1.2-.2-2.3-.5-3.4-3.5-1.9-7.5-2.9-11.6-2.8C9.5 1.6 1.6 9.4 1.5 19.3c0 1.2.1 2.5.4 3.7.1 0 .3 0 .4 0z"/>
+<path fill="#4CAF50" d="M46.4 22.5c-.3-4-2-7.8-4.8-10.6-3.8-3.9-9.3-5.8-14.8-5.3-3.3.3-6.5 1.6-9.1 3.7.8-.9 1.7-1.7 2.7-2.3 4.2-2.6 9.3-3.3 14.2-1.9 4.3 1.2 8 4 10.4 7.9 1.1 1.8 1.8 3.8 2.2 5.9-.3 1-.5 1.8-.8 2.6z"/>
+<path fill="#0277BD" d="M24 13.5c-6.1 0-11.5 4.3-12.8 10.3h15.9c-.3-1.1-.9-2.1-1.7-2.9-1.6-1.6-3.7-2.4-5.9-2.4-2.8 0-5.3 1.3-6.8 3.5-.8 1.2-1.3 2.6-1.3 4.1H4c0-4.6 1.8-9 5.2-12.4 3.4-3.4 8.2-5.4 13-5.4 5.3 0 10.3 2 14.1 5.7.8.8 1.5 1.7 2.1 2.6-3.5-2-7.5-3.1-11.6-3.1h-2.8z"/>
+<path fill="#01579B" d="M24 16.5c-4.4 0-8.2 3.1-9.3 7.3h10.9c-.2-.8-.6-1.5-1.2-2.1-1.1-1.1-2.6-1.7-4.2-1.7z"/>
+</svg>
+);
+
+const BraveLogoSVG = ({ className }) => (
+<svg viewBox="0 0 48 48" className={className} xmlns="http://www.w3.org/2000/svg">
+<path fill="#FF5722" d="M42.2 12l-18.2-9-18.2 9v14.4C5.8 36.1 13.6 44 24 48c10.4-4 18.2-11.9 18.2-21.6V12z"/>
+<path fill="#FFF" d="M33 19l-9-4.5-9 4.5v7.2c0 5 3.9 8.9 9 10.8 5.1-1.9 9-5.8 9-10.8V19z"/>
+<path fill="#FF5722" d="M29 22l-5-2.5-5 2.5v4c0 2.8 2.2 5 5 6 2.8-1 5-3.2 5-6v-4z"/>
+</svg>
+);
+
 // --- FONCTION UTILITAIRE : COPIE PRESSE-PAPIERS COMPATIBLE IFRAME ---
 const copyToClipboardFallback = (text) => {
 const textArea = document.createElement("textarea");
@@ -77,12 +124,30 @@ textArea.style.opacity = "0";
 document.body.appendChild(textArea);
 textArea.focus();
 textArea.select();
-try {
-document.execCommand('copy');
-} catch (err) {
-console.error('Impossible de copier le texte', err);
-}
+try { document.execCommand('copy'); } catch (err) {}
 document.body.removeChild(textArea);
+};
+
+// --- FONCTION DE DÉTECTION INTELLIGENTE DU NAVIGATEUR ---
+const getBrowserData = () => {
+    const ua = navigator.userAgent;
+    if (/Brave/i.test(ua) || (navigator.brave && navigator.brave.isBrave)) return { name: 'Brave', id: 'brave' };
+    if (/Edg/i.test(ua)) return { name: 'Edge', id: 'edge' };
+    if (/Firefox|FxiOS/i.test(ua)) return { name: 'Firefox', id: 'firefox' };
+    if (/Chrome|CriOS/i.test(ua)) return { name: 'Chrome', id: 'chrome' };
+    if (/Safari/i.test(ua)) return { name: 'Safari', id: 'safari' };
+    return { name: null, id: null };
+};
+
+const renderBrowserIcon = (id, className) => {
+    switch(id) {
+        case 'chrome': return <ChromeLogoSVG className={className} />;
+        case 'safari': return <SafariLogoSVG className={className} />;
+        case 'firefox': return <FirefoxLogoSVG className={className} />;
+        case 'edge': return <EdgeLogoSVG className={className} />;
+        case 'brave': return <BraveLogoSVG className={className} />;
+        default: return <Globe className={className} />;
+    }
 };
 
 // --- CONFIGURATION FIREBASE (Écosystème LevelUp) ---
@@ -243,7 +308,11 @@ step3Desc: "Copiez le lien de l'application ci-dessous et ouvrez-le dans le navi
 copyLinkBtn: "Copier le lien",
 downloadApple: "App Store",
 downloadAndroid: "Play Store",
-skipBrowserWall: "Continuer avec mon navigateur actuel (Non recommandé)"
+continueWithBrowser: "Continuer avec",
+continueWithDefault: "Continuer avec mon navigateur",
+skipWarningPart1: "En continuant avec ",
+skipWarningPart2: ", vous pourriez rencontrer des publicités externes. Vous gardez la possibilité d'installer Opera plus tard pour une expérience optimale.",
+defaultBrowserName: "votre navigateur"
 },
 en: {
 appTitle: "LevelMovie",
@@ -379,7 +448,11 @@ step3Desc: "Copy the application link below and open it in the Opera browser to 
 copyLinkBtn: "Copy Link",
 downloadApple: "App Store",
 downloadAndroid: "Play Store",
-skipBrowserWall: "Continue with current browser (Not recommended)"
+continueWithBrowser: "Continue with",
+continueWithDefault: "Continue with current browser",
+skipWarningPart1: "By continuing with ",
+skipWarningPart2: ", you may encounter external ads. You can always install Opera later for an optimal experience.",
+defaultBrowserName: "your browser"
 }
 };
 
@@ -559,7 +632,7 @@ await setDoc(doc(db, "artifacts", APP_ID, "users", user.uid, "preferences", "set
 } catch(e) {}
 };
 
-// --- ACTIONS LANGUE / FILTRES (BOUTONS RÉPARÉS) ---
+// --- ACTIONS LANGUE / FILTRES ---
 const handleLangToggle = () => {
 const newLang = lang === 'fr' ? 'en' : 'fr';
 setLang(newLang);
@@ -707,7 +780,14 @@ setModalMode(mode);
 addToHistory(movie);
 };
 
+// --- NAVIGATION & RAFRAÎCHISSEMENT INTELLIGENT ---
 const handleNavCategory = (cat) => {
+// Si on clique sur la catégorie active, on génère un nouveau seed pour rafraîchir les films affichés
+if (currentCategory === cat && (cat === 'home' || cat === 'movie' || cat === 'tv')) {
+    setPageSeed(Math.floor(Math.random() * 5) + 1);
+} else {
+    setPageSeed(1);
+}
 setCurrentCategory(cat);
 setSearchQuery('');
 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -721,40 +801,41 @@ const rowsConfig = [];
 const buildUrl = (base) => `${base}?api_key=${API_KEY}&language=${langCode}${langFilter}`;
 const buildUrlNoFilter = (base) => `${base}?api_key=${API_KEY}&language=${langCode}`;
 
+// On ajoute 'shuffle: true' aux catégories génériques pour diversifier l'affichage !
 if (currentCategory === 'home' || currentCategory === 'movie') {
 rowsConfig.push(
-{ title: t.trending, url: buildUrlNoFilter('/trending/movie/week'), large: true },
-{ title: t.frenchCinema, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_spoken_languages=fr&sort_by=popularity.desc`, large: false },
-{ title: t.upcoming, url: buildUrl('/movie/upcoming'), large: false },
-{ title: t.nowPlaying, url: buildUrl('/movie/now_playing'), large: false },
-{ title: t.topRated, url: buildUrl('/movie/top_rated'), large: false },
-{ title: t.freeVOD, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_watch_monetization_types=free&watch_region=FR&sort_by=popularity.desc${langFilter}`, large: false },
-{ title: t.publicDomain, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&primary_release_date.lte=1970-01-01&sort_by=vote_average.desc&vote_count.gte=200${langFilter}`, large: true },
-{ title: t.asianDrama, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_original_language=ko`, large: false },
-{ title: t.animeManga, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=16&with_original_language=ja`, large: false },
-{ title: t.bollywood, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_original_language=hi`, large: false },
-{ title: t.action, url: buildUrl('/discover/movie') + '&with_genres=28', large: false },
-{ title: t.martialArts, url: buildUrl('/discover/movie') + '&with_genres=28&with_keywords=779', large: false },
-{ title: t.scifi, url: buildUrl('/discover/movie') + '&with_genres=878', large: false },
-{ title: t.comedy, url: buildUrl('/discover/movie') + '&with_genres=35', large: false },
-{ title: t.horror, url: buildUrl('/discover/movie') + '&with_genres=27', large: false },
-{ title: t.romance, url: buildUrl('/discover/movie') + '&with_genres=10749', large: false },
-{ title: t.docs, url: buildUrl('/discover/movie') + '&with_genres=99', large: false }
+{ title: t.trending, url: buildUrlNoFilter('/trending/movie/week'), large: true, shuffle: false },
+{ title: t.frenchCinema, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_spoken_languages=fr&sort_by=popularity.desc`, large: false, shuffle: true },
+{ title: t.upcoming, url: buildUrl('/movie/upcoming'), large: false, shuffle: false },
+{ title: t.nowPlaying, url: buildUrl('/movie/now_playing'), large: false, shuffle: false },
+{ title: t.topRated, url: buildUrl('/movie/top_rated'), large: false, shuffle: false },
+{ title: t.freeVOD, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_watch_monetization_types=free&watch_region=FR&sort_by=popularity.desc${langFilter}`, large: false, shuffle: true },
+{ title: t.publicDomain, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&primary_release_date.lte=1970-01-01&sort_by=vote_average.desc&vote_count.gte=200${langFilter}`, large: true, shuffle: true },
+{ title: t.asianDrama, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_original_language=ko`, large: false, shuffle: true },
+{ title: t.animeManga, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=16&with_original_language=ja`, large: false, shuffle: true },
+{ title: t.bollywood, url: `/discover/movie?api_key=${API_KEY}&language=${langCode}&with_original_language=hi`, large: false, shuffle: true },
+{ title: t.action, url: buildUrl('/discover/movie') + '&with_genres=28', large: false, shuffle: true },
+{ title: t.martialArts, url: buildUrl('/discover/movie') + '&with_genres=28&with_keywords=779', large: false, shuffle: true },
+{ title: t.scifi, url: buildUrl('/discover/movie') + '&with_genres=878', large: false, shuffle: true },
+{ title: t.comedy, url: buildUrl('/discover/movie') + '&with_genres=35', large: false, shuffle: true },
+{ title: t.horror, url: buildUrl('/discover/movie') + '&with_genres=27', large: false, shuffle: true },
+{ title: t.romance, url: buildUrl('/discover/movie') + '&with_genres=10749', large: false, shuffle: true },
+{ title: t.docs, url: buildUrl('/discover/movie') + '&with_genres=99', large: false, shuffle: true }
 );
 } else if (currentCategory === 'tv') {
 rowsConfig.push(
-{ title: t.trending, url: buildUrlNoFilter('/trending/tv/week'), large: true },
-{ title: t.frenchSeries, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_spoken_languages=fr&sort_by=popularity.desc`, large: false },
-{ title: t.asianDrama, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_original_language=ko`, large: false },
-{ title: t.animeJp, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=16&with_original_language=ja`, large: false },
-{ title: t.topRated, url: buildUrl('/tv/top_rated'), large: false },
-{ title: t.action, url: buildUrl('/discover/tv') + '&with_genres=10759', large: false },
-{ title: t.comedy, url: buildUrl('/discover/tv') + '&with_genres=35', large: false },
-{ title: t.crime, url: buildUrl('/discover/tv') + '&with_genres=80', large: false },
-{ title: t.dramaPassion, url: buildUrl('/discover/tv') + '&with_genres=18', large: false },
-{ title: t.mystery, url: buildUrl('/discover/tv') + '&with_genres=9648', large: false },
-{ title: t.sciFiFantasy, url: buildUrl('/discover/tv') + '&with_genres=10765', large: false },
-{ title: t.docs, url: buildUrl('/discover/tv') + '&with_genres=99', large: false }
+{ title: t.trending, url: buildUrlNoFilter('/trending/tv/week'), large: true, shuffle: false },
+{ title: t.frenchSeries, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_spoken_languages=fr&sort_by=popularity.desc`, large: false, shuffle: true },
+{ title: t.asianDrama, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_original_language=ko`, large: false, shuffle: true },
+{ title: t.animeJp, url: `/discover/tv?api_key=${API_KEY}&language=${langCode}&with_genres=16&with_original_language=ja`, large: false, shuffle: true },
+{ title: t.topRated, url: buildUrl('/tv/top_rated'), large: false, shuffle: false },
+{ title: t.action, url: buildUrl('/discover/tv') + '&with_genres=10759', large: false, shuffle: true },
+{ title: t.comedy, url: buildUrl('/discover/tv') + '&with_genres=35', large: false, shuffle: true },
+{ title: t.crime, url: buildUrl('/discover/tv') + '&with_genres=80', large: false, shuffle: true },
+{ title: t.dramaPassion, url: buildUrl('/discover/tv') + '&with_genres=18', large: false, shuffle: true },
+{ title: t.mystery, url: buildUrl('/discover/tv') + '&with_genres=9648', large: false, shuffle: true },
+{ title: t.sciFiFantasy, url: buildUrl('/discover/tv') + '&with_genres=10765', large: false, shuffle: true },
+{ title: t.docs, url: buildUrl('/discover/tv') + '&with_genres=99', large: false, shuffle: true }
 );
 }
 
@@ -779,106 +860,118 @@ return (
 
 // --- ÉCRAN DE BLOCAGE OFFICIEL (FORCER OPERA) ---
 if (!isAllowedBrowser && !showSplash && !hasSkippedBrowserWall) {
-return (
-<div className="bg-[#060608] flex items-center justify-center min-h-[100dvh] p-3 sm:p-8 fixed inset-0 z-[6000] overflow-hidden">
-<style>{globalStyles}</style>
+    const browserData = getBrowserData();
 
-{/* Bouton de traduction (Ajouté) */}
-<button
-onClick={handleLangToggle}
-className="absolute top-4 right-4 md:top-6 md:right-6 flex items-center justify-center min-w-[60px] gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 md:px-4 md:py-2 rounded-full transition-all text-white/70 hover:text-white text-[10px] md:text-[11px] font-bold uppercase tracking-widest backdrop-blur-md z-[7000] shadow-lg outline-none"
->
-<Globe className="w-3 h-3 md:w-4 md:h-4 text-[#a855f7]" /> {lang === 'fr' ? 'EN' : 'FR'}
-</button>
+    return (
+    <div className="bg-[#060608] flex items-center justify-center min-h-[100dvh] p-3 sm:p-8 fixed inset-0 z-[6000] overflow-hidden">
+    <style>{globalStyles}</style>
 
-{/* Ambiances lumineuses de fond (très subtiles) */}
-<div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#a855f7]/10 rounded-full blur-[120px] pointer-events-none"></div>
-<div className="fixed bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-red-600/5 rounded-full blur-[120px] pointer-events-none"></div>
+    {/* Bouton de traduction */}
+    <button
+    onClick={handleLangToggle}
+    className="absolute top-4 right-4 md:top-6 md:right-6 flex items-center justify-center min-w-[60px] gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 md:px-4 md:py-2 rounded-full transition-all text-white/70 hover:text-white text-[10px] md:text-[11px] font-bold uppercase tracking-widest backdrop-blur-md z-[7000] shadow-lg outline-none"
+    >
+    <Globe className="w-3 h-3 md:w-4 md:h-4 text-[#a855f7]" /> {lang === 'fr' ? 'EN' : 'FR'}
+    </button>
 
-{/* TOASTS */}
-<div className="fixed top-4 right-4 md:top-6 md:right-6 z-[9999] flex flex-col gap-3 pointer-events-none items-end mt-12 md:mt-16">
-{toasts.map(toast => (
-<div key={toast.id} className="flex items-center gap-3 p-3 rounded-2xl backdrop-blur-3xl border shadow-2xl transition-all duration-500 animate-in slide-in-from-right fade-in border-green-500/30 bg-[#0a0a0f]/95 text-green-50 min-w-[250px] pointer-events-auto">
-<CheckCircle className="w-4 h-4 text-green-400" /> <span className="text-[11px] font-bold tracking-wide">{toast.msg}</span>
-</div>
-))}
-</div>
+    {/* Ambiances lumineuses de fond */}
+    <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#a855f7]/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div className="fixed bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-red-600/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-<div className="w-full max-w-lg z-10 flex flex-col animate-in fade-in slide-in-from-bottom-8 duration-700 py-4 h-full max-h-[100dvh] justify-center">
+    {/* TOASTS */}
+    <div className="fixed top-4 right-4 md:top-6 md:right-6 z-[9999] flex flex-col gap-3 pointer-events-none items-end mt-12 md:mt-16">
+    {toasts.map(toast => (
+    <div key={toast.id} className="flex items-center gap-3 p-3 rounded-2xl backdrop-blur-3xl border shadow-2xl transition-all duration-500 animate-in slide-in-from-right fade-in border-green-500/30 bg-[#0a0a0f]/95 text-green-50 min-w-[250px] pointer-events-auto">
+    <CheckCircle className="w-4 h-4 text-green-400" /> <span className="text-[11px] font-bold tracking-wide">{toast.msg}</span>
+    </div>
+    ))}
+    </div>
 
-<div className="flex justify-center mb-3 md:mb-6 relative shrink-0">
-<div className="absolute inset-0 bg-red-500/20 blur-xl rounded-full scale-125"></div>
-<OperaLogoSVG className="w-12 h-12 md:w-16 md:h-16 relative z-10 drop-shadow-[0_0_15px_rgba(255,27,45,0.4)]" />
-</div>
+    <div className="w-full max-w-lg z-10 flex flex-col animate-in fade-in slide-in-from-bottom-8 duration-700 py-4 h-full max-h-[100dvh] justify-center">
 
-<h1 className="text-xl md:text-3xl font-black text-center mb-1.5 md:mb-3 tracking-tight text-white drop-shadow-md shrink-0">
-<span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60">{t.browserWallTitle}</span>
+    <div className="flex justify-center mb-3 md:mb-6 relative shrink-0">
+    <div className="absolute inset-0 bg-red-500/20 blur-xl rounded-full scale-125"></div>
+    <OperaLogoSVG className="w-12 h-12 md:w-16 md:h-16 relative z-10 drop-shadow-[0_0_15px_rgba(255,27,45,0.4)]" />
+    </div>
+
+    <h1 className="text-xl md:text-3xl font-black text-center mb-1.5 md:mb-3 tracking-tight text-white drop-shadow-md shrink-0">
+    <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60">{t.browserWallTitle}</span>
 </h1>
-<p className="text-center text-white/60 text-[10px] md:text-xs mb-4 md:mb-8 max-w-sm mx-auto leading-snug px-2 shrink-0">
-{t.browserWallDesc}
-</p>
+    <p className="text-center text-white/60 text-[10px] md:text-xs mb-4 md:mb-8 max-w-sm mx-auto leading-snug px-2 shrink-0">
+    {t.browserWallDesc}
+    </p>
 
-{/* Étapes (Design Type iOS / Widget) ultra-compacté pour mobile */}
-<div className="space-y-2.5 md:space-y-4 shrink-0">
-   
-{/* Étape 1 */}
-<div className="bg-white/[0.03] border border-white/10 rounded-2xl md:rounded-[2rem] p-3.5 md:p-5 backdrop-blur-xl shadow-lg transition-transform hover:bg-white/[0.05]">
-<div className="flex items-center gap-3 mb-2.5">
-<div className="w-7 h-7 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center font-black text-[11px] md:text-sm border border-white/10 shadow-inner shrink-0">1</div>
-<h3 className="font-bold text-white text-[12px] md:text-[14px] tracking-wide">{t.step1}</h3>
-</div>
-<div className="grid grid-cols-2 gap-2 pl-[2.5rem] md:pl-[3rem]">
-<a href="https://apps.apple.com/app/opera-browser/id1411869974" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-1.5 bg-white text-black hover:bg-gray-200 py-2 md:py-2.5 px-2 rounded-xl text-[9px] md:text-xs font-black transition-all shadow-md active:scale-95 no-underline outline-none">
-<AppleLogoSVG className="w-3.5 h-3.5 md:w-4 md:h-4" /> <span className="truncate">{t.downloadApple}</span>
-</a>
-<a href="https://play.google.com/store/apps/details?id=com.opera.browser" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-1.5 bg-white/10 text-white border border-white/20 hover:bg-white/20 py-2 md:py-2.5 px-2 rounded-xl text-[9px] md:text-xs font-bold transition-all shadow-md active:scale-95 no-underline outline-none">
-<PlayStoreLogoSVG className="w-3.5 h-3.5 md:w-4 md:h-4" /> <span className="truncate">{t.downloadAndroid}</span>
-</a>
-</div>
-</div>
+    {/* Étapes (Design Type iOS / Widget) */}
+    <div className="space-y-2.5 md:space-y-4 shrink-0">
 
-{/* Étape 2 */}
-<div className="bg-white/[0.03] border border-white/10 rounded-2xl md:rounded-[2rem] p-3.5 md:p-5 backdrop-blur-xl shadow-lg transition-transform hover:bg-white/[0.05]">
-<div className="flex items-start gap-3">
-<div className="w-7 h-7 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center font-black text-[11px] md:text-sm border border-white/10 shadow-inner shrink-0">2</div>
-<div>
-<h3 className="font-bold text-white text-[12px] md:text-[14px] tracking-wide mb-0.5 md:mb-1">{t.step2}</h3>
-<p className="text-white/50 text-[9px] md:text-[11px] leading-snug">{t.step2Desc}</p>
-</div>
-</div>
-</div>
+    {/* Étape 1 */}
+    <div className="bg-white/[0.03] border border-white/10 rounded-2xl md:rounded-[2rem] p-3.5 md:p-5 backdrop-blur-xl shadow-lg transition-transform hover:bg-white/[0.05]">
+    <div className="flex items-center gap-3 mb-2.5">
+    <div className="w-7 h-7 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center font-black text-[11px] md:text-sm border border-white/10 shadow-inner shrink-0">1</div>
+    <h3 className="font-bold text-white text-[12px] md:text-[14px] tracking-wide">{t.step1}</h3>
+    </div>
+    <div className="grid grid-cols-2 gap-2 pl-[2.5rem] md:pl-[3rem]">
+    <a href="https://apps.apple.com/app/opera-browser/id1411869974" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-1.5 bg-white text-black hover:bg-gray-200 py-2 md:py-2.5 px-2 rounded-xl text-[9px] md:text-xs font-black transition-all shadow-md active:scale-95 no-underline outline-none">
+    <AppleLogoSVG className="w-3.5 h-3.5 md:w-4 md:h-4" /> <span className="truncate">{t.downloadApple}</span>
+    </a>
+    <a href="https://play.google.com/store/apps/details?id=com.opera.browser" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-1.5 bg-white/10 text-white border border-white/20 hover:bg-white/20 py-2 md:py-2.5 px-2 rounded-xl text-[9px] md:text-xs font-bold transition-all shadow-md active:scale-95 no-underline outline-none">
+    <PlayStoreLogoSVG className="w-3.5 h-3.5 md:w-4 md:h-4" /> <span className="truncate">{t.downloadAndroid}</span>
+    </a>
+    </div>
+    </div>
 
-{/* Étape 3 */}
-<div className="bg-gradient-to-b from-[#a855f7]/10 to-transparent border border-[#a855f7]/30 rounded-2xl md:rounded-[2rem] p-3.5 md:p-5 backdrop-blur-xl shadow-[0_0_30px_rgba(168,85,247,0.1)]">
-<div className="flex items-start gap-3 mb-2 md:mb-3">
-<div className="w-7 h-7 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-[#a855f7] to-[#8b5cf6] flex items-center justify-center font-black text-white text-[11px] md:text-sm shadow-[0_0_15px_rgba(168,85,247,0.5)] shrink-0">3</div>
-<div>
-<h3 className="font-bold text-white text-[12px] md:text-[14px] tracking-wide mb-0.5 md:mb-1">{t.step3}</h3>
-<p className="text-white/60 text-[9px] md:text-[11px] leading-snug">{t.step3Desc}</p>
-</div>
-</div>
-<div className="pl-[2.5rem] md:pl-[3rem]">
-<div className="flex justify-between items-center bg-black/40 border border-white/10 p-1.5 pl-3 rounded-xl md:rounded-2xl shadow-inner hover:bg-white/5 transition-colors">
-<div className="flex items-center gap-2 md:gap-3">
-<LevelMovieLogo className="w-3.5 h-3.5 md:w-5 md:h-5 text-[#a855f7]" />
-<span className="text-white font-black tracking-widest text-[9px] md:text-[11px] uppercase">LevelMovie</span>
-</div>
-<button onClick={() => { copyToClipboardFallback('https://levelmovie-mu.vercel.app'); showToast(t.linkCopied, 'success'); }} className="bg-[#a855f7] hover:bg-purple-500 text-white px-3 py-2 md:px-5 md:py-3 rounded-lg md:rounded-xl transition-colors flex items-center justify-center text-[9px] md:text-[10px] font-bold tracking-widest uppercase shadow-[0_0_15px_rgba(168,85,247,0.4)] active:scale-95 outline-none shrink-0">
-<Copy className="w-3 h-3 md:w-4 md:h-4 md:mr-1.5"/> <span className="hidden sm:inline">{t.copyLinkBtn}</span>
-</button>
-</div>
-</div>
-</div>
+    {/* Étape 2 */}
+    <div className="bg-white/[0.03] border border-white/10 rounded-2xl md:rounded-[2rem] p-3.5 md:p-5 backdrop-blur-xl shadow-lg transition-transform hover:bg-white/[0.05]">
+    <div className="flex items-start gap-3">
+    <div className="w-7 h-7 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center font-black text-[11px] md:text-sm border border-white/10 shadow-inner shrink-0">2</div>
+    <div>
+    <h3 className="font-bold text-white text-[12px] md:text-[14px] tracking-wide mb-0.5 md:mb-1">{t.step2}</h3>
+    <p className="text-white/50 text-[9px] md:text-[11px] leading-snug">{t.step2Desc}</p>
+    </div>
+    </div>
+    </div>
 
-</div>
+    {/* Étape 3 */}
+    <div className="bg-gradient-to-b from-[#a855f7]/10 to-transparent border border-[#a855f7]/30 rounded-2xl md:rounded-[2rem] p-3.5 md:p-5 backdrop-blur-xl shadow-[0_0_30px_rgba(168,85,247,0.1)]">
+    <div className="flex items-start gap-3 mb-2 md:mb-3">
+    <div className="w-7 h-7 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-[#a855f7] to-[#8b5cf6] flex items-center justify-center font-black text-white text-[11px] md:text-sm shadow-[0_0_15px_rgba(168,85,247,0.5)] shrink-0">3</div>
+    <div>
+    <h3 className="font-bold text-white text-[12px] md:text-[14px] tracking-wide mb-0.5 md:mb-1">{t.step3}</h3>
+    <p className="text-white/60 text-[9px] md:text-[11px] leading-snug">{t.step3Desc}</p>
+    </div>
+    </div>
+    <div className="pl-[2.5rem] md:pl-[3rem]">
+    <div className="flex justify-between items-center bg-black/40 border border-white/10 p-1.5 pl-3 rounded-xl md:rounded-2xl shadow-inner hover:bg-white/5 transition-colors">
+    <div className="flex items-center gap-2 md:gap-3">
+    <LevelMovieLogo className="w-3.5 h-3.5 md:w-5 md:h-5 text-[#a855f7]" />
+    <span className="text-white font-black tracking-widest text-[9px] md:text-[11px] uppercase">LevelMovie</span>
+    </div>
+    <button onClick={() => { copyToClipboardFallback('https://levelmovie-mu.vercel.app'); showToast(t.linkCopied, 'success'); }} className="bg-[#a855f7] hover:bg-purple-500 text-white px-3 py-2 md:px-5 md:py-3 rounded-lg md:rounded-xl transition-colors flex items-center justify-center text-[9px] md:text-[10px] font-bold tracking-widest uppercase shadow-[0_0_15px_rgba(168,85,247,0.4)] active:scale-95 outline-none shrink-0">
+    <Copy className="w-3 h-3 md:w-4 md:h-4 md:mr-1.5"/> <span className="hidden sm:inline">{t.copyLinkBtn}</span>
+    </button>
+    </div>
+    </div>
+    </div>
 
-<button onClick={() => setHasSkippedBrowserWall(true)} className="w-full mt-4 md:mt-6 py-2 md:py-3 text-white/40 hover:text-white/80 text-[9px] md:text-[10px] font-bold uppercase tracking-widest transition-colors outline-none underline underline-offset-4 shrink-0">
-{t.skipBrowserWall}
-</button>
+    </div>
 
-</div>
-</div>
-);
+    <div className="w-full mt-4 md:mt-6 flex flex-col items-center shrink-0">
+        <button onClick={() => setHasSkippedBrowserWall(true)} className="w-full py-3 px-4 flex items-center justify-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-white/80 hover:text-white text-[10px] md:text-[12px] font-bold uppercase tracking-widest transition-all shadow-lg active:scale-95 outline-none">
+            {renderBrowserIcon(browserData.id, "w-5 h-5 md:w-6 md:h-6 drop-shadow-md text-white/60")}
+            <span>
+                {browserData.name ? `${t.continueWithBrowser || "Continuer avec"} ${browserData.name}` : (t.continueWithDefault || "Continuer avec mon navigateur")}
+            </span>
+        </button>
+        <p className="text-[9.5px] md:text-[10.5px] text-white/40 mt-3 text-center max-w-sm leading-relaxed px-2">
+            {t.skipWarningPart1}
+            <strong className="text-white/70">{browserData.name || t.defaultBrowserName}</strong>
+            {t.skipWarningPart2}
+        </p>
+    </div>
+
+    </div>
+    </div>
+    );
 }
 
 if (isLoggingIn) {
@@ -928,7 +1021,7 @@ className="w-full bg-gradient-to-r from-[#8b5cf6] to-[#a855f7] text-white py-4 r
 {isLoadingAuth ? t.verifyLoading : t.verifyKey}
 </button>
 <div className="mt-4 flex justify-center">
-<a href="https://levelupia0-debug.github.io/levelupia/" target="_blank" rel="noreferrer" className="flex items-center justify-center w-full gap-2 px-6 py-4 rounded-xl bg-white/10 border border-white/20 text-[11px] font-black uppercase tracking-[0.1em] text-white/90 hover:text-white hover:bg-white/20 hover:border-[#a855f7] transition-all duration-300 no-underline outline-none shadow-md">
+<a href="https://ecosystem-of-levelup.vercel.app/" target="_blank" rel="noreferrer" className="flex items-center justify-center w-full gap-2 px-6 py-4 rounded-xl bg-white/10 border border-white/20 text-[11px] font-black uppercase tracking-[0.1em] text-white/90 hover:text-white hover:bg-white/20 hover:border-[#a855f7] transition-all duration-300 no-underline outline-none shadow-md">
 <Key className="w-4 h-4 text-[#a855f7]" /> <span>{t.forgotKey}</span>
 </a>
 </div>
@@ -1075,7 +1168,7 @@ return (
 
 {/* AUTRES LIGNES (Catalog complet mondial) */}
 {rowsConfig.map((row, i) => (
-<Row key={i} title={row.title} fetchUrl={row.url} isLarge={row.large} onMovieClick={(m) => openModal(m, 'info')} pageSeed={pageSeed} />
+<Row key={i} title={row.title} fetchUrl={row.url} isLarge={row.large} shuffle={row.shuffle} onMovieClick={(m) => openModal(m, 'info')} pageSeed={pageSeed} />
 ))}
 </main>
 </>
@@ -1097,7 +1190,7 @@ return (
 <h2 className="text-2xl font-black text-white uppercase tracking-widest mb-1 drop-shadow-md">{defaultUserName}</h2>
 <p className="text-xs text-white/50 font-mono mb-4">{userEmail || 'email@inconnu.com'}</p>
 
-<a href="https://levelupia.vercel.app" target="_blank" rel="noreferrer" className="px-5 py-2 bg-white/5 hover:bg-white/10 text-white/80 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/10 transition-colors flex items-center gap-2 no-underline shadow-md hover:border-[#a855f7]/50 outline-none">
+<a href="https://ecosystem-of-levelup.vercel.app/" target="_blank" rel="noreferrer" className="px-5 py-2 bg-white/5 hover:bg-white/10 text-white/80 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/10 transition-colors flex items-center gap-2 no-underline shadow-md hover:border-[#a855f7]/50 outline-none">
 <Star className="w-3 h-3 text-[#a855f7] fill-[#a855f7]" /> {t.ecosystem}
 </a>
 </div>
@@ -1260,7 +1353,7 @@ return (
 }
 
 // --- ROW COMPONENT ---
-function Row({ title, fetchUrl, isLarge, onMovieClick, pageSeed }) {
+function Row({ title, fetchUrl, isLarge, shuffle, onMovieClick, pageSeed }) {
 const [movies, setMovies] = useState([]);
 const rowRef = useRef(null);
 
@@ -1268,7 +1361,8 @@ useEffect(() => {
 const fetchM = async () => {
 try {
 const reqs = [];
-for (let i = 0; i < 4; i++) {
+// Limité à 2 pages par ligne pour alléger la charge et éviter les répétitions lointaines
+for (let i = 0; i < 2; i++) {
 reqs.push(fetch(`${BASE_URL}${fetchUrl}&page=${pageSeed + i}`));
 }
 
@@ -1281,15 +1375,20 @@ allData.forEach(d => {
 if(d.results) combined = [...combined, ...d.results];
 });
 
-const uniqueMovies = Array.from(new Set(combined.map(a => a.id)))
+let uniqueMovies = Array.from(new Set(combined.map(a => a.id)))
 .map(id => combined.find(a => a.id === id))
 .filter(m => m && m.poster_path);
 
-setMovies(uniqueMovies);
+// Mélange intelligent (Shuffle) pour éviter les clones d'une catégorie à l'autre
+if (shuffle) {
+    uniqueMovies = uniqueMovies.sort(() => Math.random() - 0.5);
+}
+
+setMovies(uniqueMovies.slice(0, 30)); // Limité à 30 films par catégorie pour l'esthétique
 } catch(e) {}
 };
 fetchM();
-}, [fetchUrl, pageSeed]);
+}, [fetchUrl, pageSeed, shuffle]);
 
 let isDown = false;
 let startX;
@@ -1838,4 +1937,4 @@ const root = createRoot(rootElement);
 root.render(<App />);
 </script>
 </body>
-</html>
+</html>z
